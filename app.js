@@ -561,9 +561,9 @@
         +   '</div>'
         +   '<div class="draw-actions">'
         +     (st.drawn ? '<button type="button" class="btn btn-ghost btn-sm" data-action="toggle-draw-panel">접기 ▴</button>' : '')
-        +     (hasResults ? '<button type="button" class="btn btn-ghost btn-sm" data-action="reset-results">'+iconRefresh(15)+' 결과 초기화</button>' : '')
-        +     (st.drawn ? '<button type="button" class="btn btn-danger btn-sm" data-action="reset-draw">'+iconRefresh(15)+' 대진 초기화</button>' : '')
-        +     '<button type="button" class="btn btn-primary" data-action="draw">'+iconCrate(17)+' '+drawLabel+'</button>'
+        +     (isAdmin && hasResults ? '<button type="button" class="btn btn-ghost btn-sm" data-action="reset-results">'+iconRefresh(15)+' 결과 초기화</button>' : '')
+        +     (isAdmin && st.drawn ? '<button type="button" class="btn btn-danger btn-sm" data-action="reset-draw">'+iconRefresh(15)+' 대진 초기화</button>' : '')
+        +     (isAdmin ? '<button type="button" class="btn btn-primary" data-action="draw">'+iconCrate(17)+' '+drawLabel+'</button>' : '')
         +   '</div>'
         + '</div>';
     } else {
