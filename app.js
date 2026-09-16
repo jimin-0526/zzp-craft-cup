@@ -688,7 +688,15 @@
     svg += '</svg>';
 
     return ''
-      + '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span></div>'
+      + '<div class="bracket-toolbar">'
+      +   '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span></div>'
+      +   '<div class="zoom-controls">'
+      +     '<button type="button" class="zoom-btn" data-action="bracket-zoom-out" aria-label="축소">&minus;</button>'
+      +     '<span class="zoom-pct" id="zoom-pct">'+Math.round(bracketZoom*100)+'%</span>'
+      +     '<button type="button" class="zoom-btn" data-action="bracket-zoom-in" aria-label="확대">+</button>'
+      +     '<button type="button" class="zoom-btn zoom-reset" data-action="bracket-zoom-reset">Reset</button>'
+      +   '</div>'
+      + '</div>'
       + '<div class="bracket-scroll">'
       +   '<div id="bracket-fit" style="width:'+BRACKET_W+'px;">'
       +     headers
@@ -696,6 +704,8 @@
       +   '</div>'
       + '</div>';
   }
+
+  var bracketZoom = 1; // manual multiplier on top of the auto-fit-to-width scale
 
   function fitBracketScale(){
     var container = document.querySelector(".bracket-scroll");
@@ -706,11 +716,14 @@
     var naturalH = inner.scrollHeight;
     if(!naturalW || !naturalH) return;
     var available = container.clientWidth;
-    var scale = Math.min(1, available / naturalW);
-    if(scale < 0.4) scale = 0.4;
+    var fitScale = Math.min(1, available / naturalW);
+    if(fitScale < 0.4) fitScale = 0.4;
+    var scale = fitScale * bracketZoom;
     inner.style.transformOrigin = "top left";
     inner.style.transform = "scale(" + scale + ")";
     container.style.height = Math.ceil(naturalH * scale) + "px";
+    var pctEl = document.getElementById("zoom-pct");
+    if(pctEl) pctEl.textContent = Math.round(bracketZoom*100) + "%";
   }
 
   function rsideHtml(m, slot, r, i, st){
@@ -720,11 +733,33 @@
     var seed = filled ? id : "?";
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
-    var clickable = isAdmin && filled && m.a && m.b && (m.isFinal ? !m.winner : true);
+    var clickable = isAdmin && filled && m.a && m.b && !m.isFinal;
     var cls = ["rside", slot==="b"?"right":"", filled?"":"empty", isWinner?"winner":"", isLoser?"loser":""].join(" ").trim();
     var tag = clickable ? "button" : "div";
-    var action = m.isFinal ? "final-game" : "pick";
-    var attrs = clickable ? ' type="button" data-action="'+action+'" data-r="'+r+'" data-i="'+i+'" data-slot="'+slot+'"' : "";
+    var attrs = clickable ? ' type="button" data-action="pick" data-r="'+r+'" data-i="'+i+'" data-slot="'+slot+'"' : "";
+    if(clickable) cls += " clickable";
+    return '<'+tag+' class="'+cls+'"'+attrs+'>'
+      + '<span class="rseed mono">'+(filled?String(seed).padStart(2,"0"):"?")+'</span>'
+      + '<span class="rname">'+(filled?escapeHtml(name):"TBD")+'</span>'
+      + '</'+tag+'>';
+  }
+
+  // One row of the final's best-of-3: reflects that SPECIFIC game's
+  // winner (games[gameIdx]), not the match's overall winner, and is
+  // only clickable when it's the next game to be decided.
+  function finalGameSideHtml(m, slot, gameIdx, active, st){
+    var id = m[slot];
+    var filled = !!id;
+    var name = filled ? teamName(id, st) : null;
+    var seed = filled ? id : "?";
+    var games = m.games || [];
+    var decided = gameIdx < games.length;
+    var isWinner = decided && games[gameIdx] === slot;
+    var isLoser = decided && games[gameIdx] !== slot;
+    var clickable = active && isAdmin && filled && m.a && m.b;
+    var cls = ["rside", slot==="b"?"right":"", filled?"":"empty", isWinner?"winner":"", isLoser?"loser":""].join(" ").trim();
+    var tag = clickable ? "button" : "div";
+    var attrs = clickable ? ' type="button" data-action="final-game" data-slot="'+slot+'"' : "";
     if(clickable) cls += " clickable";
     return '<'+tag+' class="'+cls+'"'+attrs+'>'
       + '<span class="rseed mono">'+(filled?String(seed).padStart(2,"0"):"?")+'</span>'
@@ -760,32 +795,48 @@
     for(var ii=0; ii<ROUND_COUNTS[selectedRound]; ii++){
       var m = getMatch(selectedRound, ii, st);
       var isFinal = m.isFinal;
-      var mid;
+
       if(isFinal){
+        // Best-of-3: always show all 3 match slots, even once the
+        // series is already decided 2-0 (the 3rd just stays pending).
         var games = m.games || [];
-        var aWins = games.filter(function(g){return g==="a";}).length;
-        var bWins = games.filter(function(g){return g==="b";}).length;
-        mid = '<div class="rmid">'+scoreGridHtml(aWins+":"+bWins,":")+statIconHtml(selectedRound,ii,true,st)+'</div>';
-      } else {
-        mid = '<div class="rmid">'+(m.score ? scoreGridHtml(m.score,":") : '<span class="vs">VS</span>')+statIconHtml(selectedRound,ii,false,st)+'</div>';
+        for(var g=0; g<3; g++){
+          var decided = g < games.length;
+          var active = g === games.length && !m.winner;
+          var pending = !decided && !active;
+          var midHtml = '<span class="vs">매치 '+(g+1)+'</span>'
+            + (decided ? '<span class="game-hint">종료</span>' : active ? '<span class="game-hint live">진행중</span>' : '<span class="game-hint muted">대기</span>');
+          list += '<div class="rmatch-wrap">'
+            + '<div class="rmatch is-final'+(pending?" is-pending":"")+' cut-sm">'
+            +   finalGameSideHtml(m,"a",g,active,st)
+            +   '<div class="rmid">'+midHtml+'</div>'
+            +   finalGameSideHtml(m,"b",g,active,st)
+            + '</div>'
+            + '</div>';
+        }
+        if(m.a && m.b){
+          list += '<div style="display:flex;justify-content:center;margin:-4px 0 4px;">'+statIconHtml(selectedRound,ii,true,st)+'</div>';
+        }
+        if(isAdmin && m.a && m.b){
+          var doneF = !!m.winner;
+          list += '<div class="final-controls">'
+            + (doneF
+              ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>'
+              : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">매치 '+(games.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>')
+            + '</div>';
+        }
+        continue;
       }
+
+      var mid = '<div class="rmid">'+(m.score ? scoreGridHtml(m.score,":") : '<span class="vs">VS</span>')+statIconHtml(selectedRound,ii,false,st)+'</div>';
       list += '<div class="rmatch-wrap">'
         + (selectedRound>=2 ? '<span class="live-badge"><span class="dot"></span>방송 송출</span>' : '')
-        + '<div class="rmatch'+(isFinal?" is-final":"")+' cut-sm">'
+        + '<div class="rmatch cut-sm">'
         +   rsideHtml(m,"a",selectedRound,ii,st)
         +   mid
         +   rsideHtml(m,"b",selectedRound,ii,st)
         + '</div>'
         + '</div>';
-      if(isFinal && isAdmin && m.a && m.b){
-        var games2 = m.games || [];
-        var doneF = !!m.winner;
-        list += '<div class="final-controls">'
-          + (doneF
-            ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>'
-            : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">게임 '+(games2.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>')
-          + '</div>';
-      }
     }
 
     return ''
@@ -1299,6 +1350,12 @@
     if(finalResetBtn){ resetFinalGames(); return; }
     var viewBtn = e.target.closest('[data-action="view-mode"]');
     if(viewBtn){ viewMode = viewBtn.dataset.mode; render(); return; }
+    var zoomInBtn = e.target.closest('[data-action="bracket-zoom-in"]');
+    if(zoomInBtn){ bracketZoom = Math.min(3, +(bracketZoom+0.25).toFixed(2)); fitBracketScale(); return; }
+    var zoomOutBtn = e.target.closest('[data-action="bracket-zoom-out"]');
+    if(zoomOutBtn){ bracketZoom = Math.max(0.5, +(bracketZoom-0.25).toFixed(2)); fitBracketScale(); return; }
+    var zoomResetBtn = e.target.closest('[data-action="bracket-zoom-reset"]');
+    if(zoomResetBtn){ bracketZoom = 1; fitBracketScale(); return; }
     var roundTabBtn = e.target.closest('[data-action="round-tab"]');
     if(roundTabBtn){ selectedRound = +roundTabBtn.dataset.round; render(); return; }
     var openBtn = e.target.closest('[data-action="open-team"]');

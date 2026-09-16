@@ -187,7 +187,16 @@ section.alt{ background:var(--bg-soft); border-top:1px solid var(--border); bord
 .draw-collapsed .chev{ font-family:"JetBrains Mono",monospace; font-size:0.7rem; color:var(--ink-faint); white-space:nowrap; }
 
 /* ---------- bracket ---------- */
-.bracket-legend{ display:flex; gap:18px; flex-wrap:wrap; margin:-14px 0 20px; font-family:"Rajdhani",sans-serif; font-size:0.82rem; color:var(--ink-faint); }
+.bracket-toolbar{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:-14px 0 20px; }
+.bracket-legend{ display:flex; gap:18px; flex-wrap:wrap; font-family:"Rajdhani",sans-serif; font-size:0.82rem; color:var(--ink-faint); margin:0; }
+.zoom-controls{ display:inline-flex; align-items:center; gap:0; border:1px solid var(--border-strong); }
+.zoom-btn{ padding:6px 12px; background:var(--surface); border:none; border-right:1px solid var(--border-strong);
+  color:var(--ink-dim); font-family:"JetBrains Mono",monospace; font-size:0.86rem; cursor:pointer; line-height:1; }
+.zoom-btn:last-child{ border-right:none; }
+.zoom-btn:hover{ color:var(--accent); }
+.zoom-btn.zoom-reset{ font-family:"Rajdhani",sans-serif; font-weight:700; font-size:0.72rem; letter-spacing:.04em; }
+.zoom-pct{ padding:6px 10px; font-family:"JetBrains Mono",monospace; font-size:0.76rem; color:var(--ink-faint);
+  border-right:1px solid var(--border-strong); min-width:48px; text-align:center; }
 .bracket-legend span{ display:inline-flex; align-items:center; gap:6px; }
 .bracket-legend i{ width:9px; height:9px; border-radius:50%; display:inline-block; }
 .bracket-scroll{ position:relative; overflow-x:auto; overflow-y:hidden; padding-bottom:14px; transition:height .15s ease; }
@@ -270,11 +279,11 @@ svg.connectors path.done{ stroke:var(--accent); stroke-width:2; filter:drop-shad
 .round-tab .n{ font-family:"JetBrains Mono",monospace; font-size:0.68rem; color:var(--ink-faint); margin-right:6px; }
 .round-tab.active .n{ color:var(--accent); }
 
-.rmatch-list{ display:flex; flex-direction:column; gap:14px; }
+.rmatch-list{ display:flex; flex-direction:column; gap:30px; }
 .rmatch-wrap{ position:relative; }
 .rmatch{ display:flex; align-items:stretch; gap:0; border:1px solid var(--border);
   background:linear-gradient(180deg, var(--surface), var(--bg-soft)); position:relative; }
-.rmatch-wrap .live-badge{ position:absolute; top:-9px; right:14px; }
+.rmatch-wrap .live-badge{ position:absolute; top:-26px; right:14px; }
 .rside{ flex:1; display:flex; align-items:center; gap:14px; padding:20px 22px; min-width:0;
   background:transparent; border:none; cursor:default; text-align:left; position:relative; }
 .rside.right{ flex-direction:row-reverse; text-align:right; }
@@ -300,6 +309,10 @@ svg.connectors path.done{ stroke:var(--accent); stroke-width:2; filter:drop-shad
 .rmid{ flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
   padding:14px 20px; border-left:1px solid var(--border); border-right:1px solid var(--border); min-width:110px; }
 .rmid .vs{ font-family:"Black Ops One",sans-serif; font-size:0.9rem; color:var(--ink-faint); }
+.game-hint{ font-family:"JetBrains Mono",monospace; font-size:0.62rem; letter-spacing:.06em; color:var(--ink-faint); }
+.game-hint.live{ color:var(--accent); }
+.game-hint.muted{ opacity:0.6; }
+.rmatch.is-final.is-pending{ opacity:0.55; }
 /* fixed-width L/R columns keep the ":" centered no matter how many
    digits either score has (10 vs 4 must not shift the separator). */
 .score{ display:grid; grid-template-columns:2.2ch auto 2.2ch; align-items:baseline;
