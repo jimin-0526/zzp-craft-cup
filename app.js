@@ -980,8 +980,8 @@
       if(editable){
         return '<div class="stats-row">'
           + '<span class="pname">'+escapeHtml(p.nick)+'</span>'
-          + '<input type="number" min="0" id="'+prefix+'-k-'+idx+'" placeholder="킬" value="'+(p.kills!=null?p.kills:"")+'">'
-          + '<input type="number" min="0" id="'+prefix+'-d-'+idx+'" placeholder="데미지" value="'+(p.dmg!=null?p.dmg:"")+'">'
+          + '<input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="'+prefix+'-k-'+idx+'" placeholder="킬" value="'+(p.kills!=null?p.kills:"")+'">'
+          + '<input type="text" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" id="'+prefix+'-d-'+idx+'" placeholder="데미지" value="'+(p.dmg!=null?p.dmg:"")+'">'
           + '</div>';
       }
       return '<div class="stats-row'+(p._mvp?" mvp":"")+'">'
