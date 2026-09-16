@@ -4,19 +4,15 @@
   /* ============================================================
      SETUP
      1) GITHUB_OWNER / GITHUB_REPO: your GitHub username and the repo name.
-     2) GITHUB_TOKEN is intentionally NOT stored here. A token committed to
-        a public repo gets detected and auto-revoked by GitHub within
-        minutes, which is why writes kept silently failing. Instead, each
-        admin pastes their own fine-grained token (Contents: Read and write,
-        scoped to only this repo) when they log in — it's kept only in this
-        browser tab's sessionStorage, never written to any file or commit.
-     3) ADMIN_PASSCODE: change this from the default before going live.
+     2) WORKER_BASE: the Cloudflare Worker that holds the real GitHub write
+        token server-side (see worker/). The browser never sees a GitHub
+        token or the admin passcode's correct value — it only talks to this
+        worker, which checks the passcode and signs a short-lived session.
      ============================================================ */
   var GITHUB_OWNER = "jimin-0526";
   var GITHUB_REPO = "zzp-craft-cup";
   var GITHUB_BRANCH = "main";
-  var GITHUB_TOKEN = ""; // set at runtime on admin login — see toggleAdmin()
-  var ADMIN_PASSCODE = "zzp2026";
+  var WORKER_BASE = "https://zzp-craft-cup-admin.jiminsh94.workers.dev";
 
   var DATA_PATH = "data/state.json";
   var API_BASE = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO;
@@ -130,11 +126,14 @@
   var isAdmin = false;
   var activeModal = null; // {id, mode}
   var syncOk = true;
+  var ADMIN_TOKEN = ""; // worker session token, not a GitHub credential
 
   try{
-    if(sessionStorage.getItem("zzp_admin")==="1" && sessionStorage.getItem("zzp_admin_token")){
+    var savedSession = sessionStorage.getItem("zzp_admin_session");
+    var savedExp = Number(sessionStorage.getItem("zzp_admin_exp") || 0);
+    if(savedSession && savedExp > Date.now()){
       isAdmin = true;
-      GITHUB_TOKEN = sessionStorage.getItem("zzp_admin_token");
+      ADMIN_TOKEN = savedSession;
     }
   }catch(e){}
 
@@ -200,11 +199,11 @@
     return msg;
   }
 
-  async function fetchAuthedShaAndState(){
+  async function fetchShaAndState(){
     var res;
     try{
       res = await fetch(API_BASE + "/contents/" + DATA_PATH + "?ref=" + GITHUB_BRANCH, {
-        headers: { "Authorization": "Bearer " + GITHUB_TOKEN, "Accept": "application/vnd.github+json" }
+        headers: { "Accept": "application/vnd.github+json" }
       });
     }catch(networkErr){
       throw new Error("불러오기 네트워크 오류: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
@@ -216,40 +215,43 @@
   }
 
   async function writeState(newState, sha){
-    var body = {
-      message: "update state " + new Date().toISOString(),
-      content: utf8ToBase64(JSON.stringify(newState, null, 2)),
-      sha: sha,
-      branch: GITHUB_BRANCH
-    };
     var res;
     try{
-      res = await fetch(API_BASE + "/contents/" + DATA_PATH, {
-        method: "PUT",
-        headers: {
-          "Authorization": "Bearer " + GITHUB_TOKEN,
-          "Accept": "application/vnd.github+json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
+      res = await fetch(WORKER_BASE + "/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: ADMIN_TOKEN,
+          sha: sha,
+          content: utf8ToBase64(JSON.stringify(newState, null, 2))
+        })
       });
     }catch(networkErr){
       throw new Error("저장 네트워크 오류: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
     }
-    if(res.status === 409) return "conflict";
-    if(!res.ok) throw new Error("저장 실패 · " + (await apiErrorDetail(res)));
+    if(res.status === 401){
+      isAdmin = false; ADMIN_TOKEN = "";
+      try{ sessionStorage.removeItem("zzp_admin_session"); sessionStorage.removeItem("zzp_admin_exp"); }catch(e){}
+      throw new Error("관리자 세션이 만료되었습니다. 다시 로그인해주세요.");
+    }
+    var payload = null;
+    try{ payload = await res.json(); }catch(e){}
+    if(payload && payload.status === "conflict") return "conflict";
+    if(!res.ok || !payload || payload.status === "error"){
+      throw new Error((payload && payload.detail) ? payload.detail : ("HTTP " + res.status));
+    }
     return "ok";
   }
 
   async function mutateAndSave(mutatorFn){
     if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return {status:"not-admin"}; }
-    if(!GITHUB_TOKEN){
-      toast("저장할 토큰이 없습니다. 관리자 모드를 종료 후 다시 로그인해서 토큰을 입력해주세요.");
-      return {status:"error", detail:"토큰 없음 — 재로그인 필요"};
+    if(!ADMIN_TOKEN){
+      toast("관리자 세션이 없습니다. 관리자 모드를 종료 후 다시 로그인해주세요.");
+      return {status:"error", detail:"세션 없음 — 재로그인 필요"};
     }
     var prevState = state;
     try{
-      var fresh = await fetchAuthedShaAndState();
+      var fresh = await fetchShaAndState();
       var ns = mutatorFn(clone(fresh.state));
       if(!ns) return {status:"noop"};
       state = ns; render();
@@ -359,22 +361,37 @@
   function toggleAdmin(){
     if(isAdmin){
       isAdmin = false;
-      GITHUB_TOKEN = "";
-      try{ sessionStorage.removeItem("zzp_admin"); sessionStorage.removeItem("zzp_admin_token"); }catch(e){}
+      ADMIN_TOKEN = "";
+      try{ sessionStorage.removeItem("zzp_admin_session"); sessionStorage.removeItem("zzp_admin_exp"); }catch(e){}
       render();
       toast("관리자 모드를 종료했습니다.");
       return;
     }
     var pass = window.prompt("관리자 비밀번호를 입력하세요");
     if(pass===null) return;
-    if(pass !== ADMIN_PASSCODE){ toast("비밀번호가 올바르지 않습니다."); return; }
-    var tok = window.prompt("GitHub 토큰을 입력하세요 (저장할 때 필요해요. 이 브라우저 탭에서만 기억되고 어디에도 저장되지 않습니다.)");
-    if(tok===null) return;
-    tok = tok.trim();
-    if(!tok){ toast("토큰이 비어 있습니다."); return; }
+    adminLogin(pass);
+  }
+
+  async function adminLogin(pass){
+    var res;
+    try{
+      res = await fetch(WORKER_BASE + "/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode: pass })
+      });
+    }catch(networkErr){
+      toast("로그인 서버에 연결할 수 없습니다: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
+      return;
+    }
+    if(res.status === 401){ toast("비밀번호가 올바르지 않습니다."); return; }
+    if(!res.ok){ toast("로그인 실패 (서버 오류 · HTTP " + res.status + ")"); return; }
+    var body;
+    try{ body = await res.json(); }catch(e){ body = null; }
+    if(!body || !body.ok || !body.token){ toast("로그인 실패"); return; }
     isAdmin = true;
-    GITHUB_TOKEN = tok;
-    try{ sessionStorage.setItem("zzp_admin","1"); sessionStorage.setItem("zzp_admin_token", tok); }catch(e){}
+    ADMIN_TOKEN = body.token;
+    try{ sessionStorage.setItem("zzp_admin_session", body.token); sessionStorage.setItem("zzp_admin_exp", String(body.exp)); }catch(e){}
     render();
     toast("관리자 모드가 활성화되었습니다.");
   }
@@ -1114,7 +1131,7 @@
 
   async function runDrawCeremony(){
     if(!isAdmin){ toast("관리자만 대진 추첨을 시작할 수 있습니다."); return; }
-    if(!GITHUB_TOKEN){ toast("저장할 토큰이 없습니다. 관리자 모드를 종료 후 다시 로그인해서 토큰을 입력해주세요."); return; }
+    if(!ADMIN_TOKEN){ toast("관리자 세션이 없습니다. 관리자 모드를 종료 후 다시 로그인해주세요."); return; }
     if(state.drawn){
       if(!window.confirm("다시 추첨하면 지금까지의 모든 경기 결과가 사라집니다. 정말 다시 추첨할까요?")) return;
     }

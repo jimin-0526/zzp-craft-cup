@@ -1,0 +1,16 @@
+name = "zzp-craft-cup-admin"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[vars]
+# Origin(s) allowed to call this worker. Comma-separated if you need more than one.
+ALLOWED_ORIGIN = "https://jimin-0526.github.io"
+GITHUB_OWNER = "jimin-0526"
+GITHUB_REPO = "zzp-craft-cup"
+GITHUB_BRANCH = "main"
+DATA_PATH = "data/state.json"
+
+# Secrets (never put these here — set with `wrangler secret put <NAME>`):
+#   ADMIN_PASSCODE   the admin login password
+#   GITHUB_TOKEN     fine-grained PAT, Contents: Read and write, scoped to this repo only
+#   SESSION_SECRET   random string used to sign login sessions
