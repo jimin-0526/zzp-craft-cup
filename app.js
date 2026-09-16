@@ -68,11 +68,14 @@
   var ROUND_COUNTS = [16,8,4,2,1];
   var MATCH_START = [1,17,25,29,31];
 
-  var MATCH_W = 210, MATCH_H = 64, COL_GAP = 64, BASE_GAP = 80;
-  var BRACKET_W = 6*MATCH_W + 5*COL_GAP;
+  // PILL_OFFSET/PILL_H set the height of one match's 2-team pairing;
+  // BASE_GAP must clear that with room to spare or adjacent matches
+  // visually merge into one continuous stack.
+  var PILL_W = 200, PILL_H = 34, COL_GAP = 60, BASE_GAP = 116, PILL_OFFSET = 19, ELBOW = 18;
+  var BRACKET_W = 6*PILL_W + 5*COL_GAP;
   var BRACKET_H = BASE_GAP*16;
 
-  function colX(r){ return r*(MATCH_W+COL_GAP); }
+  function colX(r){ return r*(PILL_W+COL_GAP); }
   function centerY(r,i){ return BASE_GAP*Math.pow(2,r)*(i+0.5); }
   function matchNum(r,i){ return MATCH_START[r]+i; }
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -427,6 +430,9 @@
   function iconRefresh(size){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11A8 8 0 0 0 6 6.3L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14 5.7l2-2.3"/><path d="M20 20v-4h-4"/></svg>';
   }
+  function iconBarChart(size){
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10"/><path d="M12 20V4"/><path d="M20 20v-7"/></svg>';
+  }
   function iconCheck(size){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   }
@@ -507,10 +513,13 @@
       + '<div class="hazard-bar"></div>';
   }
 
+  function iconPlay(size){
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="7,5 20,12 7,19"/></svg>';
+  }
   function renderHero(st){
     return ''
       + '<section class="hero" id="top">'
-      +   '<span class="hero-badge">'+heroBadgeSvg()+'</span>'
+      +   '<span class="hero-badge"><span class="reticle-seek">'+heroBadgeSvg()+'</span></span>'
       +   '<div class="wrap hero-inner">'
       +     '<span class="eyebrow">2026 SEASON · SINGLE ELIMINATION</span>'
       +     '<div class="hero-logo-wrap">'
@@ -524,13 +533,11 @@
       +     '<p class="lede">크래프트 최강 스쿼드를 가릴 2026 절크컵!<br>4인 스쿼드와 함께 새로운 승부에 도전해보세요.</p>'
       +     '<div class="meta-row">'
       +       '<div class="meta-chip"><span class="num">32</span><span class="lbl">참가 팀</span></div>'
-      +       '<div class="meta-chip"><span class="num">5</span><span class="lbl">라운드</span></div>'
-      +       '<div class="meta-chip"><span class="num">31</span><span class="lbl">경기</span></div>'
       +       '<div class="meta-chip"><span class="num">1</span><span class="lbl">챔피언</span></div>'
       +     '</div>'
-      +     '<div class="cta-row">'
+      +     '<div class="cta-col">'
       +       '<a class="btn btn-primary" href="#bracket">대진표 보기</a>'
-      +       '<a class="btn btn-ghost" href="#draw">대진 추첨하기</a>'
+      +       '<a class="btn btn-ghost" href="https://www.youtube.com/@-zzp" target="_blank" rel="noopener">'+iconPlay(15)+' 중계 보러 가기</a>'
       +     '</div>'
       +   '</div>'
       + '</section>';
@@ -579,22 +586,24 @@
       + '</section>';
   }
 
-  function slotHtml(m, slot, r, i, st){
+  function pillHtml(m, slot, r, i, st){
     var id = m[slot];
     var filled = !!id;
     var name = filled ? teamName(id, st) : null;
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
     var clickable = isAdmin && filled && m.a && m.b && !m.isFinal;
-    var cls = ["team-slot", filled?"filled":"empty"];
+    var y = slot==="a" ? centerY(r,i)-PILL_OFFSET : centerY(r,i)+PILL_OFFSET;
+    var top = y - PILL_H/2;
+    var cls = ["pill", filled?"filled":"empty"];
     if(isWinner) cls.push("winner");
     if(isLoser) cls.push("loser");
     var attrs = clickable
       ? ' data-action="pick" data-r="'+r+'" data-i="'+i+'" data-slot="'+slot+'" title="'+escapeHtml(name)+'"'
       : ' disabled';
-    return '<button type="button" class="'+cls.join(" ")+'"'+attrs+'>'
-      + '<span class="team-name">'+(filled?escapeHtml(name):"TBD")+'</span>'
-      + (isWinner ? '<span class="win-mark">'+iconCheck(13)+'</span>' : '')
+    return '<button type="button" class="'+cls.join(" ")+'" style="top:'+top+'px;left:'+colX(r)+'px;width:'+PILL_W+'px;height:'+PILL_H+'px;"'+attrs+'>'
+      + '<span class="seed">'+(filled?String(id).padStart(2,"0"):"?")+'</span>'
+      + '<span class="pname">'+(filled?escapeHtml(name):"TBD")+'</span>'
       + '</button>';
   }
 
@@ -619,64 +628,71 @@
 
     var headers = '<div class="round-headers">';
     for(var r=0;r<5;r++){
-      headers += '<div class="round-head"><div class="eyebrow"><span class="stage">'+(r+1)+'</span>'+ROUND_EYEBROWS[r]+'</div><div class="kr">'+ROUND_LABELS[r]+'</div></div>';
+      headers += '<div class="round-head r'+(r+1)+'"><div class="eyebrow"><span class="stage">'+(r+1)+'</span>'+ROUND_EYEBROWS[r]+'</div><div class="kr">'+ROUND_LABELS[r]+'</div></div>';
     }
-    headers += '<div class="round-head" style="margin-right:0;"><div class="eyebrow"><span class="stage">6</span>CHAMPION</div><div class="kr">우승</div></div>';
+    headers += '<div class="round-head r5" style="margin-right:0;"><div class="eyebrow"><span class="stage">6</span>CHAMPION</div><div class="kr">우승</div></div>';
     headers += '</div>';
 
-    var matches = "";
+    // pills: every team gets its own independent box, joined to its
+    // opponent by a short local elbow and to the next round by a
+    // staircase connector per advancing team (not one shared match card).
+    var pills = "";
     for(var rr=0; rr<5; rr++){
       for(var ii=0; ii<ROUND_COUNTS[rr]; ii++){
         var m = getMatch(rr, ii, st);
-        var top = centerY(rr,ii) - MATCH_H/2;
-        var left = colX(rr);
-        var scoreLabel = m.isFinal
-          ? (m.games && m.games.length ? (m.games.filter(function(g){return g==="a";}).length+"-"+m.games.filter(function(g){return g==="b";}).length) : "")
-          : (m.score || "");
-        matches += '<div class="match" style="top:'+top+'px;left:'+left+'px;" data-round="'+rr+'" data-idx="'+ii+'">'
-          + '<span class="num-tag">M'+matchNum(rr,ii)+(m.isFinal?" · BO3":"")+'</span>'
-          + (rr>=2 ? '<span class="live-badge"><span class="dot"></span>방송</span>' : '')
-          + '<div class="match-card cut-sm'+(m.isFinal?" is-final":"")+'">'
-          +   slotHtml(m,"a",rr,ii,st)
-          +   slotHtml(m,"b",rr,ii,st)
-          + '</div>'
-          + (scoreLabel ? '<span class="match-score">'+escapeHtml(scoreLabel)+'</span>' : '')
-          + '</div>';
+        pills += pillHtml(m,"a",rr,ii,st) + pillHtml(m,"b",rr,ii,st);
       }
     }
     var finalM = getMatch(4,0,st);
     var champY = centerY(4,0);
     var champX = colX(5);
-    var champTop = champY - MATCH_H/2;
-    matches += '<div class="champion-box cut-sm'+(champId?" decided":"")+'" style="top:'+champTop+'px;left:'+champX+'px;">'
+    var champTop = champY - PILL_H/2 - 8;
+    pills += '<div class="champion-box'+(champId?" decided":"")+'" style="top:'+champTop+'px;left:'+champX+'px;width:'+PILL_W+'px;">'
       + '<span class="cap">'+(champId?"WINNER":"TBD")+'</span>'
       + '<span class="name">'+(champId?escapeHtml(champName):"우승팀 미정")+'</span>'
       + '</div>';
 
     var svg = '<svg class="connectors" width="'+BRACKET_W+'" height="'+BRACKET_H+'" viewBox="0 0 '+BRACKET_W+' '+BRACKET_H+'">';
-    for(var pr=1; pr<=4; pr++){
-      for(var j=0; j<ROUND_COUNTS[pr]; j++){
-        var c0 = 2*j, c1 = 2*j+1, cr = pr-1;
-        var x1 = colX(cr)+MATCH_W, xMid = colX(cr)+MATCH_W+COL_GAP/2, x2 = colX(pr);
-        var y0 = centerY(cr,c0), y1 = centerY(cr,c1), yP = centerY(pr,j);
-        var m0 = getMatch(cr,c0,st), m1 = getMatch(cr,c1,st);
-        var done0 = !!m0.winner, done1 = !!m1.winner;
-        svg += '<path class="'+(done0?"done":"")+'" d="M'+x1+' '+y0+' H'+xMid+'"/>';
-        svg += '<path class="'+(done1?"done":"")+'" d="M'+x1+' '+y1+' H'+xMid+'"/>';
-        svg += '<path class="'+((done0&&done1)?"done":"")+'" d="M'+xMid+' '+y0+' V'+y1+'"/>';
-        svg += '<path class="'+((done0&&done1)?"done":"")+'" d="M'+xMid+' '+yP+' H'+x2+'"/>';
+    // local pairing elbow: a short bracket hugging the two pills of one match
+    for(var lr=0; lr<5; lr++){
+      for(var li=0; li<ROUND_COUNTS[lr]; li++){
+        var lyA = centerY(lr,li)-PILL_OFFSET, lyB = centerY(lr,li)+PILL_OFFSET;
+        var lx1 = colX(lr)+PILL_W, lxJoin = lx1+ELBOW;
+        svg += '<path class="local" d="M'+lx1+' '+lyA+' H'+lxJoin+'"/>';
+        svg += '<path class="local" d="M'+lx1+' '+lyB+' H'+lxJoin+'"/>';
+        svg += '<path class="local" d="M'+lxJoin+' '+lyA+' V'+lyB+'"/>';
       }
     }
-    var fx1 = colX(4)+MATCH_W, fx2 = colX(5), fy = centerY(4,0);
-    svg += '<path class="'+(finalM.winner?"done":"")+'" d="M'+fx1+' '+fy+' H'+fx2+'"/>';
+    // staircase connectors between rounds: one Z-shaped line per advancing team
+    for(var pr=1; pr<=4; pr++){
+      for(var j=0; j<ROUND_COUNTS[pr]; j++){
+        var cr = pr-1;
+        for(var childIdx=0; childIdx<2; childIdx++){
+          var childI = 2*j+childIdx;
+          var childM = getMatch(cr, childI, st);
+          var done = !!childM.winner;
+          var childOutX = colX(cr)+PILL_W+ELBOW;
+          var childOutY = centerY(cr,childI);
+          var parentY = childIdx===0 ? centerY(pr,j)-PILL_OFFSET : centerY(pr,j)+PILL_OFFSET;
+          var xMid = colX(cr)+PILL_W+COL_GAP/2;
+          var parentX = colX(pr);
+          var scls = done ? "done" : "";
+          svg += '<path class="'+scls+'" d="M'+childOutX+' '+childOutY+' H'+xMid+'"/>';
+          svg += '<path class="'+scls+'" d="M'+xMid+' '+childOutY+' V'+parentY+'"/>';
+          svg += '<path class="'+scls+'" d="M'+xMid+' '+parentY+' H'+parentX+'"/>';
+        }
+      }
+    }
+    var champX1 = colX(4)+PILL_W+ELBOW, champY2 = centerY(4,0), champX2 = colX(5);
+    svg += '<path class="'+(finalM.winner?"done":"")+'" d="M'+champX1+' '+champY2+' H'+champX2+'"/>';
     svg += '</svg>';
 
     return ''
-      + '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span><span><i style="background:var(--border-strong)"></i>미정</span></div>'
+      + '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span></div>'
       + '<div class="bracket-scroll">'
       +   '<div id="bracket-fit" style="width:'+BRACKET_W+'px;">'
       +     headers
-      +     '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+matches+'</div>'
+      +     '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+pills+'</div>'
       +   '</div>'
       + '</div>';
   }
@@ -716,6 +732,23 @@
       + '</'+tag+'>';
   }
 
+  // Splits "13:1"-style free text into fixed-width L/sep/R columns so the
+  // separator stays centered regardless of digit count (1 vs 11). Falls
+  // back to plain text for anything that isn't exactly two numbers.
+  function scoreGridHtml(raw, sep){
+    var mtc = String(raw).trim().match(/^(\d+)\s*[:\-]\s*(\d+)$/);
+    if(!mtc) return '<span class="score plain">'+escapeHtml(raw)+'</span>';
+    return '<span class="score"><span class="sl">'+mtc[1]+'</span><span class="sep">'+sep+'</span><span class="sr">'+mtc[2]+'</span></span>';
+  }
+  function statIconHtml(r, i, isFinal, st){
+    if(!(getMatch(r,i,st).a && getMatch(r,i,st).b)) return "";
+    var statKey = isFinal ? "4-0" : (r+"-"+i);
+    var srec = recOf(st, statKey);
+    var hasStatsData = !!(srec && srec.statsSaved);
+    if(!isAdmin && !hasStatsData) return "";
+    return '<button type="button" class="stat-icon'+(hasStatsData?" has-data":"")+'" data-action="open-stats" data-r="'+r+'" data-i="'+i+'" aria-label="'+(hasStatsData?"선수 기록 보기":"선수 기록 입력")+'">'+iconBarChart(14)+'</button>';
+  }
+
   function renderRoundView(st){
     var tabs = "";
     for(var r=0;r<5;r++){
@@ -732,12 +765,11 @@
         var games = m.games || [];
         var aWins = games.filter(function(g){return g==="a";}).length;
         var bWins = games.filter(function(g){return g==="b";}).length;
-        mid = '<div class="rmid"><span class="vs">VS</span><span class="games">'+aWins+' - '+bWins+'</span></div>';
+        mid = '<div class="rmid">'+scoreGridHtml(aWins+":"+bWins,":")+statIconHtml(selectedRound,ii,true,st)+'</div>';
       } else {
-        mid = '<div class="rmid"><span class="vs">VS</span>'+(m.score ? '<span class="score">'+escapeHtml(m.score)+'</span>' : '')+'</div>';
+        mid = '<div class="rmid">'+(m.score ? scoreGridHtml(m.score,":") : '<span class="vs">VS</span>')+statIconHtml(selectedRound,ii,false,st)+'</div>';
       }
       list += '<div class="rmatch-wrap">'
-        + '<span class="rnum">M'+matchNum(selectedRound,ii)+(isFinal?" · BO3":"")+'</span>'
         + (selectedRound>=2 ? '<span class="live-badge"><span class="dot"></span>방송 송출</span>' : '')
         + '<div class="rmatch'+(isFinal?" is-final":"")+' cut-sm">'
         +   rsideHtml(m,"a",selectedRound,ii,st)
@@ -753,16 +785,6 @@
             ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>'
             : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">게임 '+(games2.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>')
           + '</div>';
-      }
-      if(m.a && m.b){
-        var statKey = isFinal ? "4-0" : (selectedRound+"-"+ii);
-        var srec = recOf(st, statKey);
-        var hasStatsData = !!(srec && srec.statsSaved);
-        if(isAdmin || hasStatsData){
-          list += '<div class="rstats-row"><button type="button" class="stat-btn'+(hasStatsData?" has-data":"")+'" data-action="open-stats" data-r="'+selectedRound+'" data-i="'+ii+'">'
-            + (hasStatsData ? "선수 기록 보기" : "선수 기록 입력")
-            + '</button></div>';
-        }
       }
     }
 
@@ -812,7 +834,7 @@
         +   '<div class="seed-lbl">TEAM '+seed+'</div>'
         +   '<div class="team-name">'+escapeHtml(team.name)+'</div>'
         + '</div>'
-        + '<div class="roster-foot"><span class="team-pill '+tag.variant+'">'+tag.text+'</span><span class="tap-hint">SQUAD ▸</span></div>'
+        + '<div class="roster-foot"><span class="team-pill '+tag.variant+'">'+tag.text+'</span><span class="tap-hint">LIST ▸</span></div>'
         + '</button>';
     }
     return ''

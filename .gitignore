@@ -1,3 +1,5 @@
 .claude/
 node_modules/
 worker/.wrangler/
+.agents/
+skills-lock.json
