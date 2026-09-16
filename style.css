@@ -83,20 +83,41 @@ nav.site-nav a:hover{ color:var(--accent); }
   filter:drop-shadow(0 0 40px rgba(99,194,111,0.10)); z-index:0; }
 .hero-inner{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px; margin:0 auto; }
 .hero-logo-wrap{ position:relative; display:inline-block; margin:0 auto; }
-.hero-logo{ max-width:min(520px, 78vw); height:auto; display:block; margin:0 auto; animation:gunKick 4.2s ease-in-out infinite; }
-.muzzle-flash{ position:absolute; top:10%; right:8%; width:15%; aspect-ratio:1/1; min-width:22px; max-width:56px;
-  border-radius:50%; pointer-events:none; opacity:0; filter:blur(0.5px);
-  background:radial-gradient(circle, #fff7d6 0%, #ffd15c 28%, rgba(255,150,40,0.65) 52%, transparent 74%);
-  animation:muzzleFlash 4.2s ease-in-out infinite; }
-@keyframes muzzleFlash{
-  0%, 1.5%, 3.2%, 5%, 100%{ opacity:0; transform:scale(0.5); }
-  0.8%, 2.5%, 4.2%{ opacity:1; transform:scale(1.2); }
+.hero-logo{ max-width:min(520px, 78vw); height:auto; display:block; margin:0 auto; animation:gunKick 9s ease-in-out infinite; }
+
+.impact-flash{ position:absolute; width:15%; aspect-ratio:1/1; min-width:26px; max-width:58px;
+  border-radius:50%; pointer-events:none; opacity:0;
+  background:radial-gradient(circle, #fff8d8 0%, #ffd75c 30%, rgba(255,150,40,0.55) 58%, transparent 76%);
+  animation:flashPulse 9s ease-in-out infinite; }
+.impact-flash.flash-1{ top:16%; left:20%; animation-delay:0s; }
+.impact-flash.flash-2{ top:38%; left:62%; animation-delay:1.4s; }
+.impact-flash.flash-3{ top:63%; left:36%; animation-delay:2.8s; }
+@keyframes flashPulse{
+  0%, 3%, 100%{ opacity:0; transform:scale(0.4); }
+  0.6%{ opacity:1; transform:scale(1.5); }
+  2%{ opacity:0; transform:scale(1.1); }
 }
+
+.bullet-hole{ position:absolute; width:16%; aspect-ratio:1/1; min-width:32px; max-width:66px;
+  pointer-events:none; opacity:0; animation:holeAppear 9s ease-in-out infinite; }
+.bullet-hole svg{ width:100%; height:100%; display:block; transform:rotate(var(--rot, 0deg)); }
+.bullet-hole.hole-1{ top:15%; left:19%; --rot:-16deg; animation-delay:0s; }
+.bullet-hole.hole-2{ top:37%; left:61%; width:19%; --rot:24deg; animation-delay:1.4s; }
+.bullet-hole.hole-3{ top:64%; left:35%; width:13%; --rot:6deg; animation-delay:2.8s; }
+@keyframes holeAppear{
+  0%{ opacity:0; transform:scale(0.25); }
+  1%{ opacity:1; transform:scale(1.22); }
+  3%{ opacity:1; transform:scale(1); }
+  84%{ opacity:1; transform:scale(1); }
+  93%{ opacity:0; transform:scale(0.92); }
+  100%{ opacity:0; }
+}
+
 @keyframes gunKick{
-  0%, 1.5%, 3.2%, 5%, 100%{ transform:translate(0,0) rotate(0deg); }
-  0.8%{ transform:translate(-4px,1px) rotate(-0.7deg); }
-  2.5%{ transform:translate(-3px,1px) rotate(-0.5deg); }
-  4.2%{ transform:translate(-2px,0.5px) rotate(-0.3deg); }
+  0%, 3%, 15%, 18%, 30%, 33%, 100%{ transform:translate(0,0) rotate(0deg); }
+  1%{ transform:translate(-5px,2px) rotate(-1deg); }
+  16%{ transform:translate(-4px,2px) rotate(-0.8deg); }
+  31%{ transform:translate(-3px,1.5px) rotate(-0.6deg); }
 }
 .hero-en{ font-family:"JetBrains Mono",monospace; font-size:0.8rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--ink-faint); }
 .hero p.lede{ max-width:58ch; color:var(--ink-dim); font-size:1.02rem; margin:0 auto; }
@@ -190,18 +211,21 @@ svg.connectors{ position:absolute; top:0; left:0; pointer-events:none; overflow:
 svg.connectors path{ stroke:rgba(99,194,111,0.28); stroke-width:1.5; fill:none; }
 svg.connectors path.done{ stroke:rgba(99,194,111,0.65); }
 
-.match{ position:absolute; width:210px; border:1px solid var(--border);
+.match{ position:absolute; width:210px; }
+.match-card{ border:1px solid var(--border);
   background:linear-gradient(180deg, var(--surface), var(--bg-soft)); overflow:visible; }
-.match .num-tag{ position:absolute; top:-9px; left:10px; font-family:"JetBrains Mono",monospace; font-size:0.6rem;
-  letter-spacing:.05em; color:var(--accent); font-weight:700; background:var(--bg); padding:0 5px; }
+.num-tag, .rnum{ font-family:"JetBrains Mono",monospace; font-size:0.62rem; font-weight:800;
+  letter-spacing:.05em; color:#ffffff; background:var(--accent); padding:2px 7px; border-radius:2px;
+  box-shadow:0 2px 6px -2px rgba(0,0,0,0.5); }
+.match .num-tag{ position:absolute; top:-9px; left:10px; }
 .live-badge{ display:inline-flex; align-items:center; gap:4px; padding:2px 7px;
   font-family:"Rajdhani",sans-serif; font-size:0.68rem; letter-spacing:.02em; font-weight:700;
   color:#ff7a63; border:1px solid rgba(255,122,99,0.5); background:rgba(255,122,99,0.08); white-space:nowrap; }
 .live-badge .dot{ width:5px; height:5px; border-radius:50%; background:#ff7a63; animation:pulse 1.4s ease-in-out infinite; }
-.match .live-badge{ position:absolute; top:-9px; right:8px; background:var(--bg); }
+.match .live-badge{ position:absolute; top:-9px; right:8px; }
 .team-slot{ display:flex; align-items:center; justify-content:space-between; gap:6px; width:100%; height:32px;
   padding:0 12px; background:transparent; border:none; text-align:left; cursor:default; border-bottom:1px solid var(--border); }
-.match .team-slot:last-child{ border-bottom:none; }
+.match-card .team-slot:last-child{ border-bottom:none; }
 .team-slot .team-name{ font-size:0.85rem; color:var(--ink-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .team-slot.empty .team-name{ color:var(--ink-faint); font-style:italic; }
 .team-slot.filled{ cursor:pointer; }
@@ -229,11 +253,11 @@ svg.connectors path.done{ stroke:rgba(99,194,111,0.65); }
 .round-tab.active .n{ color:var(--accent); }
 
 .rmatch-list{ display:flex; flex-direction:column; gap:14px; }
+.rmatch-wrap{ position:relative; }
 .rmatch{ display:flex; align-items:stretch; gap:0; border:1px solid var(--border);
   background:linear-gradient(180deg, var(--surface), var(--bg-soft)); position:relative; }
-.rmatch .rnum{ position:absolute; top:-9px; left:14px; font-family:"JetBrains Mono",monospace; font-size:0.62rem;
-  color:var(--accent); font-weight:700; background:var(--bg); padding:0 5px; }
-.rmatch .live-badge{ position:absolute; top:-9px; right:14px; background:var(--bg); }
+.rmatch-wrap .rnum{ position:absolute; top:-9px; left:14px; }
+.rmatch-wrap .live-badge{ position:absolute; top:-9px; right:14px; }
 .rside{ flex:1; display:flex; align-items:center; gap:14px; padding:20px 22px; min-width:0;
   background:transparent; border:none; cursor:default; text-align:left; }
 .rside.right{ flex-direction:row-reverse; text-align:right; }

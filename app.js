@@ -16,7 +16,7 @@
   var GITHUB_OWNER = "jimin-0526";
   var GITHUB_REPO = "zzp-craft-cup";
   var GITHUB_BRANCH = "main";
-  var GITHUB_TOKEN = "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";
+  var GITHUB_TOKEN = "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";
   var ADMIN_PASSCODE = "zzp2026";
 
   var DATA_PATH = "data/state.json";
@@ -187,11 +187,25 @@
     }catch(e){ return null; }
   }
 
+  async function apiErrorDetail(res){
+    var msg = "HTTP " + res.status;
+    try{
+      var body = await res.json();
+      if(body && body.message) msg += ": " + body.message;
+    }catch(e){}
+    return msg;
+  }
+
   async function fetchAuthedShaAndState(){
-    var res = await fetch(API_BASE + "/contents/" + DATA_PATH + "?ref=" + GITHUB_BRANCH, {
-      headers: { "Authorization": "Bearer " + GITHUB_TOKEN, "Accept": "application/vnd.github+json" }
-    });
-    if(!res.ok) throw new Error("read " + res.status);
+    var res;
+    try{
+      res = await fetch(API_BASE + "/contents/" + DATA_PATH + "?ref=" + GITHUB_BRANCH, {
+        headers: { "Authorization": "Bearer " + GITHUB_TOKEN, "Accept": "application/vnd.github+json" }
+      });
+    }catch(networkErr){
+      throw new Error("불러오기 네트워크 오류: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
+    }
+    if(!res.ok) throw new Error("불러오기 실패 · " + (await apiErrorDetail(res)));
     var json = await res.json();
     var content = base64ToUtf8(json.content);
     return { sha: json.sha, state: normalizeState(JSON.parse(content)) };
@@ -204,45 +218,52 @@
       sha: sha,
       branch: GITHUB_BRANCH
     };
-    var res = await fetch(API_BASE + "/contents/" + DATA_PATH, {
-      method: "PUT",
-      headers: {
-        "Authorization": "Bearer " + GITHUB_TOKEN,
-        "Accept": "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-    });
+    var res;
+    try{
+      res = await fetch(API_BASE + "/contents/" + DATA_PATH, {
+        method: "PUT",
+        headers: {
+          "Authorization": "Bearer " + GITHUB_TOKEN,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+    }catch(networkErr){
+      throw new Error("저장 네트워크 오류: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
+    }
     if(res.status === 409) return "conflict";
-    if(!res.ok) throw new Error("write " + res.status);
+    if(!res.ok) throw new Error("저장 실패 · " + (await apiErrorDetail(res)));
     return "ok";
   }
 
   async function mutateAndSave(mutatorFn){
-    if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return "not-admin"; }
+    if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return {status:"not-admin"}; }
     var prevState = state;
     try{
       var fresh = await fetchAuthedShaAndState();
       var ns = mutatorFn(clone(fresh.state));
-      if(!ns) return "noop";
+      if(!ns) return {status:"noop"};
       state = ns; render();
       var result = await writeState(ns, fresh.sha);
       if(result === "conflict"){
         toast("다른 사람이 방금 저장했어요. 최신 내용을 불러옵니다…");
         var latest = await fetchPublicState();
         if(latest){ state = latest; render(); }
-        return "conflict";
+        return {status:"conflict"};
       }
       syncOk = true;
     }catch(e){
       syncOk = false;
       state = prevState; render();
-      toast("저장에 실패했습니다. 토큰/네트워크를 확인해주세요.");
+      var detail = (e && e.message) ? e.message : String(e);
+      console.error("[zzp] save failed:", e);
+      toast("저장에 실패했습니다: " + detail);
       updateSyncPill();
-      return "error";
+      return {status:"error", detail: detail};
     }
     updateSyncPill();
-    return "ok";
+    return {status:"ok"};
   }
 
   /* ---------------- mutations ---------------- */
@@ -392,7 +413,22 @@
       + '<circle cx="150" cy="150" r="108" stroke="rgba(178,181,150,0.2)" stroke-width="1" stroke-dasharray="3 7"/>'
       + ticks
       + '<path d="M150 42v216M42 150h216" stroke="rgba(99,194,111,0.10)" stroke-width="1"/>'
-      + '<text x="150" y="172" text-anchor="middle" font-family="Black Ops One, sans-serif" font-size="88" fill="rgba(238,240,226,0.75)">32</text>'
+      + '</svg>';
+  }
+  function bulletHoleSvg(n){
+    var gid = "bhHalo" + n;
+    return '<svg viewBox="0 0 100 100">'
+      + '<defs><radialGradient id="'+gid+'" cx="50%" cy="50%" r="50%">'
+      +   '<stop offset="0%" stop-color="rgba(50,50,50,0.55)"/>'
+      +   '<stop offset="55%" stop-color="rgba(110,110,110,0.26)"/>'
+      +   '<stop offset="100%" stop-color="rgba(110,110,110,0)"/>'
+      + '</radialGradient></defs>'
+      + '<ellipse cx="50" cy="50" rx="46" ry="42" fill="url(#'+gid+')"/>'
+      + '<path d="M50 14 L60 28 L78 18 L68 38 L88 40 L66 50 L84 64 L60 56 L64 82 L48 60 L34 84 L32 58 L12 68 L28 48 L10 34 L32 40 L22 16 L42 34 Z" fill="#0a0a0a"/>'
+      + '<path d="M18 26 L26 18 L22 30 Z" fill="#0c0c0c" opacity="0.85"/>'
+      + '<path d="M82 26 L90 32 L78 34 Z" fill="#0c0c0c" opacity="0.85"/>'
+      + '<path d="M76 78 L86 86 L72 84 Z" fill="#0c0c0c" opacity="0.8"/>'
+      + '<path d="M50 50 L14 22 M50 50 L86 20 M50 50 L10 62 M50 50 L90 58 M50 50 L44 92 M50 50 L62 94" stroke="#161616" stroke-width="1.3" opacity="0.5"/>'
       + '</svg>';
   }
 
@@ -438,9 +474,15 @@
       +   '<span class="hero-badge">'+heroBadgeSvg()+'</span>'
       +   '<div class="wrap hero-inner">'
       +     '<span class="eyebrow">2026 SEASON · SINGLE ELIMINATION</span>'
-      +     '<div class="hero-logo-wrap"><img class="hero-logo" src="assets/logo.png" alt="절크컵"><span class="muzzle-flash"></span></div>'
+      +     '<div class="hero-logo-wrap">'
+      +       '<img class="hero-logo" src="assets/logo.png" alt="절크컵">'
+      +       '<span class="impact-flash flash-1"></span><span class="impact-flash flash-2"></span><span class="impact-flash flash-3"></span>'
+      +       '<span class="bullet-hole hole-1">'+bulletHoleSvg(1)+'</span>'
+      +       '<span class="bullet-hole hole-2">'+bulletHoleSvg(2)+'</span>'
+      +       '<span class="bullet-hole hole-3">'+bulletHoleSvg(3)+'</span>'
+      +     '</div>'
       +     '<div class="hero-en">2026 ZZP CRAFT CUP</div>'
-      +     '<p class="lede">32개 팀이 32강부터 차례로 맞붙어 단 한 팀의 우승팀이 가려질 때까지 겨루는 절크컵 공식 대진 페이지입니다. 대진 추첨과 경기 결과가 이 페이지에 실시간으로 기록됩니다.</p>'
+      +     '<p class="lede">크래프트 최강 스쿼드를 가릴 2026 절크컵!<br>4인 스쿼드와 함께 새로운 승부에 도전해보세요.</p>'
       +     '<div class="meta-row">'
       +       '<div class="meta-chip"><span class="num">32</span><span class="lbl">참가 팀</span></div>'
       +       '<div class="meta-chip"><span class="num">5</span><span class="lbl">라운드</span></div>'
@@ -552,11 +594,13 @@
         var scoreLabel = m.isFinal
           ? (m.games && m.games.length ? (m.games.filter(function(g){return g==="a";}).length+"-"+m.games.filter(function(g){return g==="b";}).length) : "")
           : (m.score || "");
-        matches += '<div class="match cut-sm'+(m.isFinal?" is-final":"")+'" style="top:'+top+'px;left:'+left+'px;" data-round="'+rr+'" data-idx="'+ii+'">'
+        matches += '<div class="match" style="top:'+top+'px;left:'+left+'px;" data-round="'+rr+'" data-idx="'+ii+'">'
           + '<span class="num-tag">M'+matchNum(rr,ii)+(m.isFinal?" · BO3":"")+'</span>'
           + (rr>=2 ? '<span class="live-badge"><span class="dot"></span>방송</span>' : '')
-          + slotHtml(m,"a",rr,ii,st)
-          + slotHtml(m,"b",rr,ii,st)
+          + '<div class="match-card cut-sm'+(m.isFinal?" is-final":"")+'">'
+          +   slotHtml(m,"a",rr,ii,st)
+          +   slotHtml(m,"b",rr,ii,st)
+          + '</div>'
           + (scoreLabel ? '<span class="match-score">'+escapeHtml(scoreLabel)+'</span>' : '')
           + '</div>';
       }
@@ -653,12 +697,14 @@
       } else {
         mid = '<div class="rmid"><span class="vs">VS</span>'+(m.score ? '<span class="score">'+escapeHtml(m.score)+'</span>' : '')+'</div>';
       }
-      list += '<div class="rmatch'+(isFinal?" is-final":"")+' cut-sm">'
+      list += '<div class="rmatch-wrap">'
         + '<span class="rnum">M'+matchNum(selectedRound,ii)+(isFinal?" · BO3":"")+'</span>'
         + (selectedRound>=2 ? '<span class="live-badge"><span class="dot"></span>방송 송출</span>' : '')
-        + rsideHtml(m,"a",selectedRound,ii,st)
-        + mid
-        + rsideHtml(m,"b",selectedRound,ii,st)
+        + '<div class="rmatch'+(isFinal?" is-final":"")+' cut-sm">'
+        +   rsideHtml(m,"a",selectedRound,ii,st)
+        +   mid
+        +   rsideHtml(m,"b",selectedRound,ii,st)
+        + '</div>'
         + '</div>';
       if(isFinal && isAdmin && m.a && m.b){
         var games2 = m.games || [];
@@ -1149,7 +1195,7 @@
       statusEl = document.getElementById("cer-save-status");
       if(!statusEl || !finale) return; // overlay already closed by user
 
-      if(result === "ok"){
+      if(result.status === "ok"){
         statusEl.className = "cer-save-status ok";
         statusEl.textContent = "저장 완료 · 모두에게 실시간으로 반영됩니다";
         var actions = document.createElement("div");
@@ -1162,7 +1208,7 @@
         }
       } else {
         statusEl.className = "cer-save-status error";
-        statusEl.textContent = "저장에 실패했습니다 (토큰 또는 네트워크 문제). 아래에서 다시 시도해주세요.";
+        statusEl.textContent = "저장 실패: " + (result.detail || result.status || "알 수 없는 오류") + " — 아래에서 다시 시도해주세요.";
         var actions2 = document.createElement("div");
         actions2.className = "cer-finale-actions";
         actions2.innerHTML = ''
