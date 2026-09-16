@@ -2,21 +2,20 @@
   'use strict';
 
   /* ============================================================
-     SETUP — fill these three in before you upload this file.
+     SETUP
      1) GITHUB_OWNER / GITHUB_REPO: your GitHub username and the repo name.
-     2) GITHUB_TOKEN: a FINE-GRAINED personal access token, scoped to ONLY
-        this one repo, with ONLY "Contents: Read and write" permission.
-        Create it at: https://github.com/settings/personal-access-tokens/new
-        This token lets ANYONE who can read this file's source save changes
-        (that's the tradeoff of a password-only, no-login admin system —
-        see the setup guide for details). Keep its scope narrow and give it
-        an expiration date; rotate it if you ever suspect misuse.
+     2) GITHUB_TOKEN is intentionally NOT stored here. A token committed to
+        a public repo gets detected and auto-revoked by GitHub within
+        minutes, which is why writes kept silently failing. Instead, each
+        admin pastes their own fine-grained token (Contents: Read and write,
+        scoped to only this repo) when they log in — it's kept only in this
+        browser tab's sessionStorage, never written to any file or commit.
      3) ADMIN_PASSCODE: change this from the default before going live.
      ============================================================ */
   var GITHUB_OWNER = "jimin-0526";
   var GITHUB_REPO = "zzp-craft-cup";
   var GITHUB_BRANCH = "main";
-  var GITHUB_TOKEN = "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";
+  var GITHUB_TOKEN = ""; // set at runtime on admin login — see toggleAdmin()
   var ADMIN_PASSCODE = "zzp2026";
 
   var DATA_PATH = "data/state.json";
@@ -132,7 +131,12 @@
   var activeModal = null; // {id, mode}
   var syncOk = true;
 
-  try{ if(sessionStorage.getItem("zzp_admin")==="1") isAdmin = true; }catch(e){}
+  try{
+    if(sessionStorage.getItem("zzp_admin")==="1" && sessionStorage.getItem("zzp_admin_token")){
+      isAdmin = true;
+      GITHUB_TOKEN = sessionStorage.getItem("zzp_admin_token");
+    }
+  }catch(e){}
 
   function teamOf(id, st){ return st.teams[String(id)] || {name:"?", confirmed:true, players:[]}; }
   function teamName(id, st){ return id ? teamOf(id, st).name : null; }
@@ -239,6 +243,10 @@
 
   async function mutateAndSave(mutatorFn){
     if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return {status:"not-admin"}; }
+    if(!GITHUB_TOKEN){
+      toast("저장할 토큰이 없습니다. 관리자 모드를 종료 후 다시 로그인해서 토큰을 입력해주세요.");
+      return {status:"error", detail:"토큰 없음 — 재로그인 필요"};
+    }
     var prevState = state;
     try{
       var fresh = await fetchAuthedShaAndState();
@@ -351,21 +359,24 @@
   function toggleAdmin(){
     if(isAdmin){
       isAdmin = false;
-      try{ sessionStorage.removeItem("zzp_admin"); }catch(e){}
+      GITHUB_TOKEN = "";
+      try{ sessionStorage.removeItem("zzp_admin"); sessionStorage.removeItem("zzp_admin_token"); }catch(e){}
       render();
       toast("관리자 모드를 종료했습니다.");
       return;
     }
     var pass = window.prompt("관리자 비밀번호를 입력하세요");
     if(pass===null) return;
-    if(pass === ADMIN_PASSCODE){
-      isAdmin = true;
-      try{ sessionStorage.setItem("zzp_admin","1"); }catch(e){}
-      render();
-      toast("관리자 모드가 활성화되었습니다.");
-    } else {
-      toast("비밀번호가 올바르지 않습니다.");
-    }
+    if(pass !== ADMIN_PASSCODE){ toast("비밀번호가 올바르지 않습니다."); return; }
+    var tok = window.prompt("GitHub 토큰을 입력하세요 (저장할 때 필요해요. 이 브라우저 탭에서만 기억되고 어디에도 저장되지 않습니다.)");
+    if(tok===null) return;
+    tok = tok.trim();
+    if(!tok){ toast("토큰이 비어 있습니다."); return; }
+    isAdmin = true;
+    GITHUB_TOKEN = tok;
+    try{ sessionStorage.setItem("zzp_admin","1"); sessionStorage.setItem("zzp_admin_token", tok); }catch(e){}
+    render();
+    toast("관리자 모드가 활성화되었습니다.");
   }
 
   var toastTimer = null;
@@ -1103,6 +1114,7 @@
 
   async function runDrawCeremony(){
     if(!isAdmin){ toast("관리자만 대진 추첨을 시작할 수 있습니다."); return; }
+    if(!GITHUB_TOKEN){ toast("저장할 토큰이 없습니다. 관리자 모드를 종료 후 다시 로그인해서 토큰을 입력해주세요."); return; }
     if(state.drawn){
       if(!window.confirm("다시 추첨하면 지금까지의 모든 경기 결과가 사라집니다. 정말 다시 추첨할까요?")) return;
     }
