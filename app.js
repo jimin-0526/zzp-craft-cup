@@ -505,7 +505,7 @@
       +       '<a href="#teams">참가팀</a>'
       +     '</nav>'
       +     '<div style="display:flex;align-items:center;gap:12px;">'
-      +       '<span class="'+syncCls+'" id="sync-pill"><span class="dot"></span>'+syncTxt+'</span>'
+      +       '<span class="'+syncCls+'" id="sync-pill"><span class="dot"></span><span class="sync-label">'+syncTxt+'</span></span>'
       +       '<span class="'+pillClass+'"><span class="dot"></span>'+pillText+'</span>'
       +     '</div>'
       +   '</div>'
@@ -697,10 +697,16 @@
       +     '<button type="button" class="zoom-btn zoom-reset" data-action="bracket-zoom-reset">Reset</button>'
       +   '</div>'
       + '</div>'
+      // #bracket-fit is a SPACER sized to the scaled visual dimensions so
+      // .bracket-scroll's native scrollWidth/Height actually cover the
+      // zoomed content (a transform alone doesn't grow scrollable area
+      // here) — #bracket-zoom-inner is what actually gets scaled.
       + '<div class="bracket-scroll">'
-      +   '<div id="bracket-fit" style="width:'+BRACKET_W+'px;">'
-      +     headers
-      +     '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+pills+'</div>'
+      +   '<div id="bracket-fit">'
+      +     '<div id="bracket-zoom-inner" style="width:'+BRACKET_W+'px;">'
+      +       headers
+      +       '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+pills+'</div>'
+      +     '</div>'
       +   '</div>'
       + '</div>';
   }
@@ -709,8 +715,9 @@
 
   function fitBracketScale(){
     var container = document.querySelector(".bracket-scroll");
-    var inner = document.getElementById("bracket-fit");
-    if(!container || !inner) return;
+    var spacer = document.getElementById("bracket-fit");
+    var inner = document.getElementById("bracket-zoom-inner");
+    if(!container || !spacer || !inner) return;
     inner.style.transform = "none";
     var naturalW = inner.scrollWidth;
     var naturalH = inner.scrollHeight;
@@ -721,7 +728,8 @@
     var scale = fitScale * bracketZoom;
     inner.style.transformOrigin = "top left";
     inner.style.transform = "scale(" + scale + ")";
-    container.style.height = Math.ceil(naturalH * scale) + "px";
+    spacer.style.width = Math.ceil(naturalW * scale) + "px";
+    spacer.style.height = Math.ceil(naturalH * scale) + "px";
     var pctEl = document.getElementById("zoom-pct");
     if(pctEl) pctEl.textContent = Math.round(bracketZoom*100) + "%";
   }
@@ -803,11 +811,15 @@
         for(var g=0; g<3; g++){
           var decided = g < games.length;
           var active = g === games.length && !m.winner;
-          var pending = !decided && !active;
-          var midHtml = '<span class="vs">매치 '+(g+1)+'</span>'
-            + (decided ? '<span class="game-hint">종료</span>' : active ? '<span class="game-hint live">진행중</span>' : '<span class="game-hint muted">대기</span>');
+          // once the series is already won 2-0, the 3rd slot never
+          // happens at all — that's different from "not reached yet".
+          var skipped = !decided && !active && !!m.winner;
+          var pending = !decided && !active && !skipped;
+          var hintCls = decided ? "" : active ? " live" : skipped ? " muted" : " muted";
+          var hintTxt = decided ? "종료" : active ? "진행중" : skipped ? "경기 없음" : "대기";
+          var midHtml = '<span class="vs">매치 '+(g+1)+'</span><span class="game-hint'+hintCls+'">'+hintTxt+'</span>';
           list += '<div class="rmatch-wrap">'
-            + '<div class="rmatch is-final'+(pending?" is-pending":"")+' cut-sm">'
+            + '<div class="rmatch is-final'+((pending||skipped)?" is-pending":"")+' cut-sm">'
             +   finalGameSideHtml(m,"a",g,active,st)
             +   '<div class="rmid">'+midHtml+'</div>'
             +   finalGameSideHtml(m,"b",g,active,st)
@@ -850,7 +862,6 @@
       +   '<div class="wrap">'
       +     '<div class="section-head">'
       +       '<div><span class="eyebrow">BRACKET</span><h2>대진표</h2></div>'
-      +       '<div class="desc">팀 이름을 클릭하면 해당 경기의 승자로 기록됩니다. 결승은 3판 2선승제예요.</div>'
       +     '</div>'
       +     championBanner(st)
       +     '<div class="view-toggle">'
@@ -1203,7 +1214,7 @@
     var el = document.getElementById("sync-pill");
     if(!el) return;
     el.className = "sync-pill " + (syncOk ? "ok" : "err");
-    el.innerHTML = '<span class="dot"></span>' + (syncOk ? "실시간 동기화" : "동기화 오류");
+    el.innerHTML = '<span class="dot"></span><span class="sync-label">' + (syncOk ? "실시간 동기화" : "동기화 오류") + '</span>';
   }
 
   /* ---------------- draw ceremony ---------------- */
