@@ -291,6 +291,16 @@
     mutateAndSave(function(ns){ ns.results = {}; return ns; });
   }
 
+  function resetDraw(){
+    if(!isAdmin){ toast("관리자만 초기화할 수 있습니다."); return; }
+    if(!window.confirm("대진 추첨 결과를 완전히 초기화할까요? 대진과 모든 경기 결과가 사라지고, 추첨 전 상태로 돌아갑니다.")) return;
+    mutateAndSave(function(ns){
+      ns.drawn = false; ns.drawnAt = null; ns.order = []; ns.results = {};
+      return ns;
+    });
+    drawPanelOpen = false;
+  }
+
   function saveTeamEdit(id){
     if(!isAdmin) return;
     var nameInput = document.getElementById("edit-name-"+id);
@@ -425,7 +435,7 @@
       +   '<span class="hero-badge">'+heroBadgeSvg()+'</span>'
       +   '<div class="wrap hero-inner">'
       +     '<span class="eyebrow">2026 SEASON · SINGLE ELIMINATION</span>'
-      +     '<img class="hero-logo" src="assets/logo.png" alt="절크컵">'
+      +     '<div class="hero-logo-wrap"><img class="hero-logo" src="assets/logo.png" alt="절크컵"><span class="muzzle-flash"></span></div>'
       +     '<div class="hero-en">2026 ZZP CRAFT CUP</div>'
       +     '<p class="lede">32개 팀이 32강부터 차례로 맞붙어 단 한 팀의 우승팀이 가려질 때까지 겨루는 절크컵 공식 대진 페이지입니다. 대진 추첨과 경기 결과가 이 페이지에 실시간으로 기록됩니다.</p>'
       +     '<div class="meta-row">'
@@ -448,6 +458,31 @@
       : "버튼을 누르면 에어드롭이 착륙하듯 32개 팀이 한 팀씩 무작위로 32강 대진에 투하됩니다.";
     var drawLabel = st.drawn ? "다시 추첨" : "대진 추첨 시작";
     var hasResults = st.results && Object.keys(st.results).length>0;
+    var expanded = !st.drawn || drawPanelOpen;
+
+    var body;
+    if(expanded){
+      body = ''
+        + '<div class="draw-card cut-tr reticle">'
+        +   '<div class="draw-info">'
+        +     '<span class="icon-box">'+iconCrate(24)+'</span>'
+        +     '<div><div class="title">'+(st.drawn ? "대진이 확정되었습니다" : "대진이 아직 없습니다")+'</div><div class="sub">'+subtitle+'</div></div>'
+        +   '</div>'
+        +   '<div class="draw-actions">'
+        +     (st.drawn ? '<button type="button" class="btn btn-ghost btn-sm" data-action="toggle-draw-panel">접기 ▴</button>' : '')
+        +     (hasResults ? '<button type="button" class="btn btn-ghost btn-sm" data-action="reset-results">'+iconRefresh(15)+' 결과 초기화</button>' : '')
+        +     (st.drawn ? '<button type="button" class="btn btn-danger btn-sm" data-action="reset-draw">'+iconRefresh(15)+' 대진 초기화</button>' : '')
+        +     '<button type="button" class="btn btn-primary" data-action="draw">'+iconCrate(17)+' '+drawLabel+'</button>'
+        +   '</div>'
+        + '</div>';
+    } else {
+      body = ''
+        + '<div class="draw-collapsed cut-tr" data-action="toggle-draw-panel">'
+        +   '<div class="title"><span class="icon-box">'+iconCheck(15)+'</span>대진 확정됨 · '+escapeHtml(subtitle)+'</div>'
+        +   '<span class="chev">자세히 보기 / 관리 ▾</span>'
+        + '</div>';
+    }
+
     return ''
       + '<section id="draw">'
       +   '<div class="wrap">'
@@ -455,16 +490,7 @@
       +       '<div><span class="eyebrow">DRAW EVENT</span><h2>대진 추첨</h2></div>'
       +       '<div class="desc">32개 팀을 랜덤으로 섞어 32강 대진표를 생성합니다.</div>'
       +     '</div>'
-      +     '<div class="draw-card cut-tr reticle">'
-      +       '<div class="draw-info">'
-      +         '<span class="icon-box">'+iconCrate(24)+'</span>'
-      +         '<div><div class="title">'+(st.drawn ? "대진이 확정되었습니다" : "대진이 아직 없습니다")+'</div><div class="sub">'+subtitle+'</div></div>'
-      +       '</div>'
-      +       '<div class="draw-actions">'
-      +         (hasResults ? '<button type="button" class="btn btn-ghost btn-sm" data-action="reset-results">'+iconRefresh(15)+' 결과 초기화</button>' : '')
-      +         '<button type="button" class="btn btn-primary" data-action="draw">'+iconCrate(17)+' '+drawLabel+'</button>'
-      +       '</div>'
-      +     '</div>'
+      +     body
       +   '</div>'
       + '</section>';
   }
@@ -475,7 +501,7 @@
     var name = filled ? teamName(id, st) : null;
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
-    var clickable = filled && m.a && m.b && !m.isFinal;
+    var clickable = isAdmin && filled && m.a && m.b && !m.isFinal;
     var cls = ["team-slot", filled?"filled":"empty"];
     if(isWinner) cls.push("winner");
     if(isLoser) cls.push("loser");
@@ -490,6 +516,8 @@
 
   var viewMode = "round"; // "round" | "full"
   var selectedRound = 0;
+  var drawPanelOpen = false;
+  var statsGameIdx = 0;
 
   function championBanner(st){
     var champId = championOf(st);
@@ -523,6 +551,7 @@
           : (m.score || "");
         matches += '<div class="match cut-sm'+(m.isFinal?" is-final":"")+'" style="top:'+top+'px;left:'+left+'px;" data-round="'+rr+'" data-idx="'+ii+'">'
           + '<span class="num-tag">M'+matchNum(rr,ii)+(m.isFinal?" · BO3":"")+'</span>'
+          + (rr>=2 ? '<span class="live-badge"><span class="dot"></span>방송</span>' : '')
           + slotHtml(m,"a",rr,ii,st)
           + slotHtml(m,"b",rr,ii,st)
           + (scoreLabel ? '<span class="match-score">'+escapeHtml(scoreLabel)+'</span>' : '')
@@ -573,7 +602,7 @@
     var seed = filled ? id : "?";
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
-    var clickable = filled && m.a && m.b && (m.isFinal ? !m.winner : true);
+    var clickable = isAdmin && filled && m.a && m.b && (m.isFinal ? !m.winner : true);
     var cls = ["rside", slot==="b"?"right":"", filled?"":"empty", isWinner?"winner":"", isLoser?"loser":""].join(" ").trim();
     var tag = clickable ? "button" : "div";
     var action = m.isFinal ? "final-game" : "pick";
@@ -607,6 +636,7 @@
       }
       list += '<div class="rmatch'+(isFinal?" is-final":"")+' cut-sm">'
         + '<span class="rnum">M'+matchNum(selectedRound,ii)+(isFinal?" · BO3":"")+'</span>'
+        + (selectedRound>=2 ? '<span class="live-badge"><span class="dot"></span>방송 송출</span>' : '')
         + rsideHtml(m,"a",selectedRound,ii,st)
         + mid
         + rsideHtml(m,"b",selectedRound,ii,st)
@@ -619,6 +649,16 @@
             ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>'
             : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">게임 '+(games2.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>')
           + '</div>';
+      }
+      if(m.a && m.b){
+        var statKey = isFinal ? "4-0" : (selectedRound+"-"+ii);
+        var srec = recOf(st, statKey);
+        var hasStatsData = !!(srec && srec.statsSaved);
+        if(isAdmin || hasStatsData){
+          list += '<div class="rstats-row"><button type="button" class="stat-btn'+(hasStatsData?" has-data":"")+'" data-action="open-stats" data-r="'+selectedRound+'" data-i="'+ii+'">'
+            + (hasStatsData ? "선수 기록 보기" : "선수 기록 입력")
+            + '</button></div>';
+        }
       }
     }
 
@@ -665,7 +705,7 @@
       cards += '<button type="button" class="roster-card cut-tr reticle'+champCls+'" data-action="open-team" data-id="'+id+'">'
         + '<span class="seed-mark">'+seed+'</span>'
         + '<div class="card-top">'
-        +   '<div class="seed-lbl">SEED '+seed+'</div>'
+        +   '<div class="seed-lbl">TEAM '+seed+'</div>'
         +   '<div class="team-name">'+escapeHtml(team.name)+'</div>'
         + '</div>'
         + '<div class="roster-foot"><span class="team-pill '+tag.variant+'">'+tag.text+'</span><span class="tap-hint">SQUAD ▸</span></div>'
@@ -715,9 +755,201 @@
       + '</div></footer>';
   }
 
+  /* ---------------- match stats ---------------- */
+  function statsParticipants(id, st){
+    return teamOf(id, st).players.filter(function(p){ return p.nick && p.role !== "후보"; });
+  }
+
+  function computeMvp(players){
+    var best = null;
+    players.forEach(function(p){
+      if(p.kills == null) return;
+      if(!best || p.kills > best.kills || (p.kills === best.kills && (p.dmg||0) > (best.dmg||0))) best = p;
+    });
+    return best;
+  }
+
+  function computeSeriesMvp(rec){
+    var totals = {};
+    var gs = (rec && rec.gameStats) || [];
+    gs.forEach(function(g){
+      if(!g) return;
+      ["a","b"].forEach(function(side){
+        (g[side]||[]).forEach(function(p){
+          if(!p || !p.nick) return;
+          if(!totals[p.nick]) totals[p.nick] = {nick:p.nick, kills:0, dmg:0};
+          totals[p.nick].kills += (p.kills||0);
+          totals[p.nick].dmg += (p.dmg||0);
+        });
+      });
+    });
+    var list = Object.keys(totals).map(function(k){ return totals[k]; });
+    return computeMvp(list);
+  }
+
+  function statsRowsHtml(list, prefix, editable){
+    return list.map(function(p, idx){
+      if(editable){
+        return '<div class="stats-row">'
+          + '<span class="pname">'+escapeHtml(p.nick)+'</span>'
+          + '<input type="number" min="0" id="'+prefix+'-k-'+idx+'" placeholder="킬" value="'+(p.kills!=null?p.kills:"")+'">'
+          + '<input type="number" min="0" id="'+prefix+'-d-'+idx+'" placeholder="데미지" value="'+(p.dmg!=null?p.dmg:"")+'">'
+          + '</div>';
+      }
+      return '<div class="stats-row'+(p._mvp?" mvp":"")+'">'
+        + '<span class="pname">'+escapeHtml(p.nick)+(p._mvp?' ★':'')+'</span>'
+        + '<span class="mono" style="font-size:0.82rem;">'+(p.kills!=null?p.kills:"–")+'</span>'
+        + '<span class="mono" style="font-size:0.82rem;">'+(p.dmg!=null?p.dmg:"–")+'</span>'
+        + '</div>';
+    }).join("");
+  }
+
+  function saveMatchStats(r, i){
+    if(!isAdmin) return;
+    var m = getMatch(r, i, state);
+    var partsA = statsParticipants(m.a, state);
+    var partsB = statsParticipants(m.b, state);
+    function readSide(parts, prefix){
+      return parts.map(function(p, idx){
+        var kEl = document.getElementById(prefix+"-k-"+idx), dEl = document.getElementById(prefix+"-d-"+idx);
+        var k = kEl && kEl.value !== "" ? Number(kEl.value) : null;
+        var d = dEl && dEl.value !== "" ? Number(dEl.value) : null;
+        return { nick: p.nick, kills:k, dmg:d };
+      });
+    }
+    var statsA = readSide(partsA, "sa");
+    var statsB = readSide(partsB, "sb");
+    activeModal = null;
+    mutateAndSave(function(ns){
+      var key = r+"-"+i;
+      var rec = recOf(ns, key) || { w:null, score:null };
+      rec.stats = { a: statsA, b: statsB };
+      rec.statsSaved = true;
+      ns.results[key] = rec;
+      return ns;
+    });
+  }
+
+  function saveFinalStats(gameIdx){
+    if(!isAdmin) return;
+    var m = getMatch(4, 0, state);
+    var partsA = statsParticipants(m.a, state);
+    var partsB = statsParticipants(m.b, state);
+    function readSide(parts, prefix){
+      return parts.map(function(p, idx){
+        var kEl = document.getElementById(prefix+"-k-"+idx), dEl = document.getElementById(prefix+"-d-"+idx);
+        var k = kEl && kEl.value !== "" ? Number(kEl.value) : null;
+        var d = dEl && dEl.value !== "" ? Number(dEl.value) : null;
+        return { nick: p.nick, kills:k, dmg:d };
+      });
+    }
+    var statsA = readSide(partsA, "sa");
+    var statsB = readSide(partsB, "sb");
+    activeModal = null;
+    mutateAndSave(function(ns){
+      var key = "4-0";
+      var rec = recOf(ns, key) || { w:null, games:[], score:null };
+      var gameStats = (rec.gameStats || []).slice();
+      gameStats[gameIdx] = { a: statsA, b: statsB };
+      rec.gameStats = gameStats;
+      rec.statsSaved = true;
+      ns.results[key] = rec;
+      return ns;
+    });
+  }
+
+  function renderStatsModal(st){
+    var r = activeModal.r, i = activeModal.i;
+    var m = getMatch(r, i, st);
+    if(!m.a || !m.b) return "";
+    var teamA = teamOf(m.a, st), teamB = teamOf(m.b, st);
+    var partsA = statsParticipants(m.a, st);
+    var partsB = statsParticipants(m.b, st);
+    var editable = isAdmin;
+    var headTitle = escapeHtml(teamA.name) + ' vs ' + escapeHtml(teamB.name);
+
+    if(m.isFinal){
+      var games = m.games || [];
+      if(!games.length){
+        return ''
+          + '<div class="modal-backdrop">'
+          +   '<div class="modal-panel cut-tr stats-modal">'
+          +     '<div class="modal-head"><div><div class="seed-lbl">M'+matchNum(r,i)+' · 선수 기록</div><div class="team-name">'+headTitle+'</div></div>'
+          +       '<button type="button" class="modal-close" data-action="close-modal">'+iconClose(14)+'</button></div>'
+          +     '<div class="modal-body"><div class="empty-note">아직 진행된 게임이 없습니다. 게임 결과를 먼저 기록해주세요.</div></div>'
+          +   '</div>'
+          + '</div>';
+      }
+      if(statsGameIdx > games.length-1) statsGameIdx = games.length-1;
+      if(statsGameIdx < 0) statsGameIdx = 0;
+      var gTabs = "";
+      for(var g=0; g<games.length; g++){
+        gTabs += '<button type="button" class="round-tab'+(statsGameIdx===g?" active":"")+'" data-action="stats-game-tab" data-game="'+g+'">GAME '+(g+1)+'</button>';
+      }
+      var rec = recOf(st, "4-0") || {};
+      var gameStats = (rec.gameStats && rec.gameStats[statsGameIdx]) || {a:[],b:[]};
+      var listA = partsA.map(function(p,idx){ var s=(gameStats.a||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+      var listB = partsB.map(function(p,idx){ var s=(gameStats.b||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+      if(!editable){
+        var mvpG = computeMvp(listA.concat(listB));
+        if(mvpG){ listA.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); listB.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); }
+      }
+      var seriesMvp = computeSeriesMvp(rec);
+      var body = ''
+        + '<div class="round-tabs" style="margin-bottom:16px;">'+gTabs+'</div>'
+        + (seriesMvp ? '<div class="stats-team-title" style="color:var(--gold);">★ 시리즈 합산 MVP · '+escapeHtml(seriesMvp.nick)+' ('+seriesMvp.kills+'킬 / '+seriesMvp.dmg+' dmg)</div>' : '')
+        + '<div class="stats-col-head"><span>선수</span><span>킬</span><span>데미지</span></div>'
+        + '<div class="stats-team-title">'+escapeHtml(teamA.name)+'</div>'
+        + statsRowsHtml(listA, "sa", editable)
+        + '<div class="stats-team-title" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
+        + statsRowsHtml(listB, "sb", editable);
+      return ''
+        + '<div class="modal-backdrop">'
+        +   '<div class="modal-panel cut-tr stats-modal">'
+        +     '<div class="modal-head"><div><div class="seed-lbl">M'+matchNum(r,i)+' · BO3 선수 기록</div><div class="team-name">'+headTitle+'</div></div>'
+        +       '<button type="button" class="modal-close" data-action="close-modal">'+iconClose(14)+'</button></div>'
+        +     '<div class="modal-body">'+body+'</div>'
+        +     '<div class="modal-foot">'
+        +       '<button type="button" class="btn btn-ghost btn-sm" data-action="close-modal">닫기</button>'
+        +       (editable ? '<button type="button" class="btn btn-primary btn-sm" data-action="save-final-stats" data-game="'+statsGameIdx+'">저장</button>' : '')
+        +     '</div>'
+        +   '</div>'
+        + '</div>';
+    }
+
+    var key = r+"-"+i;
+    var rec2 = recOf(st, key) || {};
+    var stats = rec2.stats || {a:[],b:[]};
+    var listA2 = partsA.map(function(p,idx){ var s=(stats.a||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+    var listB2 = partsB.map(function(p,idx){ var s=(stats.b||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+    if(!editable){
+      var mvp = computeMvp(listA2.concat(listB2));
+      if(mvp){ listA2.forEach(function(p){ if(p.nick===mvp.nick) p._mvp=true; }); listB2.forEach(function(p){ if(p.nick===mvp.nick) p._mvp=true; }); }
+    }
+    var body2 = ''
+      + '<div class="stats-col-head"><span>선수</span><span>킬</span><span>데미지</span></div>'
+      + '<div class="stats-team-title">'+escapeHtml(teamA.name)+'</div>'
+      + statsRowsHtml(listA2, "sa", editable)
+      + '<div class="stats-team-title" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
+      + statsRowsHtml(listB2, "sb", editable);
+    return ''
+      + '<div class="modal-backdrop">'
+      +   '<div class="modal-panel cut-tr stats-modal">'
+      +     '<div class="modal-head"><div><div class="seed-lbl">M'+matchNum(r,i)+' · 선수 기록</div><div class="team-name">'+headTitle+'</div></div>'
+      +       '<button type="button" class="modal-close" data-action="close-modal">'+iconClose(14)+'</button></div>'
+      +     '<div class="modal-body">'+body2+'</div>'
+      +     '<div class="modal-foot">'
+      +       '<button type="button" class="btn btn-ghost btn-sm" data-action="close-modal">닫기</button>'
+      +       (editable ? '<button type="button" class="btn btn-primary btn-sm" data-action="save-match-stats" data-r="'+r+'" data-i="'+i+'">저장</button>' : '')
+      +     '</div>'
+      +   '</div>'
+      + '</div>';
+  }
+
   /* ---------------- modal ---------------- */
   function renderModal(st){
     if(!activeModal) return "";
+    if(activeModal.kind === "stats") return renderStatsModal(st);
     var id = activeModal.id;
     var team = teamOf(id, st);
     var seed = String(id).padStart(2,"0");
@@ -735,7 +967,7 @@
       return ''
         + '<div class="modal-backdrop">'
         +   '<div class="modal-panel cut-tr">'
-        +     '<div class="modal-head"><div><div class="seed-lbl">SEED '+seed+' · 편집</div><div class="team-name">'+escapeHtml(team.name)+'</div></div>'
+        +     '<div class="modal-head"><div><div class="seed-lbl">TEAM '+seed+' · 편집</div><div class="team-name">'+escapeHtml(team.name)+'</div></div>'
         +       '<button type="button" class="modal-close" data-action="close-modal">'+iconClose(14)+'</button></div>'
         +     '<div class="modal-body">'
         +       '<div class="field"><label>팀명</label><input id="edit-name-'+id+'" value="'+escapeHtml(team.name)+'"></div>'
@@ -757,7 +989,7 @@
     return ''
       + '<div class="modal-backdrop">'
       +   '<div class="modal-panel cut-tr">'
-      +     '<div class="modal-head"><div><div class="seed-lbl">SEED '+seed+'</div><div class="team-name">'+escapeHtml(team.name)+'</div></div>'
+      +     '<div class="modal-head"><div><div class="seed-lbl">TEAM '+seed+'</div><div class="team-name">'+escapeHtml(team.name)+'</div></div>'
       +       '<button type="button" class="modal-close" data-action="close-modal">'+iconClose(14)+'</button></div>'
       +     '<div class="modal-body">'+playerRows+'</div>'
       +     '<div class="modal-foot">'+(isAdmin ? '<button type="button" class="btn btn-ghost btn-sm" data-action="edit-team" data-id="'+id+'">'+iconPencil(13)+' 편집</button>' : '')+'</div>'
@@ -899,9 +1131,9 @@
     var roundTabBtn = e.target.closest('[data-action="round-tab"]');
     if(roundTabBtn){ selectedRound = +roundTabBtn.dataset.round; render(); return; }
     var openBtn = e.target.closest('[data-action="open-team"]');
-    if(openBtn){ activeModal = { id:+openBtn.dataset.id, mode: openBtn.dataset.edit ? "edit" : "view" }; render(); return; }
+    if(openBtn){ activeModal = { kind:"team", id:+openBtn.dataset.id, mode: openBtn.dataset.edit ? "edit" : "view" }; render(); return; }
     var editBtn = e.target.closest('[data-action="edit-team"]');
-    if(editBtn){ activeModal = { id:+editBtn.dataset.id, mode:"edit" }; render(); return; }
+    if(editBtn){ activeModal = { kind:"team", id:+editBtn.dataset.id, mode:"edit" }; render(); return; }
     var closeBtn = e.target.closest('[data-action="close-modal"]');
     if(closeBtn){ activeModal = null; render(); return; }
     if(e.target.classList && e.target.classList.contains("modal-backdrop")){ activeModal = null; render(); return; }
@@ -909,6 +1141,23 @@
     if(saveBtn){ saveTeamEdit(+saveBtn.dataset.id); return; }
     var adminBtn = e.target.closest('[data-action="admin-toggle"]');
     if(adminBtn){ toggleAdmin(); return; }
+    var toggleDrawBtn = e.target.closest('[data-action="toggle-draw-panel"]');
+    if(toggleDrawBtn){ drawPanelOpen = !drawPanelOpen; render(); return; }
+    var resetDrawBtn = e.target.closest('[data-action="reset-draw"]');
+    if(resetDrawBtn){ resetDraw(); return; }
+    var openStatsBtn = e.target.closest('[data-action="open-stats"]');
+    if(openStatsBtn){
+      var mm = getMatch(+openStatsBtn.dataset.r, +openStatsBtn.dataset.i, state);
+      statsGameIdx = (mm.isFinal && mm.games && mm.games.length) ? mm.games.length-1 : 0;
+      activeModal = { kind:"stats", r:+openStatsBtn.dataset.r, i:+openStatsBtn.dataset.i };
+      render(); return;
+    }
+    var statsGameTabBtn = e.target.closest('[data-action="stats-game-tab"]');
+    if(statsGameTabBtn){ statsGameIdx = +statsGameTabBtn.dataset.game; render(); return; }
+    var saveMatchStatsBtn = e.target.closest('[data-action="save-match-stats"]');
+    if(saveMatchStatsBtn){ saveMatchStats(+saveMatchStatsBtn.dataset.r, +saveMatchStatsBtn.dataset.i); return; }
+    var saveFinalStatsBtn = e.target.closest('[data-action="save-final-stats"]');
+    if(saveFinalStatsBtn){ saveFinalStats(+saveFinalStatsBtn.dataset.game); return; }
   });
 
   document.addEventListener("keydown", function(e){
@@ -926,7 +1175,7 @@
     var fp = stateFingerprint(fresh);
     if(fp !== lastFingerprint){
       lastFingerprint = fp;
-      if(!(activeModal && activeModal.mode === "edit")){
+      if(!(activeModal && (activeModal.mode === "edit" || activeModal.kind === "stats"))){
         state = fresh;
         render();
       }
