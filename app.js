@@ -219,27 +219,30 @@
   }
 
   async function mutateAndSave(mutatorFn){
-    if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return; }
+    if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return "not-admin"; }
     var prevState = state;
     try{
       var fresh = await fetchAuthedShaAndState();
       var ns = mutatorFn(clone(fresh.state));
-      if(!ns) return;
+      if(!ns) return "noop";
       state = ns; render();
       var result = await writeState(ns, fresh.sha);
       if(result === "conflict"){
         toast("다른 사람이 방금 저장했어요. 최신 내용을 불러옵니다…");
         var latest = await fetchPublicState();
         if(latest){ state = latest; render(); }
-        return;
+        return "conflict";
       }
       syncOk = true;
     }catch(e){
       syncOk = false;
       state = prevState; render();
       toast("저장에 실패했습니다. 토큰/네트워크를 확인해주세요.");
+      updateSyncPill();
+      return "error";
     }
     updateSyncPill();
+    return "ok";
   }
 
   /* ---------------- mutations ---------------- */
@@ -588,11 +591,27 @@
     return ''
       + '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span><span><i style="background:var(--border-strong)"></i>미정</span></div>'
       + '<div class="bracket-scroll">'
-      +   '<div style="width:'+BRACKET_W+'px;">'
+      +   '<div id="bracket-fit" style="width:'+BRACKET_W+'px;">'
       +     headers
       +     '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+matches+'</div>'
       +   '</div>'
       + '</div>';
+  }
+
+  function fitBracketScale(){
+    var container = document.querySelector(".bracket-scroll");
+    var inner = document.getElementById("bracket-fit");
+    if(!container || !inner) return;
+    inner.style.transform = "none";
+    var naturalW = inner.scrollWidth;
+    var naturalH = inner.scrollHeight;
+    if(!naturalW || !naturalH) return;
+    var available = container.clientWidth;
+    var scale = Math.min(1, available / naturalW);
+    if(scale < 0.4) scale = 0.4;
+    inner.style.transformOrigin = "top left";
+    inner.style.transform = "scale(" + scale + ")";
+    container.style.height = Math.ceil(naturalH * scale) + "px";
   }
 
   function rsideHtml(m, slot, r, i, st){
@@ -1012,7 +1031,15 @@
       return;
     }
     app.innerHTML = renderApp(state, isAdmin);
+    if(viewMode === "full"){ requestAnimationFrame(fitBracketScale); }
   }
+
+  var bracketResizeTimer = null;
+  window.addEventListener("resize", function(){
+    if(viewMode !== "full") return;
+    clearTimeout(bracketResizeTimer);
+    bracketResizeTimer = setTimeout(fitBracketScale, 120);
+  });
 
   function updateSyncPill(){
     var el = document.getElementById("sync-pill");
@@ -1099,19 +1126,55 @@
       + '<div class="cer-finale">'
       +   '<div class="big">대진 확정!</div>'
       +   '<div class="chicken">WINNER WINNER CHICKEN DINNER — 행운을 빕니다</div>'
-      +   '<button type="button" class="btn btn-primary" data-action="cer-close">대진표 확인하기</button>'
+      +   '<div class="cer-save-status pending" id="cer-save-status"><span class="spinner"></span> 서버에 저장하는 중…</div>'
       + '</div>';
-    if(window.confetti){
-      try{ window.confetti({ particleCount:140, spread:100, startVelocity:38, origin:{x:0.5,y:0.4}, colors:["#63c26f","#eef0e2","#3f8f4c","#7ed489"] }); }catch(e){}
-    }
-    overlay.querySelector('[data-action="cer-close"]').addEventListener("click", function(){
-      if(overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    });
 
-    mutateAndSave(function(ns){
-      ns.drawn = true; ns.drawnAt = new Date().toISOString(); ns.order = ids; ns.results = {};
-      return ns;
-    });
+    function closeOverlay(){ if(overlay.parentNode) overlay.parentNode.removeChild(overlay); }
+
+    async function attemptSave(){
+      var statusEl = document.getElementById("cer-save-status");
+      if(statusEl){
+        statusEl.className = "cer-save-status pending";
+        statusEl.innerHTML = '<span class="spinner"></span> 서버에 저장하는 중…';
+      }
+      var finale = overlay.querySelector(".cer-finale");
+      var oldBtns = finale ? finale.querySelectorAll(".cer-finale-actions") : [];
+      for(var b=0;b<oldBtns.length;b++){ oldBtns[b].remove(); }
+
+      var result = await mutateAndSave(function(ns){
+        ns.drawn = true; ns.drawnAt = new Date().toISOString(); ns.order = ids; ns.results = {};
+        return ns;
+      });
+
+      statusEl = document.getElementById("cer-save-status");
+      if(!statusEl || !finale) return; // overlay already closed by user
+
+      if(result === "ok"){
+        statusEl.className = "cer-save-status ok";
+        statusEl.textContent = "저장 완료 · 모두에게 실시간으로 반영됩니다";
+        var actions = document.createElement("div");
+        actions.className = "cer-finale-actions";
+        actions.innerHTML = '<button type="button" class="btn btn-primary" data-action="cer-close">대진표 확인하기</button>';
+        finale.appendChild(actions);
+        actions.querySelector('[data-action="cer-close"]').addEventListener("click", closeOverlay);
+        if(window.confetti){
+          try{ window.confetti({ particleCount:140, spread:100, startVelocity:38, origin:{x:0.5,y:0.4}, colors:["#63c26f","#eef0e2","#3f8f4c","#7ed489"] }); }catch(e){}
+        }
+      } else {
+        statusEl.className = "cer-save-status error";
+        statusEl.textContent = "저장에 실패했습니다 (토큰 또는 네트워크 문제). 아래에서 다시 시도해주세요.";
+        var actions2 = document.createElement("div");
+        actions2.className = "cer-finale-actions";
+        actions2.innerHTML = ''
+          + '<button type="button" class="btn btn-primary" data-action="cer-retry">다시 저장 시도</button>'
+          + '<button type="button" class="btn btn-ghost" data-action="cer-close">닫기 (저장되지 않음)</button>';
+        finale.appendChild(actions2);
+        actions2.querySelector('[data-action="cer-retry"]').addEventListener("click", attemptSave);
+        actions2.querySelector('[data-action="cer-close"]').addEventListener("click", closeOverlay);
+      }
+    }
+
+    attemptSave();
   }
 
   /* ---------------- events ---------------- */
