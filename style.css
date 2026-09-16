@@ -58,11 +58,12 @@ header.site{
 }
 .header-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 28px; }
 .brand{ display:flex; align-items:center; gap:12px; text-decoration:none; }
-.crest{ flex:none; width:38px; height:38px; border-radius:50%; border:1px solid var(--border-strong);
-  display:flex; align-items:center; justify-content:center; background:var(--surface); color:var(--accent); }
-.brand-text{ display:flex; flex-direction:column; line-height:1.2; }
-.brand-text .en{ font-family:"JetBrains Mono", monospace; font-size:0.64rem; letter-spacing:0.16em; color:var(--ink-faint); }
-.brand-text .kr{ font-weight:900; font-size:1.05rem; color:var(--ink); }
+.crest{ flex:none; width:36px; height:36px; border:1px solid var(--border-strong);
+  display:flex; align-items:center; justify-content:center; background:var(--surface); color:var(--accent);
+  clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+.brand-text{ display:flex; flex-direction:column; gap:3px; line-height:1.15; }
+.brand-text .en{ font-family:"JetBrains Mono", monospace; font-size:0.62rem; letter-spacing:0.14em; color:var(--ink-faint); white-space:nowrap; }
+.brand-text .kr{ font-weight:900; font-size:1.05rem; color:var(--ink); line-height:1; }
 nav.site-nav{ display:flex; align-items:center; gap:26px; }
 nav.site-nav a{ text-decoration:none; font-family:"Rajdhani",sans-serif; font-weight:600; letter-spacing:.04em; font-size:0.92rem; color:var(--ink-dim); transition:color .15s; }
 nav.site-nav a:hover{ color:var(--accent); }
