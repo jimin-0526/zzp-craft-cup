@@ -16,7 +16,7 @@
   var GITHUB_OWNER = "jimin-0526";
   var GITHUB_REPO = "zzp-craft-cup";
   var GITHUB_BRANCH = "main";
-  var GITHUB_TOKEN = "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";
+  var GITHUB_TOKEN = "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";
   var ADMIN_PASSCODE = "zzp2026";
 
   var DATA_PATH = "data/state.json";
