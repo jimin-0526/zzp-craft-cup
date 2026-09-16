@@ -13,10 +13,10 @@
         an expiration date; rotate it if you ever suspect misuse.
      3) ADMIN_PASSCODE: change this from the default before going live.
      ============================================================ */
-  var GITHUB_OWNER = "YOUR_GITHUB_USERNAME";
+  var GITHUB_OWNER = "jimin-0526";
   var GITHUB_REPO = "zzp-craft-cup";
   var GITHUB_BRANCH = "main";
-  var GITHUB_TOKEN = "PASTE_YOUR_FINE_GRAINED_TOKEN_HERE";
+  var GITHUB_TOKEN = "github_pat_11CHCGHNA0YFvsNwy4pOQf_kQMF27lDDGujFJnwC6iyinJYDTTXhirewgHlxZGYOC865XFEMI7knuTl";
   var ADMIN_PASSCODE = "zzp2026";
 
   var DATA_PATH = "data/state.json";
