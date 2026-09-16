@@ -3,19 +3,18 @@
 
   /* ============================================================
      SETUP
-     1) GITHUB_OWNER / GITHUB_REPO: your GitHub username and the repo name.
-     2) WORKER_BASE: the Cloudflare Worker that holds the real GitHub write
-        token server-side (see worker/). The browser never sees a GitHub
-        token or the admin passcode's correct value — it only talks to this
-        worker, which checks the passcode and signs a short-lived session.
+     WORKER_BASE: the Cloudflare Worker that holds the real GitHub write
+     token server-side (see worker/). The browser never sees a GitHub
+     token or the admin passcode's correct value — it only talks to this
+     worker, which checks the passcode, signs a short-lived session, and
+     proxies both the read-before-save and the save itself through its
+     own authenticated GitHub token (an anonymous browser-side read of
+     the GitHub API can be a little stale, which used to cause spurious
+     "someone else just saved" conflicts for a single admin).
      ============================================================ */
-  var GITHUB_OWNER = "jimin-0526";
-  var GITHUB_REPO = "zzp-craft-cup";
-  var GITHUB_BRANCH = "main";
   var WORKER_BASE = "https://zzp-craft-cup-admin.jiminsh94.workers.dev";
 
   var DATA_PATH = "data/state.json";
-  var API_BASE = "https://api.github.com/repos/" + GITHUB_OWNER + "/" + GITHUB_REPO;
   var POLL_MS = 8000;
 
   var TEAM_ORDER = [
@@ -194,7 +193,7 @@
     var msg = "HTTP " + res.status;
     try{
       var body = await res.json();
-      if(body && body.message) msg += ": " + body.message;
+      if(body && (body.message || body.error)) msg += ": " + (body.message || body.error);
     }catch(e){}
     return msg;
   }
@@ -202,9 +201,7 @@
   async function fetchShaAndState(){
     var res;
     try{
-      res = await fetch(API_BASE + "/contents/" + DATA_PATH + "?ref=" + GITHUB_BRANCH, {
-        headers: { "Accept": "application/vnd.github+json" }
-      });
+      res = await fetch(WORKER_BASE + "/state", { cache: "no-store" });
     }catch(networkErr){
       throw new Error("불러오기 네트워크 오류: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
     }
@@ -243,12 +240,19 @@
     return "ok";
   }
 
+  var saveInFlight = false;
+
   async function mutateAndSave(mutatorFn){
     if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return {status:"not-admin"}; }
     if(!ADMIN_TOKEN){
       toast("관리자 세션이 없습니다. 관리자 모드를 종료 후 다시 로그인해주세요.");
       return {status:"error", detail:"세션 없음 — 재로그인 필요"};
     }
+    if(saveInFlight){
+      toast("이전 저장이 아직 진행 중입니다. 잠시 후 다시 시도해주세요.");
+      return {status:"busy"};
+    }
+    saveInFlight = true;
     var prevState = state;
     try{
       var fresh = await fetchShaAndState();
@@ -257,9 +261,14 @@
       state = ns; render();
       var result = await writeState(ns, fresh.sha);
       if(result === "conflict"){
-        toast("다른 사람이 방금 저장했어요. 최신 내용을 불러옵니다…");
-        var latest = await fetchPublicState();
-        if(latest){ state = latest; render(); }
+        toast("다른 저장과 충돌했어요. 최신 내용을 다시 불러옵니다…");
+        // Re-fetch from the GitHub API (authoritative), not the GitHub Pages
+        // static copy — that CDN copy can lag behind by a few minutes and
+        // would otherwise make a just-written change look like it reverted.
+        try{
+          var latest = await fetchShaAndState();
+          state = latest.state; render();
+        }catch(e2){}
         return {status:"conflict"};
       }
       syncOk = true;
@@ -271,6 +280,8 @@
       toast("저장에 실패했습니다: " + detail);
       updateSyncPill();
       return {status:"error", detail: detail};
+    }finally{
+      saveInFlight = false;
     }
     updateSyncPill();
     return {status:"ok"};
