@@ -16,7 +16,7 @@
   var GITHUB_OWNER = "jimin-0526";
   var GITHUB_REPO = "zzp-craft-cup";
   var GITHUB_BRANCH = "main";
-  var GITHUB_TOKEN = "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";
+  var GITHUB_TOKEN = "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";
   var ADMIN_PASSCODE = "zzp2026";
 
   var DATA_PATH = "data/state.json";
@@ -137,19 +137,27 @@
   function teamOf(id, st){ return st.teams[String(id)] || {name:"?", confirmed:true, players:[]}; }
   function teamName(id, st){ return id ? teamOf(id, st).name : null; }
 
+  function recOf(st,key){
+    var rec = st.results[key];
+    if(!rec) return null;
+    if(typeof rec === "string") return {w:rec, score:null, games:null}; // legacy format
+    return rec;
+  }
+
   function getMatch(r,i,st){
     if(r===0){
       var a = st.order[2*i] || null;
       var b = st.order[2*i+1] || null;
-      var w = st.results["0-"+i] || null;
-      return {a:a,b:b,winner:w};
+      var rec = recOf(st,"0-"+i);
+      return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,games:null,isFinal:false};
     }
     var m0 = getMatch(r-1, 2*i, st);
     var m1 = getMatch(r-1, 2*i+1, st);
     var a = m0.winner ? (m0.winner==="a"?m0.a:m0.b) : null;
     var b = m1.winner ? (m1.winner==="a"?m1.a:m1.b) : null;
-    var w = (a && b) ? (st.results[r+"-"+i] || null) : null;
-    return {a:a,b:b,winner:w};
+    var rec = (a && b) ? recOf(st,r+"-"+i) : null;
+    var isFinal = (r===4);
+    return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,games:(isFinal&&rec)?(rec.games||[]):null,isFinal:isFinal};
   }
 
   function teamStatus(id, st){
@@ -237,11 +245,41 @@
   /* ---------------- mutations ---------------- */
 
   function setWinner(r,i,slot){
+    if(!isAdmin){ toast("관리자만 대진을 편집할 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return; }
+    var key = r+"-"+i;
+    var existing = recOf(state, key);
+    if(existing && existing.w === slot) return;
+    var score = window.prompt("스코어를 입력하세요 (예: 2:0). 비워두면 스코어 없이 저장돼요.", existing && existing.score ? existing.score : "");
+    if(score === null) return; // cancelled
     mutateAndSave(function(ns){
-      if(ns.results[r+"-"+i] === slot) return null;
-      ns.results[r+"-"+i] = slot;
+      ns.results[key] = { w: slot, score: score.trim() ? score.trim() : null };
       var nr=r+1, ni=Math.floor(i/2);
       while(nr<=4){ delete ns.results[nr+"-"+ni]; ni=Math.floor(ni/2); nr++; }
+      return ns;
+    });
+  }
+
+  function recordFinalGame(slot){
+    if(!isAdmin){ toast("관리자만 결승 게임 결과를 기록할 수 있습니다."); return; }
+    mutateAndSave(function(ns){
+      var key = "4-0";
+      var rec = recOf(ns, key) || {games:[], w:null};
+      if(rec.w) return null;
+      var games = (rec.games||[]).slice();
+      games.push(slot);
+      var aWins = games.filter(function(g){return g==="a";}).length;
+      var bWins = games.filter(function(g){return g==="b";}).length;
+      var w = aWins>=2 ? "a" : (bWins>=2 ? "b" : null);
+      ns.results[key] = { w:w, games:games, score:null };
+      return ns;
+    });
+  }
+
+  function resetFinalGames(){
+    if(!isAdmin){ toast("관리자만 초기화할 수 있습니다."); return; }
+    if(!window.confirm("결승 게임 기록을 초기화할까요?")) return;
+    mutateAndSave(function(ns){
+      delete ns.results["4-0"];
       return ns;
     });
   }
@@ -437,7 +475,7 @@
     var name = filled ? teamName(id, st) : null;
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
-    var clickable = filled && m.a && m.b;
+    var clickable = filled && m.a && m.b && !m.isFinal;
     var cls = ["team-slot", filled?"filled":"empty"];
     if(isWinner) cls.push("winner");
     if(isLoser) cls.push("loser");
@@ -450,14 +488,22 @@
       + '</button>';
   }
 
-  function renderBracketSection(st){
+  var viewMode = "round"; // "round" | "full"
+  var selectedRound = 0;
+
+  function championBanner(st){
     var champId = championOf(st);
-    var champName = champId ? teamName(champId,st) : null;
-    var banner = champId ? (''
-      + '<div class="champion-banner cut-both">'
+    if(!champId) return "";
+    var champName = teamName(champId,st);
+    return '<div class="champion-banner cut-both">'
       +   '<span class="icon-box">'+iconTrophy(22)+'</span>'
       +   '<div><div class="cap">CHAMPION</div><div class="name">'+escapeHtml(champName)+'</div><div class="chicken">WINNER WINNER CHICKEN DINNER</div></div>'
-      + '</div>') : '';
+      + '</div>';
+  }
+
+  function renderFullBracket(st){
+    var champId = championOf(st);
+    var champName = champId ? teamName(champId,st) : null;
 
     var headers = '<div class="round-headers">';
     for(var r=0;r<5;r++){
@@ -472,10 +518,14 @@
         var m = getMatch(rr, ii, st);
         var top = centerY(rr,ii) - MATCH_H/2;
         var left = colX(rr);
-        matches += '<div class="match cut-sm" style="top:'+top+'px;left:'+left+'px;" data-round="'+rr+'" data-idx="'+ii+'">'
-          + '<span class="num-tag">M'+matchNum(rr,ii)+'</span>'
+        var scoreLabel = m.isFinal
+          ? (m.games && m.games.length ? (m.games.filter(function(g){return g==="a";}).length+"-"+m.games.filter(function(g){return g==="b";}).length) : "")
+          : (m.score || "");
+        matches += '<div class="match cut-sm'+(m.isFinal?" is-final":"")+'" style="top:'+top+'px;left:'+left+'px;" data-round="'+rr+'" data-idx="'+ii+'">'
+          + '<span class="num-tag">M'+matchNum(rr,ii)+(m.isFinal?" · BO3":"")+'</span>'
           + slotHtml(m,"a",rr,ii,st)
           + slotHtml(m,"b",rr,ii,st)
+          + (scoreLabel ? '<span class="match-score">'+escapeHtml(scoreLabel)+'</span>' : '')
           + '</div>';
       }
     }
@@ -507,20 +557,90 @@
     svg += '</svg>';
 
     return ''
+      + '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span><span><i style="background:var(--border-strong)"></i>미정</span></div>'
+      + '<div class="bracket-scroll">'
+      +   '<div style="width:'+BRACKET_W+'px;">'
+      +     headers
+      +     '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+matches+'</div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  function rsideHtml(m, slot, r, i, st){
+    var id = m[slot];
+    var filled = !!id;
+    var name = filled ? teamName(id, st) : null;
+    var seed = filled ? id : "?";
+    var isWinner = m.winner === slot;
+    var isLoser = !!m.winner && m.winner !== slot;
+    var clickable = filled && m.a && m.b && (m.isFinal ? !m.winner : true);
+    var cls = ["rside", slot==="b"?"right":"", filled?"":"empty", isWinner?"winner":"", isLoser?"loser":""].join(" ").trim();
+    var tag = clickable ? "button" : "div";
+    var action = m.isFinal ? "final-game" : "pick";
+    var attrs = clickable ? ' type="button" data-action="'+action+'" data-r="'+r+'" data-i="'+i+'" data-slot="'+slot+'"' : "";
+    if(clickable) cls += " clickable";
+    return '<'+tag+' class="'+cls+'"'+attrs+'>'
+      + '<span class="rseed mono">'+(filled?String(seed).padStart(2,"0"):"?")+'</span>'
+      + '<span class="rname">'+(filled?escapeHtml(name):"TBD")+'</span>'
+      + '</'+tag+'>';
+  }
+
+  function renderRoundView(st){
+    var tabs = "";
+    for(var r=0;r<5;r++){
+      tabs += '<button type="button" class="round-tab'+(selectedRound===r?" active":"")+'" data-action="round-tab" data-round="'+r+'">'
+        + '<span class="n">'+(r+1)+'</span>'+ROUND_LABELS[r] + '</button>';
+    }
+
+    var list = "";
+    for(var ii=0; ii<ROUND_COUNTS[selectedRound]; ii++){
+      var m = getMatch(selectedRound, ii, st);
+      var isFinal = m.isFinal;
+      var mid;
+      if(isFinal){
+        var games = m.games || [];
+        var aWins = games.filter(function(g){return g==="a";}).length;
+        var bWins = games.filter(function(g){return g==="b";}).length;
+        mid = '<div class="rmid"><span class="vs">VS</span><span class="games">'+aWins+' - '+bWins+'</span></div>';
+      } else {
+        mid = '<div class="rmid"><span class="vs">VS</span>'+(m.score ? '<span class="score">'+escapeHtml(m.score)+'</span>' : '')+'</div>';
+      }
+      list += '<div class="rmatch'+(isFinal?" is-final":"")+' cut-sm">'
+        + '<span class="rnum">M'+matchNum(selectedRound,ii)+(isFinal?" · BO3":"")+'</span>'
+        + rsideHtml(m,"a",selectedRound,ii,st)
+        + mid
+        + rsideHtml(m,"b",selectedRound,ii,st)
+        + '</div>';
+      if(isFinal && isAdmin && m.a && m.b){
+        var games2 = m.games || [];
+        var doneF = !!m.winner;
+        list += '<div class="final-controls">'
+          + (doneF
+            ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>'
+            : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">게임 '+(games2.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>')
+          + '</div>';
+      }
+    }
+
+    return ''
+      + '<div class="round-tabs">'+tabs+'</div>'
+      + '<div class="rmatch-list">'+list+'</div>';
+  }
+
+  function renderBracketSection(st){
+    return ''
       + '<section id="bracket">'
       +   '<div class="wrap">'
       +     '<div class="section-head">'
       +       '<div><span class="eyebrow">BRACKET</span><h2>대진표</h2></div>'
-      +       '<div class="desc">팀 이름을 클릭하면 해당 경기의 승자로 기록됩니다.</div>'
+      +       '<div class="desc">팀 이름을 클릭하면 해당 경기의 승자로 기록됩니다. 결승은 3판 2선승제예요.</div>'
       +     '</div>'
-      +     banner
-      +     '<div class="bracket-legend"><span><i style="background:var(--accent)"></i>승리</span><span><i style="background:var(--ink-faint)"></i>대기중</span><span><i style="background:var(--border-strong)"></i>미정</span></div>'
-      +     '<div class="bracket-scroll">'
-      +       '<div style="width:'+BRACKET_W+'px;">'
-      +         headers
-      +         '<div class="bracket" style="width:'+BRACKET_W+'px;height:'+BRACKET_H+'px;">'+svg+matches+'</div>'
-      +       '</div>'
+      +     championBanner(st)
+      +     '<div class="view-toggle">'
+      +       '<button type="button" data-action="view-mode" data-mode="round" class="'+(viewMode==="round"?"active":"")+'">라운드별 보기</button>'
+      +       '<button type="button" data-action="view-mode" data-mode="full" class="'+(viewMode==="full"?"active":"")+'">전체 대진표</button>'
       +     '</div>'
+      +     (viewMode==="round" ? renderRoundView(st) : renderFullBracket(st))
       +   '</div>'
       + '</section>';
   }
@@ -541,7 +661,8 @@
       var team = teamOf(id, st);
       var seed = String(id).padStart(2,"0");
       var tag = rosterTag(st, id);
-      cards += '<button type="button" class="roster-card cut-tr reticle" data-action="open-team" data-id="'+id+'">'
+      var champCls = tag.variant==="v-champion" ? " is-champion" : "";
+      cards += '<button type="button" class="roster-card cut-tr reticle'+champCls+'" data-action="open-team" data-id="'+id+'">'
         + '<span class="seed-mark">'+seed+'</span>'
         + '<div class="card-top">'
         +   '<div class="seed-lbl">SEED '+seed+'</div>'
@@ -769,6 +890,14 @@
     if(resetBtn){ resetResults(); return; }
     var pickBtn = e.target.closest('[data-action="pick"]');
     if(pickBtn){ setWinner(+pickBtn.dataset.r, +pickBtn.dataset.i, pickBtn.dataset.slot); return; }
+    var finalBtn = e.target.closest('[data-action="final-game"]');
+    if(finalBtn){ recordFinalGame(finalBtn.dataset.slot); return; }
+    var finalResetBtn = e.target.closest('[data-action="final-reset"]');
+    if(finalResetBtn){ resetFinalGames(); return; }
+    var viewBtn = e.target.closest('[data-action="view-mode"]');
+    if(viewBtn){ viewMode = viewBtn.dataset.mode; render(); return; }
+    var roundTabBtn = e.target.closest('[data-action="round-tab"]');
+    if(roundTabBtn){ selectedRound = +roundTabBtn.dataset.round; render(); return; }
     var openBtn = e.target.closest('[data-action="open-team"]');
     if(openBtn){ activeModal = { id:+openBtn.dataset.id, mode: openBtn.dataset.edit ? "edit" : "view" }; render(); return; }
     var editBtn = e.target.closest('[data-action="edit-team"]');
