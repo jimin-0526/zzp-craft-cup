@@ -280,11 +280,11 @@ svg.connectors path.done{ stroke:var(--accent); stroke-width:2; filter:drop-shad
 .round-tab .n{ font-family:"JetBrains Mono",monospace; font-size:0.68rem; color:var(--ink-faint); margin-right:6px; }
 .round-tab.active .n{ color:var(--accent); }
 
-.rmatch-list{ display:flex; flex-direction:column; gap:30px; }
+.rmatch-list{ display:flex; flex-direction:column; gap:44px; }
 .rmatch-wrap{ position:relative; }
 .rmatch{ display:flex; align-items:stretch; gap:0; border:1px solid var(--border);
   background:linear-gradient(180deg, var(--surface), var(--bg-soft)); position:relative; }
-.rmatch-wrap .live-badge{ position:absolute; top:-26px; right:14px; }
+.rmatch-wrap .live-badge{ position:absolute; top:-34px; left:50%; transform:translateX(-50%); }
 .rside{ flex:1; display:flex; align-items:center; gap:14px; padding:20px 22px; min-width:0;
   background:transparent; border:none; cursor:default; text-align:left; position:relative; }
 .rside.right{ flex-direction:row-reverse; text-align:right; }
