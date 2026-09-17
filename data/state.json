@@ -1153,32 +1153,32 @@
     },
     "32": {
       "name": "찌찌뽕",
-      "confirmed": true,
-      "note": "",
+      "confirmed": false,
+      "note": "레벨 확인 필요",
       "players": [
         {
           "role": "팀장",
           "nick": "ssuzzy",
           "uid": "62168432017",
-          "note": ""
+          "note": "15"
         },
         {
           "role": "팀원",
           "nick": "zzizzi",
           "uid": "62129710427",
-          "note": ""
+          "note": "6"
         },
         {
           "role": "팀원",
           "nick": "Nxzunaluv4",
           "uid": "61877513847",
-          "note": ""
+          "note": "45"
         },
         {
           "role": "팀원",
           "nick": "king티라노",
           "uid": "62061822365",
-          "note": ""
+          "note": "60"
         },
         {
           "role": "후보",
