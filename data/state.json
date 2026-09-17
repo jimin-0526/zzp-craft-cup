@@ -118,37 +118,37 @@
     "4": {
       "name": "아리이스포츠",
       "confirmed": true,
-      "note": "",
+      "note": "프로 선수 포함",
       "players": [
         {
           "role": "팀장",
           "nick": "FS_Ari",
           "uid": "61316794777",
-          "note": ""
+          "note": "74"
         },
         {
           "role": "팀원",
           "nick": "FSـMahito",
           "uid": "694840074",
-          "note": ""
+          "note": "70"
         },
         {
           "role": "팀원",
           "nick": "DGـChuxz",
           "uid": "62071903560",
-          "note": ""
+          "note": "52"
         },
         {
           "role": "팀원",
           "nick": "KXـYuki",
           "uid": "6508256002",
-          "note": ""
+          "note": "80"
         },
         {
           "role": "후보",
           "nick": "WSـYETI",
           "uid": "61852274075",
-          "note": ""
+          "note": "63"
         }
       ]
     },
