@@ -68,6 +68,11 @@
   var ROUND_COUNTS = [16,8,4,2,1];
   var MATCH_START = [1,17,25,29,31];
 
+  // Map & seed assignment covers 32강~4강 (rounds 0-3) — the final uses its
+  // own best-of-3 flow and isn't part of this single-map-per-match draw.
+  var MAPS = ["15836805","14595392","25183322"];
+  var MAPSEED_ROUNDS = 4;
+
   // PILL_OFFSET/PILL_H set the height of one match's 2-team pairing;
   // BASE_GAP must clear that with room to spare or adjacent matches
   // visually merge into one continuous stack.
@@ -107,7 +112,7 @@
     return t;
   }
 
-  var DEFAULT_STATE = { drawn:false, drawnAt:null, order:[], results:{}, teams:defaultTeams() };
+  var DEFAULT_STATE = { drawn:false, drawnAt:null, order:[], results:{}, teams:defaultTeams(), mapSeed:{}, mapSeedAt:null };
 
   function normalizeState(parsed){
     var st = clone(DEFAULT_STATE);
@@ -116,6 +121,8 @@
       st.drawnAt = parsed.drawnAt || null;
       st.order = Array.isArray(parsed.order) ? parsed.order : [];
       st.results = (parsed.results && typeof parsed.results === "object") ? parsed.results : {};
+      st.mapSeed = (parsed.mapSeed && typeof parsed.mapSeed === "object") ? parsed.mapSeed : {};
+      st.mapSeedAt = parsed.mapSeedAt || null;
       if(parsed.teams && typeof parsed.teams === "object" && Object.keys(parsed.teams).length){
         st.teams = parsed.teams;
       }
@@ -163,6 +170,27 @@
     var rec = (a && b) ? recOf(st,r+"-"+i) : null;
     var isFinal = (r===4);
     return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,games:(isFinal&&rec)?(rec.games||[]):null,isFinal:isFinal};
+  }
+
+  function mapSeedOf(st, r, i){ return (st.mapSeed && st.mapSeed[r+"-"+i]) || null; }
+
+  function mapSeedRoundAssigned(st, round){
+    for(var i=0;i<ROUND_COUNTS[round];i++){ if(!mapSeedOf(st, round, i)) return false; }
+    return true;
+  }
+
+  // One map + one first/second seed slot per bracket position (r,i) within a
+  // single round, independent of which teams end up occupying that slot —
+  // each round (32강/16강/8강/4강) is rolled separately, on its own button.
+  function generateMapSeedForRound(round){
+    var out = {};
+    for(var i=0;i<ROUND_COUNTS[round];i++){
+      out[round+"-"+i] = {
+        map: MAPS[Math.floor(Math.random()*MAPS.length)],
+        first: Math.random()<0.5 ? "a" : "b"
+      };
+    }
+    return out;
   }
 
   function teamStatus(id, st){
@@ -349,6 +377,18 @@
     drawPanelOpen = false;
   }
 
+  function drawMapSeed(round){
+    if(!isAdmin){ toast("관리자만 맵 & 시드를 뽑을 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return; }
+    var already = mapSeedRoundAssigned(state, round);
+    if(already && !window.confirm(ROUND_LABELS[round]+" 맵 & 시드를 다시 뽑을까요? 기존 배정 내용은 사라집니다.")) return;
+    mutateAndSave(function(ns){
+      var fresh = generateMapSeedForRound(round);
+      Object.keys(fresh).forEach(function(k){ ns.mapSeed[k] = fresh[k]; });
+      ns.mapSeedAt = new Date().toISOString();
+      return ns;
+    });
+  }
+
   function saveTeamEdit(id){
     if(!isAdmin) return;
     var nameInput = document.getElementById("edit-name-"+id);
@@ -441,6 +481,9 @@
   }
   function iconClose(size){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>';
+  }
+  function iconDice(size){
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>';
   }
   function iconPencil(size){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -609,8 +652,9 @@
       + '</button>';
   }
 
-  var viewMode = "round"; // "round" | "full"
+  var viewMode = "round"; // "round" | "full" | "mapseed"
   var selectedRound = 0;
+  var mapSeedRound = 0;
   var drawPanelOpen = false;
   var statsGameIdx = 0;
   var LB_TOP_N = 10;
@@ -863,6 +907,64 @@
       + '<div class="rmatch-list">'+list+'</div>';
   }
 
+  function mapSeedSideHtml(m, slot, ms, st){
+    var id = m[slot];
+    var filled = !!id;
+    var name = filled ? teamName(id, st) : null;
+    var isFirst = ms.first === slot;
+    var cls = ["mapseed-side", slot==="b"?"right":"", filled?"":"empty", isFirst?"seed-1":"seed-2"].join(" ").trim();
+    return '<div class="'+cls+'">'
+      + '<span class="mapseed-slot">'+(isFirst?"1번 시드":"2번 시드")+'</span>'
+      + '<span class="rname">'+(filled?escapeHtml(name):"TBD")+'</span>'
+      + '</div>';
+  }
+
+  function mapSeedRowHtml(m, ms, r, i, st){
+    return '<div class="rmatch-wrap">'
+      + '<div class="rmatch mapseed-row cut-sm">'
+      +   mapSeedSideHtml(m,"a",ms,st)
+      +   '<div class="rmid"><span class="mapseed-map mono">'+escapeHtml(ms.map)+'</span></div>'
+      +   mapSeedSideHtml(m,"b",ms,st)
+      + '</div>'
+      + '</div>';
+  }
+
+  function renderMapSeedView(st){
+    var tabs = "";
+    for(var r=0;r<MAPSEED_ROUNDS;r++){
+      var roundDone = mapSeedRoundAssigned(st, r);
+      tabs += '<button type="button" class="round-tab'+(mapSeedRound===r?" active":"")+'" data-action="mapseed-round-tab" data-round="'+r+'">'
+        + '<span class="n">'+(r+1)+'</span>'+ROUND_LABELS[r]+(roundDone?' ✓':'') + '</button>';
+    }
+
+    var assigned = mapSeedRoundAssigned(st, mapSeedRound);
+    var subtitle = assigned
+      ? ("배정 완료 · " + (st.mapSeedAt ? new Date(st.mapSeedAt).toLocaleString("ko-KR", {year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"}) : ""))
+      : ("버튼을 누르면 "+ROUND_LABELS[mapSeedRound]+" 모든 경기에 맵과 시드 자리를 랜덤으로 배정합니다.");
+
+    var head = ''
+      + '<div class="round-tabs">'+tabs+'</div>'
+      + '<div class="draw-card cut-tr reticle" style="margin-bottom:24px;">'
+      +   '<div class="draw-info">'
+      +     '<span class="icon-box">'+iconDice(24)+'</span>'
+      +     '<div><div class="title">'+(assigned ? ROUND_LABELS[mapSeedRound]+" 맵 & 시드가 배정되었습니다" : ROUND_LABELS[mapSeedRound]+" 맵 & 시드가 아직 배정되지 않았습니다")+'</div><div class="sub">'+subtitle+'</div></div>'
+      +   '</div>'
+      +   (isAdmin ? '<div class="draw-actions"><button type="button" class="btn btn-primary btn-sm" data-action="draw-mapseed" data-round="'+mapSeedRound+'">'+iconDice(15)+' '+(assigned?"다시 뽑기":ROUND_LABELS[mapSeedRound]+" 뽑기")+'</button></div>' : '')
+      + '</div>';
+
+    if(!assigned) return head;
+
+    var list = "";
+    for(var ii=0; ii<ROUND_COUNTS[mapSeedRound]; ii++){
+      var m = getMatch(mapSeedRound, ii, st);
+      var ms = mapSeedOf(st, mapSeedRound, ii);
+      if(!ms) continue;
+      list += mapSeedRowHtml(m, ms, mapSeedRound, ii, st);
+    }
+
+    return head + '<div class="rmatch-list">'+list+'</div>';
+  }
+
   function renderBracketSection(st){
     return ''
       + '<section id="bracket">'
@@ -874,8 +976,9 @@
       +     '<div class="view-toggle">'
       +       '<button type="button" data-action="view-mode" data-mode="round" class="'+(viewMode==="round"?"active":"")+'">라운드별 보기</button>'
       +       '<button type="button" data-action="view-mode" data-mode="full" class="'+(viewMode==="full"?"active":"")+'">전체 대진표</button>'
+      +       '<button type="button" data-action="view-mode" data-mode="mapseed" class="'+(viewMode==="mapseed"?"active":"")+'">맵 & 시드 확인</button>'
       +     '</div>'
-      +     (viewMode==="round" ? renderRoundView(st) : renderFullBracket(st))
+      +     (viewMode==="round" ? renderRoundView(st) : viewMode==="full" ? renderFullBracket(st) : renderMapSeedView(st))
       +   '</div>'
       + '</section>';
   }
@@ -1727,6 +1830,10 @@
     if(toggleDrawBtn){ drawPanelOpen = !drawPanelOpen; render(); return; }
     var resetDrawBtn = e.target.closest('[data-action="reset-draw"]');
     if(resetDrawBtn){ resetDraw(); return; }
+    var drawMapSeedBtn = e.target.closest('[data-action="draw-mapseed"]');
+    if(drawMapSeedBtn){ drawMapSeed(+drawMapSeedBtn.dataset.round); return; }
+    var mapSeedRoundBtn = e.target.closest('[data-action="mapseed-round-tab"]');
+    if(mapSeedRoundBtn){ mapSeedRound = +mapSeedRoundBtn.dataset.round; render(); return; }
     var openStatsBtn = e.target.closest('[data-action="open-stats"]');
     if(openStatsBtn){
       var mm = getMatch(+openStatsBtn.dataset.r, +openStatsBtn.dataset.i, state);

@@ -318,6 +318,17 @@ svg.connectors path.done{ stroke:var(--accent); stroke-width:2; filter:drop-shad
 .game-hint.live{ color:var(--accent); }
 .game-hint.muted{ opacity:0.6; }
 .rmatch.is-final.is-pending{ opacity:0.55; }
+
+/* ---------- map & seed view ---------- */
+.mapseed-side{ flex:1; display:flex; align-items:center; gap:14px; padding:20px 22px; min-width:0; }
+.mapseed-side.right{ flex-direction:row-reverse; text-align:right; }
+.mapseed-side .rname{ font-weight:700; font-size:1.08rem; color:var(--ink-dim); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mapseed-side.empty .rname{ color:var(--ink-faint); font-style:italic; font-weight:500; }
+.mapseed-slot{ flex:none; font-family:"JetBrains Mono",monospace; font-size:0.7rem; letter-spacing:.03em;
+  padding:4px 9px; border:1px solid var(--border-strong); color:var(--ink-faint); white-space:nowrap; }
+.mapseed-side.seed-1 .mapseed-slot{ color:var(--accent); border-color:rgba(57,209,90,0.5); background:var(--accent-deep); }
+.mapseed-side.seed-2 .mapseed-slot{ color:var(--gold); border-color:rgba(231,188,92,0.45); background:rgba(231,188,92,0.08); }
+.mapseed-map{ font-size:0.86rem; color:var(--ink-dim); letter-spacing:.02em; }
 /* fixed-width L/R columns keep the ":" centered no matter how many
    digits either score has (10 vs 4 must not shift the separator). */
 .score{ display:grid; grid-template-columns:2.2ch auto 2.2ch; align-items:baseline;
