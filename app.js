@@ -611,13 +611,12 @@
       +         '<a class="btn btn-primary" href="#bracket">대진표 보기</a>'
       +         '<a class="btn btn-ghost" href="https://www.youtube.com/@-zzp" target="_blank" rel="noopener">'+iconPlay(15)+' 중계 보러 가기</a>'
       +       '</div>'
+      +       '<div class="hero-stats cut-both">'
+      +         '<div class="hero-stat"><span class="v">32</span><span class="k">참가 팀</span></div>'
+      +         '<div class="hero-stat"><span class="v">5</span><span class="k">라운드</span></div>'
+      +         '<div class="hero-stat"><span class="v">1</span><span class="k">챔피언</span></div>'
+      +       '</div>'
       +     '</div>'
-      +     '<aside class="hero-readout cut-both">'
-      +       '<div class="readout-head">TOURNAMENT BRIEF</div>'
-      +       '<div class="readout-row"><span class="rk">참가 팀</span><span class="rv">32</span></div>'
-      +       '<div class="readout-row"><span class="rk">라운드</span><span class="rv">5</span></div>'
-      +       '<div class="readout-row"><span class="rk">챔피언</span><span class="rv">1</span></div>'
-      +     '</aside>'
       +   '</div>'
       + '</section>';
   }

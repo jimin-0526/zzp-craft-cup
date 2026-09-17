@@ -83,20 +83,19 @@ nav.site-nav a:hover{ color:var(--accent); }
   96%{ transform:translate(6px,-4px) scale(1.01) rotate(1deg); }
   100%{ transform:translate(0,0) scale(1) rotate(0deg); }
 }
-.hero-split{ position:relative; z-index:1; display:grid; grid-template-columns:1fr 280px; gap:52px; align-items:center; }
-.hero-main{ display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:18px; min-width:0; }
+.hero-split{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; }
+.hero-main{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px; min-width:0; width:100%; }
 .hero-logo-wrap{ position:relative; display:inline-block; isolation:isolate; }
 .hero-logo{ position:relative; z-index:1; max-width:min(460px, 72vw); height:auto; display:block; animation:gunKick 9s ease-in-out infinite; }
 
-.hero-readout{ position:relative; padding:24px 24px 20px; border:2px solid var(--border-strong);
-  background:linear-gradient(165deg, var(--surface), var(--bg-soft)); box-shadow:0 24px 60px -30px rgba(0,0,0,0.7); }
-.readout-head{ font-family:"JetBrains Mono",monospace; font-size:0.64rem; letter-spacing:.18em; color:var(--accent);
-  text-transform:uppercase; padding-bottom:12px; margin-bottom:14px; border-bottom:1px solid var(--border-strong); }
-.readout-row{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px dashed var(--border); }
-.readout-row:last-child{ border-bottom:none; }
-.readout-row .rk{ font-family:"Rajdhani",sans-serif; font-size:0.84rem; color:var(--ink-faint); white-space:nowrap; }
-.readout-row .rv{ font-family:"Black Ops One",sans-serif; font-size:1.3rem; color:var(--ink); text-align:right; }
-.readout-row .rv.sm{ font-family:"Rajdhani",sans-serif; font-weight:700; font-size:0.86rem; color:var(--ink-dim); }
+.hero-stats{ display:flex; width:100%; max-width:520px; margin-top:6px;
+  border:2px solid var(--accent); background:linear-gradient(180deg, var(--accent-deep), var(--bg-soft));
+  box-shadow:0 20px 50px -28px var(--accent-glow); }
+.hero-stat{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:16px 10px;
+  border-right:1px dashed rgba(57,209,90,0.35); min-width:0; }
+.hero-stat:last-child{ border-right:none; }
+.hero-stat .v{ font-family:"Black Ops One",sans-serif; font-size:1.6rem; color:var(--accent); line-height:1; }
+.hero-stat .k{ font-family:"Rajdhani",sans-serif; font-weight:700; font-size:0.8rem; color:var(--ink-dim); letter-spacing:.03em; white-space:nowrap; }
 
 .impact-flash{ position:absolute; z-index:2; width:15%; aspect-ratio:1/1; min-width:26px; max-width:58px;
   border-radius:50%; pointer-events:none; opacity:0;
@@ -588,11 +587,10 @@ footer .foot-admin:hover{ color:var(--accent); }
   nav.site-nav{ display:none; }
   .wrap{ padding:0 18px; }
   .hero{ padding:52px 0 40px; }
-  .hero-split{ grid-template-columns:1fr; gap:32px; }
-  .hero-main{ align-items:center; text-align:center; }
-  .hero p.lede{ text-align:center; max-width:56ch; }
+  .hero p.lede{ max-width:56ch; }
   .cta-col{ justify-content:center; }
-  .hero-readout{ width:100%; }
+  .hero-stat .v{ font-size:1.3rem; }
+  .hero-stat .k{ font-size:0.7rem; }
   section{ padding:44px 0; }
   .section-head::before{ font-size:2.6rem; opacity:0.06; }
   .cer-grid{ grid-template-columns:repeat(2, minmax(140px,1fr)); }
