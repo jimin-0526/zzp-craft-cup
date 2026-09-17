@@ -488,31 +488,31 @@
     "14": {
       "name": "CNJ esports",
       "confirmed": true,
-      "note": "",
+      "note": "프로팀",
       "players": [
         {
           "role": "팀장",
           "nick": "CNJـSIxTa",
           "uid": "6249568001",
-          "note": ""
+          "note": "85 (CNJـSIxTa)"
         },
         {
           "role": "팀원",
           "nick": "CNJـTwoHerz",
           "uid": "6225224072",
-          "note": ""
+          "note": "80"
         },
         {
           "role": "팀원",
           "nick": "CNJ_Marco",
           "uid": "6878334658",
-          "note": ""
+          "note": "81"
         },
         {
           "role": "팀원",
           "nick": "CNJـMaktoob",
           "uid": "61811091173",
-          "note": ""
+          "note": "71"
         },
         {
           "role": "후보",
