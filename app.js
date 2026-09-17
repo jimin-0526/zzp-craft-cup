@@ -360,13 +360,16 @@
     for(var i=0;i<5;i++){
       var nickEl = document.getElementById("edit-nick-"+id+"-"+i);
       var uidEl = document.getElementById("edit-uid-"+id+"-"+i);
-      players.push({ role: roles[i], nick: nickEl?nickEl.value.trim():"", uid: uidEl?uidEl.value.trim():"" });
+      var noteEl = document.getElementById("edit-note-"+id+"-"+i);
+      players.push({ role: roles[i], nick: nickEl?nickEl.value.trim():"", uid: uidEl?uidEl.value.trim():"", note: noteEl?noteEl.value.trim():"" });
     }
     var confirmEl = document.getElementById("edit-confirmed-"+id);
     var confirmed = confirmEl ? confirmEl.checked : true;
+    var teamNoteEl = document.getElementById("edit-team-note-"+id);
+    var teamNote = teamNoteEl ? teamNoteEl.value.trim() : "";
     activeModal = null;
     mutateAndSave(function(ns){
-      ns.teams[String(id)] = { name:newName, confirmed:confirmed, players:players };
+      ns.teams[String(id)] = { name:newName, confirmed:confirmed, note:teamNote, players:players };
       return ns;
     });
   }
@@ -1097,9 +1100,11 @@
     for(var id=1; id<=TOTAL_TEAMS; id++){
       var team = teamOf(id, st);
       var plist = team.players.filter(function(p){ return p.nick; }).map(function(p){
-        return '<span>'+escapeHtml(p.role)+' '+escapeHtml(p.nick)+' <span class="uid mono">'+(p.uid?escapeHtml(p.uid):"—")+'</span></span>';
+        return '<span>'+escapeHtml(p.role)+' '+escapeHtml(p.nick)+' <span class="uid mono">'+(p.uid?escapeHtml(p.uid):"—")+'</span>'
+          + (p.note ? ' <span class="admin-note">· '+escapeHtml(p.note)+'</span>' : '') + '</span>';
       }).join("");
-      rows += '<tr><td class="mono">'+String(id).padStart(2,"0")+'</td><td class="tname">'+escapeHtml(team.name)+(team.confirmed?"":' <span style="color:var(--ink-faint);font-size:0.72rem;">(미확정)</span>')+'</td><td class="plist">'+plist+'</td>'
+      var teamNoteHtml = team.note ? '<div class="admin-note">'+escapeHtml(team.note)+'</div>' : '';
+      rows += '<tr><td class="mono">'+String(id).padStart(2,"0")+'</td><td class="tname">'+escapeHtml(team.name)+(team.confirmed?"":' <span style="color:var(--ink-faint);font-size:0.72rem;">(미확정)</span>')+teamNoteHtml+'</td><td class="plist">'+plist+'</td>'
         + '<td><button type="button" class="btn btn-ghost btn-sm" data-action="open-team" data-id="'+id+'" data-edit="1">'+iconPencil(13)+' 수정</button></td></tr>';
     }
     return ''
@@ -1331,10 +1336,13 @@
       var rows = "";
       var roleLabels = ["팀장","팀원1","팀원2","팀원3","후보"];
       for(var i=0;i<5;i++){
-        var p = team.players[i] || {role:roleLabels[i], nick:"", uid:""};
+        var p = team.players[i] || {role:roleLabels[i], nick:"", uid:"", note:""};
         rows += '<div class="edit-row"><span class="role-lbl">'+roleLabels[i]+'</span>'
           + '<input id="edit-nick-'+id+'-'+i+'" placeholder="닉네임" value="'+escapeHtml(p.nick||"")+'">'
           + '<input id="edit-uid-'+id+'-'+i+'" placeholder="UID" value="'+escapeHtml(p.uid||"")+'">'
+          + '</div>'
+          + '<div class="edit-row edit-row-note"><span class="role-lbl">메모</span>'
+          + '<input id="edit-note-'+id+'-'+i+'" placeholder="관리자 메모 (예: 레벨, 특이사항 — 비공개)" value="'+escapeHtml(p.note||"")+'" style="grid-column:2 / span 2;">'
           + '</div>';
       }
       return ''
@@ -1345,6 +1353,7 @@
         +     '<div class="modal-body">'
         +       '<div class="field"><label>팀명</label><input id="edit-name-'+id+'" value="'+escapeHtml(team.name)+'"></div>'
         +       rows
+        +       '<div class="field" style="margin-top:12px;"><label>팀 메모 (관리자 전용, 비공개)</label><input id="edit-team-note-'+id+'" value="'+escapeHtml(team.note||"")+'" placeholder="이 팀에 대한 메모"></div>'
         +       '<label class="confirm-check"><input type="checkbox" id="edit-confirmed-'+id+'" '+(team.confirmed?"checked":"")+'> 참가 확정</label>'
         +     '</div>'
         +     '<div class="modal-foot">'
@@ -1651,9 +1660,18 @@
     var result = await mutateAndSave(function(ns){
       var changed = false;
       Object.keys(sheetTeams).forEach(function(id){
-        if(JSON.stringify(ns.teams[id]) !== JSON.stringify(sheetTeams[id])){
+        var incoming = sheetTeams[id];
+        var existing = ns.teams[id] || {};
+        // the sheet has no "note" columns; carry admin-written team/player
+        // notes forward instead of letting a sync wipe them out.
+        var mergedPlayers = incoming.players.map(function(p, idx){
+          var oldP = (existing.players && existing.players[idx]) || {};
+          return { role: p.role, nick: p.nick, uid: p.uid, note: oldP.note || "" };
+        });
+        var merged = { name: incoming.name, confirmed: incoming.confirmed, note: existing.note || "", players: mergedPlayers };
+        if(JSON.stringify(existing) !== JSON.stringify(merged)){
           changed = true;
-          ns.teams[id] = sheetTeams[id];
+          ns.teams[id] = merged;
         }
       });
       return changed ? ns : null;

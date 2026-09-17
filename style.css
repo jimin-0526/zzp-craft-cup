@@ -379,6 +379,8 @@ table.admin-table th{ text-align:left; font-family:"Rajdhani",sans-serif; font-s
 table.admin-table td{ padding:8px 14px; border-bottom:1px solid var(--border); color:var(--ink-dim); vertical-align:top; }
 table.admin-table td.tname{ color:var(--ink); font-weight:700; }
 table.admin-table .plist span{ display:block; }
+.admin-note{ color:var(--gold); font-style:italic; }
+div.admin-note{ font-size:0.76rem; font-weight:500; margin-top:2px; }
 table.admin-table .uid{ color:var(--ink-faint); }
 
 /* ---------- footer ---------- */
@@ -421,6 +423,7 @@ footer .foot-admin:hover{ color:var(--accent); }
 .field input{ width:100%; padding:8px 10px; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); font-size:0.9rem; }
 .field input:focus{ outline:none; border-color:var(--accent); }
 .edit-row{ display:grid; grid-template-columns:44px 1fr 1fr; gap:8px; align-items:center; margin-bottom:8px; }
+.edit-row.edit-row-note{ margin-top:-2px; margin-bottom:14px; }
 .edit-row .role-lbl{ font-family:"JetBrains Mono",monospace; font-size:0.62rem; color:var(--ink-faint); }
 .edit-row input{ padding:7px 9px; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); font-size:0.82rem; }
 .edit-row input:focus{ outline:none; border-color:var(--accent); }
