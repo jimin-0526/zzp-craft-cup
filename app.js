@@ -1105,7 +1105,12 @@
     return ''
       + '<section id="admin">'
       +   '<div class="wrap">'
-      +     '<div class="admin-banner"><span class="lbl">🔧 관리자 모드 · UID 전체 확인</span><button type="button" class="btn btn-ghost btn-sm" data-action="admin-toggle">관리자 모드 종료</button></div>'
+      +     '<div class="admin-banner"><span class="lbl">🔧 관리자 모드 · UID 전체 확인</span>'
+      +       '<div style="display:flex;gap:8px;">'
+      +         '<button type="button" class="btn btn-ghost btn-sm" data-action="sync-roster">'+iconRefresh(15)+' 구글시트 동기화</button>'
+      +         '<button type="button" class="btn btn-ghost btn-sm" data-action="admin-toggle">관리자 모드 종료</button>'
+      +       '</div>'
+      +     '</div>'
       +     '<div class="admin-table-wrap"><table class="admin-table">'
       +       '<thead><tr><th>SEED</th><th>팀명</th><th>선수 (닉네임 · UID)</th><th></th></tr></thead>'
       +       '<tbody>'+rows+'</tbody>'
@@ -1575,6 +1580,88 @@
     attemptSave();
   }
 
+  /* ---------------- roster sync (google sheet) ---------------- */
+  var SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRb8vW_6Jpf98Pfda_SY1STLuZLTI5v9mzHxqnW03Q9jo9Xp0j5wu2Eeoy_ltLiyqBItMPAjSXhJ6Z/pub?gid=741899986&single=true&output=csv";
+
+  function parseCsv(text){
+    var rows = [], row = [], field = "", inQuotes = false;
+    for(var i=0;i<text.length;i++){
+      var c = text[i];
+      if(inQuotes){
+        if(c === '"'){ if(text[i+1] === '"'){ field += '"'; i++; } else inQuotes = false; }
+        else field += c;
+      } else if(c === '"'){ inQuotes = true; }
+      else if(c === ","){ row.push(field); field = ""; }
+      else if(c === "\n"){ row.push(field); rows.push(row); row = []; field = ""; }
+      else if(c === "\r"){ /* skip */ }
+      else field += c;
+    }
+    if(field.length || row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  function parsePlayerCell(cell, role){
+    var s = (cell||"").trim();
+    if(!s) return { role:role, nick:"", uid:"" };
+    var parts = s.split(/\s*\/\s*/);
+    return { role:role, nick:(parts[0]||"").trim(), uid:(parts[1]||"").trim() };
+  }
+
+  async function fetchSheetTeams(){
+    var res = await fetch(SHEET_CSV_URL);
+    if(!res.ok) throw new Error("시트 CSV 불러오기 실패: HTTP " + res.status);
+    var csv = await res.text();
+    var rows = parseCsv(csv);
+    var headerIdx = -1;
+    for(var h=0; h<rows.length; h++){ if((rows[h][1]||"").trim() === "No."){ headerIdx = h; break; } }
+    if(headerIdx < 0) throw new Error("시트에서 헤더 행(No.)을 찾지 못했습니다.");
+    var teams = {};
+    for(var i=headerIdx+1; i<rows.length && Object.keys(teams).length < TOTAL_TEAMS; i++){
+      var r = rows[i];
+      var id = parseInt((r[1]||"").trim(), 10);
+      if(!id || id<1 || id>TOTAL_TEAMS) continue;
+      var name = (r[2]||"").trim();
+      if(!name) continue;
+      var confirmed = (r[8]||"").trim().toUpperCase() === "TRUE";
+      teams[String(id)] = {
+        name: name,
+        confirmed: confirmed,
+        players: [
+          parsePlayerCell(r[3], "팀장"),
+          parsePlayerCell(r[4], "팀원"),
+          parsePlayerCell(r[5], "팀원"),
+          parsePlayerCell(r[6], "팀원"),
+          parsePlayerCell(r[7], "후보")
+        ]
+      };
+    }
+    return teams;
+  }
+
+  async function syncRosterFromSheet(){
+    if(!isAdmin){ toast("관리자만 동기화할 수 있습니다."); return; }
+    toast("구글시트에서 팀 정보를 불러오는 중…");
+    var sheetTeams;
+    try{
+      sheetTeams = await fetchSheetTeams();
+    }catch(e){
+      toast("시트 동기화 실패: " + (e && e.message ? e.message : e));
+      return;
+    }
+    var result = await mutateAndSave(function(ns){
+      var changed = false;
+      Object.keys(sheetTeams).forEach(function(id){
+        if(JSON.stringify(ns.teams[id]) !== JSON.stringify(sheetTeams[id])){
+          changed = true;
+          ns.teams[id] = sheetTeams[id];
+        }
+      });
+      return changed ? ns : null;
+    });
+    if(result.status === "noop") toast("변경된 팀 정보가 없습니다.");
+    else if(result.status === "ok") toast("구글시트 동기화 완료 · 팀 정보가 갱신되었습니다.");
+  }
+
   /* ---------------- events ---------------- */
   document.addEventListener("click", function(e){
     var drawBtn = e.target.closest('[data-action="draw"]');
@@ -1616,6 +1703,8 @@
     if(saveBtn){ saveTeamEdit(+saveBtn.dataset.id); return; }
     var adminBtn = e.target.closest('[data-action="admin-toggle"]');
     if(adminBtn){ toggleAdmin(); return; }
+    var syncRosterBtn = e.target.closest('[data-action="sync-roster"]');
+    if(syncRosterBtn){ syncRosterFromSheet(); return; }
     var toggleDrawBtn = e.target.closest('[data-action="toggle-draw-panel"]');
     if(toggleDrawBtn){ drawPanelOpen = !drawPanelOpen; render(); return; }
     var resetDrawBtn = e.target.closest('[data-action="reset-draw"]');
