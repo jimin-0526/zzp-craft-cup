@@ -524,32 +524,32 @@
     },
     "15": {
       "name": "태민이는친구가없어",
-      "confirmed": true,
+      "confirmed": false,
       "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "DFMīMeiy",
           "uid": "6179628244",
-          "note": ""
+          "note": "70 (xerx.78)"
         },
         {
           "role": "팀원",
           "nick": "DFMīSSeeS",
           "uid": "61661493279",
-          "note": ""
+          "note": "70"
         },
         {
           "role": "팀원",
           "nick": "DFMīAkame",
           "uid": "6548875478",
-          "note": ""
+          "note": "80"
         },
         {
           "role": "팀원",
           "nick": "Ray4٭Forever",
           "uid": "62350058115",
-          "note": ""
+          "note": "42"
         },
         {
           "role": "후보",
