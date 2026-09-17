@@ -191,7 +191,7 @@
     },
     "6": {
       "name": "ZZP클랜 가고싶어요",
-      "confirmed": false,
+      "confirmed": true,
       "note": "",
       "players": [
         {
@@ -413,7 +413,7 @@
     },
     "12": {
       "name": "G2G3",
-      "confirmed": false,
+      "confirmed": true,
       "note": "",
       "players": [
         {
@@ -524,7 +524,7 @@
     },
     "15": {
       "name": "태민이는친구가없어",
-      "confirmed": false,
+      "confirmed": true,
       "note": "",
       "players": [
         {
@@ -715,7 +715,7 @@
         {
           "role": "팀장",
           "nick": "Hito2ruka٭͜",
-          "uid": "61763885446",
+          "uid": "u61763885446",
           "note": "71 (아아함만)"
         },
         {
@@ -997,8 +997,8 @@
         },
         {
           "role": "후보",
-          "nick": "",
-          "uid": "",
+          "nick": "테카진2026",
+          "uid": "6457914851",
           "note": ""
         }
       ]
@@ -1079,7 +1079,7 @@
     },
     "30": {
       "name": "AKM",
-      "confirmed": false,
+      "confirmed": true,
       "note": "",
       "players": [
         {
@@ -1153,19 +1153,19 @@
     },
     "32": {
       "name": "찌찌뽕",
-      "confirmed": false,
+      "confirmed": true,
       "note": "레벨 확인 필요",
       "players": [
         {
           "role": "팀장",
-          "nick": "ssuzzy",
-          "uid": "62168432017",
+          "nick": "MEGA_luvsxxm",
+          "uid": "61409299143",
           "note": "15 (앙앙)"
         },
         {
           "role": "팀원",
-          "nick": "zzizzi",
-          "uid": "62129710427",
+          "nick": "Kryon_inc",
+          "uid": "695836785",
           "note": "6"
         },
         {
