@@ -426,7 +426,7 @@ footer .foot-admin:hover{ color:var(--accent); }
 .player-row:last-child{ border-bottom:none; }
 .player-row .role{ flex:none; width:46px; font-family:"JetBrains Mono",monospace; font-size:0.66rem; color:var(--ink-faint); }
 .player-row .nick{ font-weight:600; color:var(--ink); font-size:0.94rem; }
-.player-row.captain .nick{ color:var(--accent); }
+.player-row.captain .role{ color:var(--accent); }
 .empty-note{ color:var(--ink-faint); font-size:0.86rem; padding:8px 0; }
 .modal-foot{ display:flex; justify-content:flex-end; gap:10px; padding:14px 22px 20px; }
 .field{ margin-bottom:12px; }
