@@ -1079,14 +1079,14 @@
     },
     "30": {
       "name": "AKM",
-      "confirmed": false,
+      "confirmed": true,
       "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "포카칩볶음밥",
-          "uid": "695664114",
-          "note": "12 (00)"
+          "uid": "695964114",
+          "note": "76 (00)"
         },
         {
           "role": "팀원",
