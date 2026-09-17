@@ -1236,40 +1236,53 @@
       var j = Math.floor(Math.random()*(i+1));
       var t = ids[i]; ids[i]=ids[j]; ids[j]=t;
     }
+    var MATCH_COUNT = TOTAL_TEAMS/2;
 
     var overlay = document.createElement("div");
     overlay.id = "ceremony";
     overlay.innerHTML = ''
       + '<button type="button" class="btn btn-ghost btn-sm cer-skip" data-action="cer-skip">건너뛰기 ▸▸</button>'
       + '<div class="cer-eyebrow">DRAW EVENT LIVE</div>'
-      + '<div class="cer-count"><span id="cer-num">01</span><span class="of"> / 32</span></div>'
-      + '<div class="cer-plaque cut-both" id="cer-plaque"><div class="name" id="cer-name">대기중…</div></div>'
-      + '<div class="cer-grid" id="cer-grid"></div>';
+      + '<div class="cer-count"><span id="cer-num">01</span><span class="of"> / '+MATCH_COUNT+' 매치</span></div>'
+      + '<div class="cer-stage" id="cer-stage">'
+      +   '<div class="cer-stage-card cut-both" id="cer-stage-a"><span class="cer-stage-tag">1번 시드</span><div class="name" id="cer-stage-name-a">대기중…</div></div>'
+      +   '<div class="cer-vs">VS</div>'
+      +   '<div class="cer-stage-card cut-both" id="cer-stage-b"><span class="cer-stage-tag">2번 시드</span><div class="name" id="cer-stage-name-b">대기중…</div></div>'
+      + '</div>'
+      + '<div class="cer-grid" id="cer-grid"></div>'
+      + '<div class="cer-finale-panel" id="cer-finale-panel"></div>';
     document.body.appendChild(overlay);
 
     var grid = overlay.querySelector("#cer-grid");
-    for(var g=0; g<TOTAL_TEAMS; g++){
-      var chip = document.createElement("div");
-      chip.className = "cer-chip";
-      chip.id = "cer-chip-"+g;
-      chip.textContent = "M"+(Math.floor(g/2)+1)+(g%2===0?"-A":"-B");
-      grid.appendChild(chip);
+    for(var g=0; g<MATCH_COUNT; g++){
+      var group = document.createElement("div");
+      group.className = "cer-match-group";
+      group.id = "cer-group-"+g;
+      group.innerHTML = '<span class="cer-group-num">M'+(g+1)+'</span>'
+        + '<div class="cer-chip" id="cer-chip-'+(2*g)+'">TBD</div>'
+        + '<div class="cer-chip" id="cer-chip-'+(2*g+1)+'">TBD</div>';
+      grid.appendChild(group);
     }
 
     var skipRequested = false;
-    overlay.querySelector('[data-action="cer-skip"]').addEventListener("click", function(){ skipRequested = true; });
+    var skipBtn = overlay.querySelector('[data-action="cer-skip"]');
+    skipBtn.addEventListener("click", function(){ skipRequested = true; });
 
     var numEl = overlay.querySelector("#cer-num");
-    var nameEl = overlay.querySelector("#cer-name");
-    var plaqueEl = overlay.querySelector("#cer-plaque");
+    var stageEl = overlay.querySelector("#cer-stage");
+    var cardAEl = overlay.querySelector("#cer-stage-a");
+    var cardBEl = overlay.querySelector("#cer-stage-b");
+    var nameAEl = overlay.querySelector("#cer-stage-name-a");
+    var nameBEl = overlay.querySelector("#cer-stage-name-b");
     var delays = buildCycleDelays();
 
-    for(var k=0; k<TOTAL_TEAMS; k++){
-      numEl.textContent = String(k+1).padStart(2,"0");
-      plaqueEl.classList.remove("locked");
-      var pool = ids.slice(k);
+    // Cycles one seed slot's name through random candidates, then locks
+    // it in on its stage card (blurred while shuffling, sharp once decided).
+    async function revealSlot(cardEl, nameEl, k){
       var trueId = ids[k];
-
+      var pool = ids.slice(k);
+      cardEl.classList.remove("locked");
+      cardEl.classList.add("cycling");
       if(!skipRequested){
         for(var d=0; d<delays.length; d++){
           var pick = pool[Math.floor(Math.random()*pool.length)];
@@ -1279,22 +1292,53 @@
         }
       }
       nameEl.textContent = teamName(trueId, state);
-      plaqueEl.classList.add("locked");
-      var chipEl = document.getElementById("cer-chip-"+k);
-      if(chipEl){ chipEl.textContent = teamName(trueId, state); chipEl.classList.add("filled"); }
+      cardEl.classList.remove("cycling");
+      cardEl.classList.add("locked");
       if(window.confetti){
         try{
-          var rect = plaqueEl.getBoundingClientRect();
-          window.confetti({ particleCount: skipRequested?0:16, spread:45, startVelocity:22, gravity:1.1,
+          var rect = cardEl.getBoundingClientRect();
+          window.confetti({ particleCount: skipRequested?0:14, spread:42, startVelocity:20, gravity:1.1,
             colors:["#63c26f","#eef0e2","#3f8f4c"], origin:{ x:(rect.left+rect.width/2)/window.innerWidth, y:(rect.top+rect.height/2)/window.innerHeight } });
         }catch(e){}
       }
-      await sleep(skipRequested ? 30 : 380);
+      await sleep(skipRequested ? 20 : 260);
     }
 
-    overlay.innerHTML = ''
+    for(var m=0; m<MATCH_COUNT; m++){
+      numEl.textContent = String(m+1).padStart(2,"0");
+      nameAEl.textContent = "대기중…"; nameBEl.textContent = "대기중…";
+      cardAEl.classList.remove("locked"); cardBEl.classList.remove("locked");
+      // restart the "rise up" entrance animation for this match's pair
+      stageEl.classList.remove("rise"); void stageEl.offsetWidth; stageEl.classList.add("rise");
+
+      await revealSlot(cardAEl, nameAEl, 2*m);
+      await revealSlot(cardBEl, nameBEl, 2*m+1);
+
+      // both seeds locked — slam the pair down into its grid slot
+      stageEl.classList.add("impact");
+      await sleep(skipRequested ? 0 : 200);
+
+      var chipA = document.getElementById("cer-chip-"+(2*m));
+      var chipB = document.getElementById("cer-chip-"+(2*m+1));
+      if(chipA){ chipA.textContent = teamName(ids[2*m], state); chipA.classList.add("filled"); }
+      if(chipB){ chipB.textContent = teamName(ids[2*m+1], state); chipB.classList.add("filled"); }
+      var groupEl = document.getElementById("cer-group-"+m);
+      if(groupEl) groupEl.classList.add("done");
+
+      stageEl.classList.remove("impact");
+      await sleep(skipRequested ? 20 : 220);
+    }
+
+    skipBtn.style.display = "none";
+    stageEl.classList.remove("rise","impact");
+    stageEl.innerHTML = '<div class="cer-stage-done"><span class="icon-box">'+iconCheck(20)+'</span>32강 대진 확정!</div>';
+
+    // The 32 confirmed slots stay on screen — only this panel below them
+    // updates to reflect the save/sync status, so the draw stays visible
+    // instead of vanishing the moment the ceremony ends.
+    var panel = document.getElementById("cer-finale-panel");
+    panel.innerHTML = ''
       + '<div class="cer-finale">'
-      +   '<div class="big">대진 확정!</div>'
       +   '<div class="chicken">WINNER WINNER CHICKEN DINNER — 행운을 빕니다</div>'
       +   '<div class="cer-save-status pending" id="cer-save-status"><span class="spinner"></span> 서버에 저장하는 중…</div>'
       + '</div>';
@@ -1307,7 +1351,7 @@
         statusEl.className = "cer-save-status pending";
         statusEl.innerHTML = '<span class="spinner"></span> 서버에 저장하는 중…';
       }
-      var finale = overlay.querySelector(".cer-finale");
+      var finale = document.querySelector("#cer-finale-panel .cer-finale");
       var oldBtns = finale ? finale.querySelectorAll(".cer-finale-actions") : [];
       for(var b=0;b<oldBtns.length;b++){ oldBtns[b].remove(); }
 
@@ -1328,7 +1372,7 @@
         finale.appendChild(actions);
         actions.querySelector('[data-action="cer-close"]').addEventListener("click", closeOverlay);
         if(window.confetti){
-          try{ window.confetti({ particleCount:140, spread:100, startVelocity:38, origin:{x:0.5,y:0.4}, colors:["#63c26f","#eef0e2","#3f8f4c","#7ed489"] }); }catch(e){}
+          try{ window.confetti({ particleCount:140, spread:100, startVelocity:38, origin:{x:0.5,y:0.3}, colors:["#63c26f","#eef0e2","#3f8f4c","#7ed489"] }); }catch(e){}
         }
       } else {
         statusEl.className = "cer-save-status error";

@@ -436,22 +436,45 @@ footer .foot-admin:hover{ color:var(--accent); }
 /* ---------- ceremony ---------- */
 #ceremony{ position:fixed; inset:0; z-index:300; background:
     radial-gradient(circle at 50% 32%, rgba(99,194,111,0.14), transparent 55%), rgba(5,6,4,0.97);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; padding:28px; overflow:hidden; }
+  display:flex; flex-direction:column; align-items:center; padding:36px 28px 60px; overflow-y:auto; }
 .cer-skip{ position:absolute; top:22px; right:24px; }
 .cer-eyebrow{ font-family:"Rajdhani",sans-serif; letter-spacing:.3em; font-size:0.78rem; color:var(--accent); text-transform:uppercase; }
-.cer-count{ font-family:"Black Ops One",sans-serif; font-size:clamp(3rem,9vw,5.5rem); color:var(--ink); line-height:1; margin:6px 0 18px; }
-.cer-count .of{ font-size:0.35em; color:var(--ink-faint); }
-.cer-plaque{ width:min(520px,92vw); padding:26px 30px; border:1px solid var(--border-strong);
-  background:linear-gradient(160deg, var(--surface), var(--bg-soft)); text-align:center; margin-bottom:26px; }
-.cer-plaque .name{ font-weight:900; font-size:clamp(1.4rem,4vw,2.1rem); color:var(--ink); transition:color .15s; }
-.cer-plaque.locked{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 0 50px -6px var(--accent-glow); animation:lockpulse .5s ease; }
-.cer-plaque.locked .name{ color:var(--accent); }
+.cer-count{ font-family:"Black Ops One",sans-serif; font-size:clamp(2.2rem,6vw,3.6rem); color:var(--ink); line-height:1; margin:6px 0 22px; }
+.cer-count .of{ font-size:0.4em; color:var(--ink-faint); }
+
+/* the "big stage": the two teams currently being drawn for one match */
+.cer-stage{ display:flex; align-items:center; gap:16px; margin-bottom:30px; min-height:130px; }
+.cer-stage.rise{ animation:stageRise .38s ease; }
+@keyframes stageRise{ from{ opacity:0; transform:translateY(34px) scale(0.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
+.cer-stage.impact .cer-stage-card{ animation:stageImpact .24s ease; }
+@keyframes stageImpact{ 0%{ transform:scale(1); } 40%{ transform:scale(1.05); } 100%{ transform:scale(0.9) translateY(18px); opacity:0.35; } }
+.cer-stage-card{ width:min(280px,40vw); padding:22px 18px; border:1px solid var(--border-strong);
+  background:linear-gradient(160deg, var(--surface), var(--bg-soft)); text-align:center; transition:border-color .15s, box-shadow .15s; }
+.cer-stage-card .cer-stage-tag{ display:block; font-family:"JetBrains Mono",monospace; font-size:0.62rem; letter-spacing:.16em;
+  color:var(--ink-faint); text-transform:uppercase; margin-bottom:10px; }
+.cer-stage-card .name{ font-weight:900; font-size:clamp(1.15rem,3.2vw,1.8rem); color:var(--ink); transition:color .15s, filter .15s, opacity .15s; }
+.cer-stage-card.cycling .name{ filter:blur(1.5px); opacity:0.72; }
+.cer-stage-card.locked{ border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), 0 0 44px -8px var(--accent-glow); animation:lockpulse .5s ease; }
+.cer-stage-card.locked .name{ color:var(--accent); }
+.cer-vs{ font-family:"Black Ops One",sans-serif; font-size:1.3rem; color:var(--ink-faint); flex:none; }
 @keyframes lockpulse{ 0%{ transform:scale(0.94); } 55%{ transform:scale(1.035); } 100%{ transform:scale(1); } }
-.cer-grid{ display:grid; grid-template-columns:repeat(8, minmax(58px, 1fr)); gap:8px; width:min(760px,94vw); }
-.cer-chip{ position:relative; height:40px; border:1px solid var(--border); background:var(--surface);
-  display:flex; align-items:center; justify-content:center; font-family:"JetBrains Mono",monospace; font-size:0.62rem; color:var(--ink-faint); overflow:hidden; padding:0 4px; text-align:center; }
-.cer-chip.filled{ border-color:rgba(99,194,111,0.45); color:var(--ink); background:var(--accent-deep); animation:chipin .35s ease; }
+.cer-stage-done{ display:flex; align-items:center; gap:12px; font-family:"Black Ops One",sans-serif;
+  font-size:clamp(1.5rem,4.4vw,2.3rem); color:var(--accent); animation:chipin .4s ease; }
+.cer-stage-done .icon-box{ display:flex; color:var(--accent); }
+
+/* the 32 confirmed slots, always visible, filling in match-by-match */
+.cer-grid{ display:grid; grid-template-columns:repeat(4, minmax(150px, 1fr)); gap:12px 14px; width:min(880px,94vw); }
+.cer-match-group{ position:relative; border:1px solid var(--border); background:var(--surface); padding:11px 12px 9px; transition:border-color .25s, box-shadow .25s; }
+.cer-match-group .cer-group-num{ position:absolute; top:-8px; left:10px; background:var(--bg); padding:0 6px;
+  font-family:"JetBrains Mono",monospace; font-size:0.58rem; color:var(--ink-faint); letter-spacing:.1em; }
+.cer-match-group.done{ border-color:rgba(99,194,111,0.4); box-shadow:0 0 0 1px rgba(99,194,111,0.14); }
+.cer-chip{ height:26px; display:flex; align-items:center; font-family:"JetBrains Mono",monospace; font-size:0.72rem;
+  color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.cer-chip + .cer-chip{ border-top:1px dashed var(--border); margin-top:2px; padding-top:4px; }
+.cer-chip.filled{ color:var(--ink); font-weight:700; animation:chipin .35s ease; }
 @keyframes chipin{ from{ transform:scale(0.7); opacity:0; } to{ transform:scale(1); opacity:1; } }
+
+.cer-finale-panel{ width:100%; display:flex; justify-content:center; margin-top:30px; }
 .cer-finale{ text-align:center; }
 .cer-finale .big{ font-family:"Black Ops One",sans-serif; font-size:clamp(2rem,6vw,3.4rem); color:var(--accent); margin-bottom:10px; }
 .cer-finale .chicken{ font-family:"JetBrains Mono",monospace; font-size:0.84rem; letter-spacing:.12em; color:var(--ink-dim); margin-bottom:26px; }
@@ -491,7 +514,9 @@ footer .foot-admin:hover{ color:var(--accent); }
   .wrap{ padding:0 18px; }
   .hero{ padding:52px 0 40px; }
   section{ padding:44px 0; }
-  .cer-grid{ grid-template-columns:repeat(4, minmax(58px,1fr)); }
+  .cer-grid{ grid-template-columns:repeat(2, minmax(140px,1fr)); }
+  .cer-stage{ gap:8px; }
+  .cer-stage-card{ padding:16px 10px; }
 }
 @media (max-width:480px){
   .sync-pill .sync-label{ display:none; }
