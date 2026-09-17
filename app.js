@@ -1849,10 +1849,13 @@
         var incoming = sheetTeams[id];
         var existing = ns.teams[id] || {};
         // the sheet has no "note" columns; carry admin-written team/player
-        // notes forward instead of letting a sync wipe them out.
+        // notes forward instead of letting a sync wipe them out — unless the
+        // UID at this slot changed, which means it's actually a different
+        // player now, so the old note no longer applies to them.
         var mergedPlayers = incoming.players.map(function(p, idx){
           var oldP = (existing.players && existing.players[idx]) || {};
-          return { role: p.role, nick: p.nick, uid: p.uid, note: oldP.note || "" };
+          var samePlayer = (oldP.uid || "") === (p.uid || "");
+          return { role: p.role, nick: p.nick, uid: p.uid, note: samePlayer ? (oldP.note || "") : "" };
         });
         var merged = { name: incoming.name, confirmed: incoming.confirmed, note: existing.note || "", players: mergedPlayers };
         if(JSON.stringify(existing) !== JSON.stringify(merged)){
