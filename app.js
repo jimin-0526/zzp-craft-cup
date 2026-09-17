@@ -617,7 +617,6 @@
       +       '<div class="readout-row"><span class="rk">참가 팀</span><span class="rv">32</span></div>'
       +       '<div class="readout-row"><span class="rk">라운드</span><span class="rv">5</span></div>'
       +       '<div class="readout-row"><span class="rk">챔피언</span><span class="rv">1</span></div>'
-      +       '<div class="readout-row"><span class="rk">방식</span><span class="rv sm">단판 토너먼트</span></div>'
       +     '</aside>'
       +   '</div>'
       + '</section>';
