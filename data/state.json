@@ -932,37 +932,37 @@
     "26": {
       "name": "니혼고와칸나이",
       "confirmed": true,
-      "note": "",
+      "note": "프로 선수 포함 (일본)",
       "players": [
         {
           "role": "팀장",
           "nick": "ZPـRAM1",
           "uid": "6101461734",
-          "note": ""
+          "note": "84 (라미)"
         },
         {
           "role": "팀원",
           "nick": "TAPTICـGxs",
           "uid": "6100522330",
-          "note": ""
+          "note": "70"
         },
         {
           "role": "팀원",
           "nick": "VAL・泰心",
           "uid": "6139900870",
-          "note": ""
+          "note": "92"
         },
         {
           "role": "팀원",
           "nick": "NNūEnslaght",
           "uid": "6120650008",
-          "note": ""
+          "note": "83"
         },
         {
           "role": "후보",
           "nick": "iVـKALIM",
           "uid": "6184703584",
-          "note": ""
+          "note": "77"
         }
       ]
     },
