@@ -377,31 +377,31 @@
     "11": {
       "name": "DAEJEON GAME PT",
       "confirmed": true,
-      "note": "",
+      "note": "프로팀",
       "players": [
         {
           "role": "팀장",
           "nick": "DGP_AaRon",
           "uid": "695894783",
-          "note": ""
+          "note": "78 (AaRon)"
         },
         {
           "role": "팀원",
           "nick": "DGP_JAEMIN",
           "uid": "61254218193",
-          "note": ""
+          "note": "82"
         },
         {
           "role": "팀원",
           "nick": "DGP_JAESUK",
           "uid": "61421765325",
-          "note": ""
+          "note": "81"
         },
         {
           "role": "팀원",
           "nick": "DGP_Sentinel",
           "uid": "61016956107",
-          "note": ""
+          "note": "74"
         },
         {
           "role": "후보",
