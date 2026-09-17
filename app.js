@@ -404,9 +404,13 @@
 
   function drawMapSeed(round){
     if(!isAdmin){ toast("관리자만 맵 & 시드를 뽑을 수 있습니다. 하단 '관리자' 버튼으로 로그인하세요."); return; }
-    var already = mapSeedRoundAssigned(state, round);
-    if(already && !window.confirm(ROUND_LABELS[round]+" 맵 & 시드를 다시 뽑을까요? 기존 배정 내용은 사라집니다.")) return;
+    // The "already assigned?" check runs inside the mutator, against the
+    // freshly-fetched server state (not the possibly-stale local `state`) —
+    // otherwise a client that hasn't repolled yet could skip the overwrite
+    // confirmation and silently clobber another admin's newer draw.
     mutateAndSave(function(ns){
+      var already = mapSeedRoundAssigned(ns, round);
+      if(already && !window.confirm(ROUND_LABELS[round]+" 맵 & 시드를 다시 뽑을까요? 기존 배정 내용은 사라집니다.")) return null;
       var fresh = generateMapSeedForRound(round);
       Object.keys(fresh).forEach(function(k){ ns.mapSeed[k] = fresh[k]; });
       ns.mapSeedAt = new Date().toISOString();
@@ -416,9 +420,9 @@
 
   function resetMapSeed(round){
     if(!isAdmin){ toast("관리자만 초기화할 수 있습니다."); return; }
-    if(!mapSeedRoundAssigned(state, round)) return;
-    if(!window.confirm(ROUND_LABELS[round]+" 맵 & 시드 배정을 초기화할까요? 뽑기 전 상태로 돌아갑니다.")) return;
     mutateAndSave(function(ns){
+      if(!mapSeedRoundAssigned(ns, round)){ toast(ROUND_LABELS[round]+"은(는) 아직 배정되지 않았습니다."); return null; }
+      if(!window.confirm(ROUND_LABELS[round]+" 맵 & 시드 배정을 초기화할까요? 뽑기 전 상태로 돌아갑니다.")) return null;
       for(var i=0;i<ROUND_COUNTS[round];i++){ delete ns.mapSeed[round+"-"+i]; }
       return ns;
     });
