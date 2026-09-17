@@ -413,32 +413,32 @@
     },
     "12": {
       "name": "G2G3",
-      "confirmed": true,
+      "confirmed": false,
       "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "sspecialeffect",
           "uid": "62171280074",
-          "note": ""
+          "note": "35 (sspecialeffect)"
         },
         {
           "role": "팀원",
           "nick": "RMـSyZen",
           "uid": "6599934558",
-          "note": ""
+          "note": "80"
         },
         {
           "role": "팀원",
           "nick": "VS・Breaker",
           "uid": "697801052",
-          "note": ""
+          "note": "79"
         },
         {
           "role": "팀원",
           "nick": "SGـNightmare",
           "uid": "6148913798",
-          "note": ""
+          "note": "75"
         },
         {
           "role": "후보",
