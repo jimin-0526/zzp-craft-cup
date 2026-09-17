@@ -155,7 +155,7 @@
     "5": {
       "name": "제군",
       "confirmed": true,
-      "note": "",
+      "note": "프로 선수 포함",
       "players": [
         {
           "role": "팀장",
