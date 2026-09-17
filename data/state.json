@@ -191,32 +191,32 @@
     },
     "6": {
       "name": "ZZP클랜 가고싶어요",
-      "confirmed": true,
+      "confirmed": false,
       "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "TRGXـFANG",
           "uid": "62073206577",
-          "note": ""
+          "note": "82 (TRGXـFANG)"
         },
         {
           "role": "팀원",
           "nick": "Aps丨정찬석",
           "uid": "6660214603",
-          "note": ""
+          "note": "79"
         },
         {
           "role": "팀원",
           "nick": "4EverHuski",
           "uid": "6707081453",
-          "note": ""
+          "note": "82"
         },
         {
           "role": "팀원",
           "nick": "GTـVanta",
           "uid": "6242669294",
-          "note": ""
+          "note": "80"
         },
         {
           "role": "후보",
