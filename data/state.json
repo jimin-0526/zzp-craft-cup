@@ -92,992 +92,1184 @@
     "1": {
       "name": "이우성잘생겼다",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "CG_YUCA",
-          "uid": "6957463386"
+          "uid": "6957463386",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CG_GuSok",
-          "uid": "6220405118"
+          "uid": "6220405118",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CG_Shun",
-          "uid": "6667060370"
+          "uid": "6667060370",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CG_Clutch",
-          "uid": "61726162367"
+          "uid": "61726162367",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "2": {
       "name": "5Hz",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "5HzـAtomic",
-          "uid": "6131162919"
+          "uid": "6131162919",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "5HzـSabyuk",
-          "uid": "6388716157"
+          "uid": "6388716157",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "5HzـKaKaoK",
-          "uid": "6100318742"
+          "uid": "6100318742",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "5HzـRazit",
-          "uid": "6646009117"
+          "uid": "6646009117",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "5Hzـv1nz1nA",
-          "uid": "61884460199"
+          "uid": "61884460199",
+          "note": ""
         }
       ]
     },
     "3": {
       "name": "애벌레퇴치반",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "야옹이츄르뺏기",
-          "uid": "61685579386"
+          "uid": "61685579386",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ūŌ지ūū",
-          "uid": "62241004070"
+          "uid": "62241004070",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "파란코알라124",
-          "uid": "61546198024"
+          "uid": "61546198024",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ū현준",
-          "uid": "6316346944"
+          "uid": "6316346944",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "Ray4٭Xeravis",
-          "uid": "6163080334"
+          "uid": "6163080334",
+          "note": ""
         }
       ]
     },
     "4": {
       "name": "아리이스포츠",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "FS_Ari",
-          "uid": "61316794777"
+          "uid": "61316794777",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "FSـMahito",
-          "uid": "694840074"
+          "uid": "694840074",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "DGـChuxz",
-          "uid": "62071903560"
+          "uid": "62071903560",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "KXـYuki",
-          "uid": "6508256002"
+          "uid": "6508256002",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "WSـYETI",
-          "uid": "61852274075"
+          "uid": "61852274075",
+          "note": ""
         }
       ]
     },
     "5": {
       "name": "제군",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "FSـHyde",
-          "uid": "6102169859"
+          "uid": "6102169859",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "FSـNewjeans",
-          "uid": "61640469807"
+          "uid": "61640469807",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Angks4",
-          "uid": "6575733557"
+          "uid": "6575733557",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AZAKmagic",
-          "uid": "6100904777"
+          "uid": "6100904777",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "6": {
       "name": "ZZP클랜 가고싶어요",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "TRGXـFANG",
-          "uid": "62073206577"
+          "uid": "62073206577",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Aps丨정찬석",
-          "uid": "6660214603"
+          "uid": "6660214603",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "4EverHuski",
-          "uid": "6707081453"
+          "uid": "6707081453",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "GTـVanta",
-          "uid": "6242669294"
+          "uid": "6242669294",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "7": {
       "name": "Team AXZ",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "ĪīīēōīŪ",
-          "uid": "6161035495"
+          "uid": "6161035495",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "아웃패밀리미옥",
-          "uid": "61281753736"
+          "uid": "61281753736",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "qpqpqpį",
-          "uid": "696891242"
+          "uid": "696891242",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Necrxquality",
-          "uid": "6241953102"
+          "uid": "6241953102",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "8": {
       "name": "미워하지마",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "옥구꼬옹",
-          "uid": "6323242141"
+          "uid": "6323242141",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "giv٭nicetry",
-          "uid": "61842139342"
+          "uid": "61842139342",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "giv٭theshyyyy",
-          "uid": "6290955051"
+          "uid": "6290955051",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "yosobbi",
-          "uid": "62262045515"
+          "uid": "62262045515",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "giv٭Nicetryy",
-          "uid": "61288273725"
+          "uid": "61288273725",
+          "note": ""
         }
       ]
     },
     "9": {
       "name": "에푸에수",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "뽀은수",
-          "uid": "61619374331"
+          "uid": "61619374331",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "KGـOrca1",
-          "uid": "6428937737"
+          "uid": "6428937737",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "XII丶JiNPinG",
-          "uid": "61220694540"
+          "uid": "61220694540",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "FS・SzTxT",
-          "uid": "61700368042"
+          "uid": "61700368042",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "10": {
       "name": "절포님T1때부터팬이엿어요",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "RUـMYEONG",
-          "uid": "696775510"
+          "uid": "696775510",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "RUـCHAN",
-          "uid": "61513084682"
+          "uid": "61513084682",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "RUـSEUNG",
-          "uid": "6299452651"
+          "uid": "6299452651",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "RUـHotdog",
-          "uid": "61991286168"
+          "uid": "61991286168",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "11": {
       "name": "DAEJEON GAME PT",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "DGP_AaRon",
-          "uid": "695894783"
+          "uid": "695894783",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "DGP_JAEMIN",
-          "uid": "61254218193"
+          "uid": "61254218193",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "DGP_JAESUK",
-          "uid": "61421765325"
+          "uid": "61421765325",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "DGP_Sentinel",
-          "uid": "61016956107"
+          "uid": "61016956107",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "12": {
       "name": "G2G3",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "sspecialeffect",
-          "uid": "62171280074"
+          "uid": "62171280074",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "RMـSyZen",
-          "uid": "6599934558"
+          "uid": "6599934558",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "VS・Breaker",
-          "uid": "697801052"
+          "uid": "697801052",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "SGـNightmare",
-          "uid": "6148913798"
+          "uid": "6148913798",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "13": {
       "name": "AFFA GAMING",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "āffāĪ나나",
-          "uid": "62335472378"
+          "uid": "62335472378",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AXـShakey",
-          "uid": "6603278485"
+          "uid": "6603278485",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "고길동ļ",
-          "uid": "6365789297"
+          "uid": "6365789297",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "수리수리수다리",
-          "uid": "698291681"
+          "uid": "698291681",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "14": {
       "name": "CNJ esports",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "CNJـSIxTa",
-          "uid": "6249568001"
+          "uid": "6249568001",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CNJـTwoHerz",
-          "uid": "6225224072"
+          "uid": "6225224072",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CNJ_Marco",
-          "uid": "6878334658"
+          "uid": "6878334658",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CNJـMaktoob",
-          "uid": "61811091173"
+          "uid": "61811091173",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "15": {
       "name": "태민이는친구가없어",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "DFMīMeiy",
-          "uid": "6179628244"
+          "uid": "6179628244",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "DFMīSSeeS",
-          "uid": "61661493279"
+          "uid": "61661493279",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "DFMīAkame",
-          "uid": "6548875478"
+          "uid": "6548875478",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Ray4٭Forever",
-          "uid": "62350058115"
+          "uid": "62350058115",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "16": {
       "name": "pigy",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "17ŪLilghost",
-          "uid": "6234293961"
+          "uid": "6234293961",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ĪŪūōĒ",
-          "uid": "61585235130"
+          "uid": "61585235130",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "정글은코크",
-          "uid": "696936816"
+          "uid": "696936816",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ūūYxun",
-          "uid": "62004167160"
+          "uid": "62004167160",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "17": {
       "name": "에이아이온",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "ACLـZero",
-          "uid": "61929094366"
+          "uid": "61929094366",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ACLـAION",
-          "uid": "6450049400"
+          "uid": "6450049400",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Fasty6",
-          "uid": "62387136068"
+          "uid": "62387136068",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ACLـDobong",
-          "uid": "62018766959"
+          "uid": "62018766959",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "18": {
       "name": "맴매",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "AGPyogurt",
-          "uid": "6701829152"
+          "uid": "6701829152",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Lisenneß",
-          "uid": "62299777355"
+          "uid": "62299777355",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "KhanـXungBin",
-          "uid": "61718821580"
+          "uid": "61718821580",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "waveـrequłm7",
-          "uid": "6684013440"
+          "uid": "6684013440",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "19": {
       "name": "영서뚱땡이",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "EQEـSupergoku",
-          "uid": "6241283797"
+          "uid": "6241283797",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "EQEـLao",
-          "uid": "61682914361"
+          "uid": "61682914361",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "MEGAـIGL",
-          "uid": "6102571253"
+          "uid": "6102571253",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "MEGAـIone1yNt",
-          "uid": "6102553345"
+          "uid": "6102553345",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "20": {
       "name": "Team WAC",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "Hito2ruka٭͜",
-          "uid": "u61763885446"
+          "uid": "u61763885446",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "WACـINSAENGū",
-          "uid": "6602486776"
+          "uid": "6602486776",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AGPnostal",
-          "uid": "6837500485"
+          "uid": "6837500485",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "WACـReign9",
-          "uid": "6257229494"
+          "uid": "6257229494",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "WACـM",
-          "uid": "61534727601"
+          "uid": "61534727601",
+          "note": ""
         }
       ]
     },
     "21": {
       "name": "Jeonnam Esports",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "JNEـTom",
-          "uid": "6139455582"
+          "uid": "6139455582",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "JNEـzZz",
-          "uid": "696553797"
+          "uid": "696553797",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "JNEـBuzz",
-          "uid": "61752291524"
+          "uid": "61752291524",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "JNEـWoody",
-          "uid": "699246965"
+          "uid": "699246965",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "22": {
       "name": "송탄부대찌개",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "충과니・Qwer",
-          "uid": "61995356671"
+          "uid": "61995356671",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "군의폭탄박정현",
-          "uid": "62371525296"
+          "uid": "62371525296",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "이걸죽냐ㅋㅋ",
-          "uid": "62492110172"
+          "uid": "62492110172",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "CzlTv",
-          "uid": "6190568353"
+          "uid": "6190568353",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "23": {
       "name": "ㅎㅇ루",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "Tearsū",
-          "uid": "6118266227"
+          "uid": "6118266227",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "yeeunـax5",
-          "uid": "6341484350"
+          "uid": "6341484350",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "영정먹은ū정우",
-          "uid": "6368919099"
+          "uid": "6368919099",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "ROVkritix",
-          "uid": "6110434961"
+          "uid": "6110434961",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "Tsukigasumi",
-          "uid": "6376432606"
+          "uid": "6376432606",
+          "note": ""
         }
       ]
     },
     "24": {
       "name": "이세계로환생했더니SSS급마법사가되어버렷다!",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "소보로빠앙ī",
-          "uid": "6869885749"
+          "uid": "6869885749",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "SzllSTORE",
-          "uid": "6152011557"
+          "uid": "6152011557",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "개민하는미쿠",
-          "uid": "62443588981"
+          "uid": "62443588981",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "aixleftūrz",
-          "uid": "6383002612"
+          "uid": "6383002612",
+          "note": ""
         },
         {
           "role": "후보",
-          "nick": "",
-          "uid": ""
+          "nick": "ĒēĪōŌēī",
+          "uid": "6931140857",
+          "note": ""
         }
       ]
     },
     "25": {
       "name": "멍구마",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "HeungBuu",
-          "uid": "6670988266"
+          "uid": "6670988266",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AZAKGEOJE",
-          "uid": "62358231911"
+          "uid": "62358231911",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "SGـseoul",
-          "uid": "61648521928"
+          "uid": "61648521928",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AG・CHxRn",
-          "uid": "6123796841"
+          "uid": "6123796841",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "26": {
       "name": "니혼고와칸나이",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "ZPـRAM1",
-          "uid": "6101461734"
+          "uid": "6101461734",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "TAPTICـGxs",
-          "uid": "6100522330"
+          "uid": "6100522330",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "VAL・泰心",
-          "uid": "6139900870"
+          "uid": "6139900870",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "NNūEnslaght",
-          "uid": "6120650008"
+          "uid": "6120650008",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "iVـKALIM",
-          "uid": "6184703584"
+          "uid": "6184703584",
+          "note": ""
         }
       ]
     },
     "27": {
       "name": "참교육",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "xc즈운띠띠",
-          "uid": "6594553898"
+          "uid": "6594553898",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Neophobia",
-          "uid": "62261396234"
+          "uid": "62261396234",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AZAKYUNA",
-          "uid": "6745539361"
+          "uid": "6745539361",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "송하영원픽",
-          "uid": "62232050474"
+          "uid": "62232050474",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "28": {
       "name": "13년생과 ㅎㅇ루",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "일요일마다교회",
-          "uid": "61857574934"
+          "uid": "61857574934",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Autumn",
-          "uid": "62180169658"
+          "uid": "62180169658",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "무기와똘기들",
-          "uid": "6420031687"
+          "uid": "6420031687",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AG •10",
-          "uid": "62262826040"
+          "uid": "62262826040",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "29": {
       "name": "공주님께인사",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "Luvdiamond",
-          "uid": "61366620102"
+          "uid": "61366620102",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "luvstruck677",
-          "uid": "62026151489"
+          "uid": "62026151489",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "AKAī하늘",
-          "uid": "6558313352"
+          "uid": "6558313352",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "즐겜하지마세요",
-          "uid": "6689529748"
+          "uid": "6689529748",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "CEMـJhaelix",
-          "uid": "61441238957"
+          "uid": "61441238957",
+          "note": ""
         }
       ]
     },
     "30": {
       "name": "AKM",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "포카칩볶음밥",
-          "uid": "695664114"
+          "uid": "695664114",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "GBـSigNaLww",
-          "uid": "61874687511"
+          "uid": "61874687511",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "뚱녀척살하기",
-          "uid": "62078496067"
+          "uid": "62078496067",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "EvenـKR",
-          "uid": "62340889612"
+          "uid": "62340889612",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "31": {
       "name": "절크컵야르렁렁",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "Doribbi",
-          "uid": "61612395854"
+          "uid": "61612395854",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "giv٭r2btū",
-          "uid": "6708965894"
+          "uid": "6708965894",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "GBAـKelra",
-          "uid": "61690777563"
+          "uid": "61690777563",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "롱롱롱،،",
-          "uid": "6117055454"
+          "uid": "6117055454",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     },
     "32": {
       "name": "찌찌뽕",
       "confirmed": true,
+      "note": "",
       "players": [
         {
           "role": "팀장",
           "nick": "ssuzzy",
-          "uid": "62168432017"
+          "uid": "62168432017",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "zzizzi",
-          "uid": "62129710427"
+          "uid": "62129710427",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "Nxzunaluv4",
-          "uid": "61877513847"
+          "uid": "61877513847",
+          "note": ""
         },
         {
           "role": "팀원",
           "nick": "king티라노",
-          "uid": "62061822365"
+          "uid": "62061822365",
+          "note": ""
         },
         {
           "role": "후보",
           "nick": "",
-          "uid": ""
+          "uid": "",
+          "note": ""
         }
       ]
     }
