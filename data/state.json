@@ -747,31 +747,31 @@
     "21": {
       "name": "Jeonnam Esports",
       "confirmed": true,
-      "note": "",
+      "note": "프로팀",
       "players": [
         {
           "role": "팀장",
           "nick": "JNEـTom",
           "uid": "6139455582",
-          "note": ""
+          "note": "78 (JNEـTom / 전남유리)"
         },
         {
           "role": "팀원",
           "nick": "JNEـzZz",
           "uid": "696553797",
-          "note": ""
+          "note": "82"
         },
         {
           "role": "팀원",
           "nick": "JNEـBuzz",
           "uid": "61752291524",
-          "note": ""
+          "note": "77"
         },
         {
           "role": "팀원",
           "nick": "JNEـWoody",
           "uid": "699246965",
-          "note": ""
+          "note": "74"
         },
         {
           "role": "후보",
