@@ -149,6 +149,13 @@
   function teamOf(id, st){ return st.teams[String(id)] || {name:"?", confirmed:true, players:[]}; }
   function teamName(id, st){ return id ? teamOf(id, st).name : null; }
 
+  // Shared "resolve this match slot's display name, or TBD" lookup used by
+  // every side-of-a-match renderer (round view, final best-of-3, map & seed).
+  function matchSlotName(m, slot, st){
+    var id = m[slot];
+    return id ? escapeHtml(teamName(id, st)) : "TBD";
+  }
+
   function recOf(st,key){
     var rec = st.results[key];
     if(!rec) return null;
@@ -825,7 +832,6 @@
   function rsideHtml(m, slot, r, i, st){
     var id = m[slot];
     var filled = !!id;
-    var name = filled ? teamName(id, st) : null;
     var seed = filled ? id : "?";
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
@@ -836,7 +842,7 @@
     if(clickable) cls += " clickable";
     return '<'+tag+' class="'+cls+'"'+attrs+'>'
       + '<span class="rseed mono">'+(filled?String(seed).padStart(2,"0"):"?")+'</span>'
-      + '<span class="rname">'+(filled?escapeHtml(name):"TBD")+'</span>'
+      + '<span class="rname">'+matchSlotName(m, slot, st)+'</span>'
       + '</'+tag+'>';
   }
 
@@ -846,7 +852,6 @@
   function finalGameSideHtml(m, slot, gameIdx, active, st){
     var id = m[slot];
     var filled = !!id;
-    var name = filled ? teamName(id, st) : null;
     var seed = filled ? id : "?";
     var games = m.games || [];
     var decided = gameIdx < games.length;
@@ -859,7 +864,7 @@
     if(clickable) cls += " clickable";
     return '<'+tag+' class="'+cls+'"'+attrs+'>'
       + '<span class="rseed mono">'+(filled?String(seed).padStart(2,"0"):"?")+'</span>'
-      + '<span class="rname">'+(filled?escapeHtml(name):"TBD")+'</span>'
+      + '<span class="rname">'+matchSlotName(m, slot, st)+'</span>'
       + '</'+tag+'>';
   }
 
@@ -945,14 +950,12 @@
   }
 
   function mapSeedSideHtml(m, slot, ms, st){
-    var id = m[slot];
-    var filled = !!id;
-    var name = filled ? teamName(id, st) : null;
+    var filled = !!m[slot];
     var isFirst = ms.first === slot;
     var cls = ["mapseed-side", slot==="b"?"right":"", filled?"":"empty", isFirst?"seed-1":"seed-2"].join(" ").trim();
     return '<div class="'+cls+'">'
       + '<span class="mapseed-slot">'+(isFirst?"1번 시드":"2번 시드")+'</span>'
-      + '<span class="rname">'+(filled?escapeHtml(name):"TBD")+'</span>'
+      + '<span class="rname">'+matchSlotName(m, slot, st)+'</span>'
       + '</div>';
   }
 
