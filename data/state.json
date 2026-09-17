@@ -413,7 +413,7 @@
     },
     "12": {
       "name": "G2G3",
-      "confirmed": true,
+      "confirmed": false,
       "note": "",
       "players": [
         {
