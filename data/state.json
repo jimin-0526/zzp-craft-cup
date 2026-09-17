@@ -44,37 +44,37 @@
     "2": {
       "name": "5Hz",
       "confirmed": true,
-      "note": "",
+      "note": "프로팀",
       "players": [
         {
           "role": "팀장",
           "nick": "5HzـAtomic",
           "uid": "6131162919",
-          "note": ""
+          "note": "82 (Atomic)"
         },
         {
           "role": "팀원",
           "nick": "5HzـSabyuk",
           "uid": "6388716157",
-          "note": ""
+          "note": "81"
         },
         {
           "role": "팀원",
           "nick": "5HzـKaKaoK",
           "uid": "6100318742",
-          "note": ""
+          "note": "89"
         },
         {
           "role": "팀원",
           "nick": "5HzـRazit",
           "uid": "6646009117",
-          "note": ""
+          "note": "80"
         },
         {
           "role": "후보",
           "nick": "5Hzـv1nz1nA",
           "uid": "61884460199",
-          "note": ""
+          "note": "74"
         }
       ]
     },
