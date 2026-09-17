@@ -541,10 +541,10 @@ footer .foot-admin:hover{ color:var(--accent); }
 
 .cer-finale-panel{ width:100%; display:flex; justify-content:center; margin-top:30px; }
 .cer-finale{ text-align:center; }
-.cer-finale .big{ font-family:"Black Ops One",sans-serif; font-size:clamp(2rem,6vw,3.4rem); color:var(--accent); margin-bottom:10px; }
 .cer-finale .chicken{ font-family:"JetBrains Mono",monospace; font-size:0.84rem; letter-spacing:.12em; color:var(--ink-dim); margin-bottom:26px; }
 .cer-save-status{ display:inline-flex; align-items:center; gap:10px;
   font-family:"Rajdhani",sans-serif; font-weight:700; font-size:0.94rem; letter-spacing:.02em; color:var(--ink-dim); }
+.cer-save-status.pending{ color:var(--ink-dim); }
 .cer-save-status.ok{ color:var(--accent); }
 .cer-save-status.error{ color:#e08063; max-width:420px; }
 .cer-save-status .spinner{ width:15px; height:15px; border-radius:50%; flex:none;

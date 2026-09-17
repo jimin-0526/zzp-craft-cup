@@ -359,7 +359,14 @@
     var score = window.prompt("스코어를 입력하세요 (예: 2:0). 비워두면 스코어 없이 저장돼요.", existing && existing.score ? existing.score : "");
     if(score === null) return; // cancelled
     mutateAndSave(function(ns){
-      ns.results[key] = { w: slot, score: score.trim() ? score.trim() : null };
+      // merge onto the existing record instead of replacing it outright —
+      // stats can be entered before a winner is picked (statIconHtml only
+      // requires both teams known), and a wholesale overwrite here would
+      // silently drop any already-saved stats/statsSaved for this match.
+      var rec = recOf(ns, key) || {};
+      rec.w = slot;
+      rec.score = score.trim() ? score.trim() : null;
+      ns.results[key] = rec;
       var nr=r+1, ni=Math.floor(i/2);
       while(nr<=4){ delete ns.results[nr+"-"+ni]; ni=Math.floor(ni/2); nr++; }
       return ns;
@@ -377,7 +384,10 @@
       var aWins = games.filter(function(g){return g==="a";}).length;
       var bWins = games.filter(function(g){return g==="b";}).length;
       var w = aWins>=2 ? "a" : (bWins>=2 ? "b" : null);
-      ns.results[key] = { w:w, games:games, score:null };
+      // merge onto rec rather than replacing it, so any gameStats/statsSaved
+      // already recorded for earlier games in this series survive.
+      rec.w = w; rec.games = games; rec.score = null;
+      ns.results[key] = rec;
       return ns;
     });
   }
@@ -1055,15 +1065,20 @@
     var mf = getMatch(4,0,st);
     var rec4 = recOf(st, "4-0");
     var gs = (rec4 && rec4.gameStats) || [];
-    var totals = {};
+    // Object.create(null) + a side-qualified key: two different players who
+    // happen to share a nickname across the two finalist teams must not get
+    // summed together, and a nickname like "__proto__" must not be treated
+    // as a prototype property instead of a real entry.
+    var totals = Object.create(null);
     gs.forEach(function(g){
       if(!g) return;
       [["a",mf.a],["b",mf.b]].forEach(function(pair){
         (g[pair[0]]||[]).forEach(function(p){
           if(!p || !p.nick) return;
-          if(!totals[p.nick]) totals[p.nick] = { nick:p.nick, teamId:pair[1], kills:0, dmg:0 };
-          totals[p.nick].kills += (p.kills||0);
-          totals[p.nick].dmg += (p.dmg||0);
+          var key = pair[0]+"|"+p.nick;
+          if(!totals[key]) totals[key] = { nick:p.nick, teamId:pair[1], kills:0, dmg:0 };
+          totals[key].kills += (p.kills||0);
+          totals[key].dmg += (p.dmg||0);
         });
       });
     });
@@ -1295,16 +1310,20 @@
   }
 
   function computeSeriesMvp(rec){
-    var totals = {};
+    // see roundStatRows: side-qualified key avoids merging two different
+    // players who share a nickname across the two finalist teams, and
+    // Object.create(null) avoids "__proto__"-as-nickname prototype pollution.
+    var totals = Object.create(null);
     var gs = (rec && rec.gameStats) || [];
     gs.forEach(function(g){
       if(!g) return;
       ["a","b"].forEach(function(side){
         (g[side]||[]).forEach(function(p){
           if(!p || !p.nick) return;
-          if(!totals[p.nick]) totals[p.nick] = {nick:p.nick, kills:0, dmg:0};
-          totals[p.nick].kills += (p.kills||0);
-          totals[p.nick].dmg += (p.dmg||0);
+          var key = side+"|"+p.nick;
+          if(!totals[key]) totals[key] = {nick:p.nick, kills:0, dmg:0};
+          totals[key].kills += (p.kills||0);
+          totals[key].dmg += (p.dmg||0);
         });
       });
     });
@@ -1701,6 +1720,12 @@
       for(var b=0;b<oldBtns.length;b++){ oldBtns[b].remove(); }
 
       var result = await mutateAndSave(function(ns){
+        // Re-check "already drawn" against the state just fetched fresh from
+        // the server, not the possibly-stale local `state` the outer
+        // runDrawCeremony() checked before this whole animation started —
+        // otherwise a lagging local view could skip the overwrite warning
+        // and silently wipe a real, newer bracket + results.
+        if(ns.drawn && !window.confirm("다시 추첨하면 지금까지의 모든 경기 결과가 사라집니다. 정말 다시 추첨할까요?")) return null;
         ns.drawn = true; ns.drawnAt = new Date().toISOString(); ns.order = ids; ns.results = {};
         // a fresh draw reshuffles which teams land in which bracket slot, so
         // any map/seed already rolled for the old bracket no longer applies.
@@ -1711,7 +1736,15 @@
       statusEl = document.getElementById("cer-save-status");
       if(!statusEl || !finale) return; // overlay already closed by user
 
-      if(result.status === "ok"){
+      if(result.status === "noop"){
+        statusEl.className = "cer-save-status error";
+        statusEl.textContent = "추첨이 취소되었습니다 — 기존 대진이 그대로 유지됩니다.";
+        var actionsC = document.createElement("div");
+        actionsC.className = "cer-finale-actions";
+        actionsC.innerHTML = '<button type="button" class="btn btn-ghost" data-action="cer-close">닫기</button>';
+        finale.appendChild(actionsC);
+        actionsC.querySelector('[data-action="cer-close"]').addEventListener("click", closeOverlay);
+      } else if(result.status === "ok"){
         statusEl.className = "cer-save-status ok";
         statusEl.textContent = "저장 완료 · 모두에게 실시간으로 반영됩니다";
         var actions = document.createElement("div");
@@ -1762,8 +1795,11 @@
   function parsePlayerCell(cell, role){
     var s = (cell||"").trim();
     if(!s) return { role:role, nick:"", uid:"" };
-    var parts = s.split(/\s*\/\s*/);
-    return { role:role, nick:(parts[0]||"").trim(), uid:(parts[1]||"").trim() };
+    // split on the LAST "/" only — a nickname that itself contains a "/"
+    // must not get truncated, and its tail silently mistaken for no UID.
+    var idx = s.lastIndexOf("/");
+    if(idx < 0) return { role:role, nick:s, uid:"" };
+    return { role:role, nick:s.slice(0,idx).trim(), uid:s.slice(idx+1).trim() };
   }
 
   async function fetchSheetTeams(){
@@ -1913,7 +1949,10 @@
     var fp = stateFingerprint(fresh);
     if(fp !== lastFingerprint){
       lastFingerprint = fp;
-      if(!(activeModal && (activeModal.mode === "edit" || activeModal.kind === "stats"))){
+      // don't let a poll (reading the possibly-lagging public CDN copy)
+      // stomp on an admin save that's still in flight — mutateAndSave
+      // already applied its own optimistic state before this could run.
+      if(!(activeModal && (activeModal.mode === "edit" || activeModal.kind === "stats")) && !saveInFlight){
         state = fresh;
         render();
       }
