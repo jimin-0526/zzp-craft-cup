@@ -451,13 +451,13 @@
       var rad = a*Math.PI/180;
       var x1 = (150+119*Math.cos(rad)).toFixed(1), y1 = (150+119*Math.sin(rad)).toFixed(1);
       var x2 = (150+128*Math.cos(rad)).toFixed(1), y2 = (150+128*Math.sin(rad)).toFixed(1);
-      ticks += '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="rgba(99,194,111,0.22)" stroke-width="1"/>';
+      ticks += '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="rgba(57,209,90,0.22)" stroke-width="1"/>';
     }
     return '<svg width="280" height="280" viewBox="0 0 300 300" fill="none">'
-      + '<circle cx="150" cy="150" r="128" stroke="rgba(99,194,111,0.30)" stroke-width="1"/>'
+      + '<circle cx="150" cy="150" r="128" stroke="rgba(57,209,90,0.30)" stroke-width="1"/>'
       + '<circle cx="150" cy="150" r="108" stroke="rgba(178,181,150,0.2)" stroke-width="1" stroke-dasharray="3 7"/>'
       + ticks
-      + '<path d="M150 42v216M42 150h216" stroke="rgba(99,194,111,0.10)" stroke-width="1"/>'
+      + '<path d="M150 42v216M42 150h216" stroke="rgba(57,209,90,0.10)" stroke-width="1"/>'
       + '</svg>';
   }
   function bulletHoleSvg(n){
@@ -486,10 +486,6 @@
   }
 
   function renderHeader(st){
-    var champId = championOf(st);
-    var pillClass = "status-pill", pillText = "드로우 대기중";
-    if(champId){ pillClass += " done"; pillText = "대회 종료 · 우승 " + escapeHtml(teamName(champId,st)); }
-    else if(st.drawn){ pillClass += " live"; pillText = "대회 진행중"; }
     var syncCls = "sync-pill " + (syncOk ? "ok" : "err");
     var syncTxt = syncOk ? "실시간 동기화" : "동기화 오류";
     return ''
@@ -502,12 +498,10 @@
       +     '<nav class="site-nav">'
       +       '<a href="#draw">대진 추첨</a>'
       +       '<a href="#bracket">대진표</a>'
+      +       '<a href="#leaderboard">개인 기록</a>'
       +       '<a href="#teams">참가팀</a>'
       +     '</nav>'
-      +     '<div style="display:flex;align-items:center;gap:12px;">'
-      +       '<span class="'+syncCls+'" id="sync-pill"><span class="dot"></span><span class="sync-label">'+syncTxt+'</span></span>'
-      +       '<span class="'+pillClass+'"><span class="dot"></span>'+pillText+'</span>'
-      +     '</div>'
+      +     '<span class="'+syncCls+'" id="sync-pill"><span class="dot"></span><span class="sync-label">'+syncTxt+'</span></span>'
       +   '</div>'
       + '</header>'
       + '<div class="hazard-bar"></div>';
@@ -519,26 +513,31 @@
   function renderHero(st){
     return ''
       + '<section class="hero" id="top">'
-      +   '<span class="hero-badge"><span class="reticle-seek">'+heroBadgeSvg()+'</span></span>'
-      +   '<div class="wrap hero-inner">'
-      +     '<span class="eyebrow">2026 SEASON · SINGLE ELIMINATION</span>'
-      +     '<div class="hero-logo-wrap">'
-      +       '<img class="hero-logo" src="assets/logo.png" alt="절크컵">'
-      +       '<span class="impact-flash flash-1"></span><span class="impact-flash flash-2"></span><span class="impact-flash flash-3"></span>'
-      +       '<span class="bullet-hole hole-1">'+bulletHoleSvg(1)+'</span>'
-      +       '<span class="bullet-hole hole-2">'+bulletHoleSvg(2)+'</span>'
-      +       '<span class="bullet-hole hole-3">'+bulletHoleSvg(3)+'</span>'
+      +   '<div class="wrap hero-split">'
+      +     '<div class="hero-main">'
+      +       '<span class="eyebrow">2026 SEASON · SINGLE ELIMINATION</span>'
+      +       '<div class="hero-logo-wrap">'
+      +         '<span class="hero-badge"><span class="reticle-seek">'+heroBadgeSvg()+'</span></span>'
+      +         '<img class="hero-logo" src="assets/logo.png" alt="절크컵">'
+      +         '<span class="impact-flash flash-1"></span><span class="impact-flash flash-2"></span><span class="impact-flash flash-3"></span>'
+      +         '<span class="bullet-hole hole-1">'+bulletHoleSvg(1)+'</span>'
+      +         '<span class="bullet-hole hole-2">'+bulletHoleSvg(2)+'</span>'
+      +         '<span class="bullet-hole hole-3">'+bulletHoleSvg(3)+'</span>'
+      +       '</div>'
+      +       '<div class="hero-en">2026 ZZP CRAFT CUP</div>'
+      +       '<p class="lede">크래프트 최강 스쿼드를 가릴 2026 절크컵!<br>4인 스쿼드와 함께 새로운 승부에 도전해보세요.</p>'
+      +       '<div class="cta-col">'
+      +         '<a class="btn btn-primary" href="#bracket">대진표 보기</a>'
+      +         '<a class="btn btn-ghost" href="https://www.youtube.com/@-zzp" target="_blank" rel="noopener">'+iconPlay(15)+' 중계 보러 가기</a>'
+      +       '</div>'
       +     '</div>'
-      +     '<div class="hero-en">2026 ZZP CRAFT CUP</div>'
-      +     '<p class="lede">크래프트 최강 스쿼드를 가릴 2026 절크컵!<br>4인 스쿼드와 함께 새로운 승부에 도전해보세요.</p>'
-      +     '<div class="meta-row">'
-      +       '<div class="meta-chip"><span class="num">32</span><span class="lbl">참가 팀</span></div>'
-      +       '<div class="meta-chip"><span class="num">1</span><span class="lbl">챔피언</span></div>'
-      +     '</div>'
-      +     '<div class="cta-col">'
-      +       '<a class="btn btn-primary" href="#bracket">대진표 보기</a>'
-      +       '<a class="btn btn-ghost" href="https://www.youtube.com/@-zzp" target="_blank" rel="noopener">'+iconPlay(15)+' 중계 보러 가기</a>'
-      +     '</div>'
+      +     '<aside class="hero-readout cut-both">'
+      +       '<div class="readout-head">TOURNAMENT BRIEF</div>'
+      +       '<div class="readout-row"><span class="rk">참가 팀</span><span class="rv">32</span></div>'
+      +       '<div class="readout-row"><span class="rk">라운드</span><span class="rv">5</span></div>'
+      +       '<div class="readout-row"><span class="rk">챔피언</span><span class="rv">1</span></div>'
+      +       '<div class="readout-row"><span class="rk">방식</span><span class="rv sm">단판 토너먼트</span></div>'
+      +     '</aside>'
       +   '</div>'
       + '</section>';
   }
@@ -577,7 +576,7 @@
     return ''
       + '<section id="draw">'
       +   '<div class="wrap">'
-      +     '<div class="section-head">'
+      +     '<div class="section-head" data-idx="01">'
       +       '<div><span class="eyebrow">DRAW EVENT</span><h2>대진 추첨</h2></div>'
       +       '<div class="desc">32개 팀을 랜덤으로 섞어 32강 대진표를 생성합니다.</div>'
       +     '</div>'
@@ -611,6 +610,11 @@
   var selectedRound = 0;
   var drawPanelOpen = false;
   var statsGameIdx = 0;
+  var LB_TOP_N = 10;
+  var leaderboardRound = 0;
+  var leaderboardSort = "kills"; // "kills" | "dmg"
+  var leaderboardExpanded = false;
+  var leaderboardGameIdx = 0;
 
   function championBanner(st){
     var champId = championOf(st);
@@ -860,7 +864,7 @@
     return ''
       + '<section id="bracket">'
       +   '<div class="wrap">'
-      +     '<div class="section-head">'
+      +     '<div class="section-head" data-idx="02">'
       +       '<div><span class="eyebrow">BRACKET</span><h2>대진표</h2></div>'
       +     '</div>'
       +     championBanner(st)
@@ -869,6 +873,182 @@
       +       '<button type="button" data-action="view-mode" data-mode="full" class="'+(viewMode==="full"?"active":"")+'">전체 대진표</button>'
       +     '</div>'
       +     (viewMode==="round" ? renderRoundView(st) : renderFullBracket(st))
+      +   '</div>'
+      + '</section>';
+  }
+
+  /* ---------------- player leaderboard ---------------- */
+
+  function collectMatchStatRows(rows, teamId, list){
+    (list||[]).forEach(function(p){
+      if(!p || !p.nick) return;
+      if(p.kills==null && p.dmg==null) return;
+      rows.push({ nick:p.nick, teamId:teamId, kills:p.kills, dmg:p.dmg });
+    });
+  }
+
+  // Rolls up every match's saved per-player stats into one flat list for a
+  // round. The final is different: its per-game stats get summed into a
+  // series total per player instead of one row per game.
+  function roundStatRows(round, st){
+    var rows = [];
+    if(round < 4){
+      for(var i=0;i<ROUND_COUNTS[round];i++){
+        var m = getMatch(round, i, st);
+        var rec = recOf(st, round+"-"+i);
+        if(!rec || !rec.stats) continue;
+        collectMatchStatRows(rows, m.a, rec.stats.a);
+        collectMatchStatRows(rows, m.b, rec.stats.b);
+      }
+      return rows;
+    }
+    var mf = getMatch(4,0,st);
+    var rec4 = recOf(st, "4-0");
+    var gs = (rec4 && rec4.gameStats) || [];
+    var totals = {};
+    gs.forEach(function(g){
+      if(!g) return;
+      [["a",mf.a],["b",mf.b]].forEach(function(pair){
+        (g[pair[0]]||[]).forEach(function(p){
+          if(!p || !p.nick) return;
+          if(!totals[p.nick]) totals[p.nick] = { nick:p.nick, teamId:pair[1], kills:0, dmg:0 };
+          totals[p.nick].kills += (p.kills||0);
+          totals[p.nick].dmg += (p.dmg||0);
+        });
+      });
+    });
+    return Object.keys(totals).map(function(k){ return totals[k]; });
+  }
+
+  function sortStatRows(rows, mode){
+    var primary = mode==="dmg" ? "dmg" : "kills";
+    var secondary = primary==="dmg" ? "kills" : "dmg";
+    return rows.slice().sort(function(a,b){
+      var av = a[primary]==null ? -1 : a[primary], bv = b[primary]==null ? -1 : b[primary];
+      if(bv !== av) return bv - av;
+      var av2 = a[secondary]==null ? -1 : a[secondary], bv2 = b[secondary]==null ? -1 : b[secondary];
+      return bv2 - av2;
+    });
+  }
+
+  function lbRowHtml(row, rank, st){
+    var team = teamOf(row.teamId, st);
+    return '<div class="lb-row">'
+      + '<span class="lb-rank-badge">'+(rank+1)+'</span>'
+      + '<span class="lb-player"><span class="lb-nick">'+escapeHtml(row.nick)+'</span><span class="lb-team">'+escapeHtml(team.name)+'</span></span>'
+      + '<span class="lb-kills">'+(row.kills!=null?row.kills:"–")+'</span>'
+      + '<span class="lb-dmg">'+(row.dmg!=null?row.dmg:"–")+'</span>'
+      + '</div>';
+  }
+
+  // Top 3 get a raised podium card (2nd-1st-3rd) with an enlarged crest
+  // badge (rank number, trophy for #1) instead of just another table row;
+  // everyone else stays in the plain ranked list below it. No player
+  // photos exist, so we tag rank only rather than faking an identity.
+  function lbPodiumHtml(podiumRows, st){
+    if(!podiumRows.length) return "";
+    var visualOrder = podiumRows.length===3 ? [1,0,2] : podiumRows.map(function(_,idx){ return idx; });
+    var primaryField = leaderboardSort==="dmg" ? "dmg" : "kills";
+    var primaryLabel = leaderboardSort==="dmg" ? "데미지" : "킬";
+    var secondaryField = primaryField==="dmg" ? "kills" : "dmg";
+    var secondaryLabel = primaryField==="dmg" ? "킬" : "데미지";
+    var cards = visualOrder.map(function(idx){
+      var row = podiumRows[idx];
+      if(!row) return "";
+      var rank = idx+1;
+      var team = teamOf(row.teamId, st);
+      var badgeContent = rank===1 ? iconTrophy(20) : String(rank);
+      return '<div class="lb-podium-card cut-tr rank-'+rank+'">'
+        + '<span class="lb-rank-badge'+(rank===1?" gold":"")+'">'+badgeContent+'</span>'
+        + '<div class="lb-podium-nick">'+escapeHtml(row.nick)+'</div>'
+        + '<div class="lb-podium-team">'+escapeHtml(team.name)+'</div>'
+        + '<div class="lb-podium-stat">'+(row[primaryField]!=null?row[primaryField]:"–")+'<span class="unit">'+primaryLabel+'</span></div>'
+        + '<div class="lb-podium-sub">'+(row[secondaryField]!=null?row[secondaryField]:"–")+' '+secondaryLabel+'</div>'
+        + '</div>';
+    }).join("");
+    return '<div class="lb-podium" style="grid-template-columns:repeat('+podiumRows.length+',1fr);">'+cards+'</div>';
+  }
+
+  // The final gets its own game-by-game breakdown below the series-total
+  // ranking, since who dropped the kills in which specific game matters
+  // more there than anywhere else in the bracket.
+  function renderFinalGameDetail(st){
+    var mf = getMatch(4,0,st);
+    if(!mf.a || !mf.b) return "";
+    var rec = recOf(st, "4-0");
+    var gs = (rec && rec.gameStats) || [];
+    var playedIdx = [];
+    for(var g=0; g<gs.length; g++){ if(gs[g]) playedIdx.push(g); }
+    if(!playedIdx.length) return "";
+    if(leaderboardGameIdx > playedIdx.length-1) leaderboardGameIdx = playedIdx.length-1;
+    if(leaderboardGameIdx < 0) leaderboardGameIdx = 0;
+
+    var gTabs = playedIdx.map(function(gi, order){
+      return '<button type="button" class="round-tab'+(leaderboardGameIdx===order?" active":"")+'" data-action="lb-game" data-game="'+order+'">GAME '+(gi+1)+'</button>';
+    }).join("");
+
+    var gi = playedIdx[leaderboardGameIdx];
+    var g = gs[gi];
+    var teamA = teamOf(mf.a, st), teamB = teamOf(mf.b, st);
+    var partsA = statsParticipants(mf.a, st), partsB = statsParticipants(mf.b, st);
+    var listA = partsA.map(function(p,idx){ var s=(g.a||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+    var listB = partsB.map(function(p,idx){ var s=(g.b||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+    var mvpG = computeMvp(listA.concat(listB));
+    if(mvpG){ listA.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); listB.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); }
+
+    return ''
+      + '<div class="lb-final-detail">'
+      +   '<div class="lb-final-head">결승 게임별 상세</div>'
+      +   '<div class="round-tabs">'+gTabs+'</div>'
+      +   '<div class="stats-col-head"><span>선수</span><span>킬</span><span>데미지</span></div>'
+      +   '<div class="stats-team-title">'+escapeHtml(teamA.name)+'</div>'
+      +   statsRowsHtml(listA, "lbga", false)
+      +   '<div class="stats-team-title" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
+      +   statsRowsHtml(listB, "lbgb", false)
+      + '</div>';
+  }
+
+  function renderLeaderboardSection(st){
+    var tabs = "";
+    for(var r=0;r<5;r++){
+      tabs += '<button type="button" class="round-tab'+(leaderboardRound===r?" active":"")+'" data-action="lb-round" data-round="'+r+'">'
+        + '<span class="n">'+(r+1)+'</span>'+ROUND_LABELS[r] + '</button>';
+    }
+
+    var rows = sortStatRows(roundStatRows(leaderboardRound, st), leaderboardSort);
+    var podiumRows = rows.slice(0,3);
+    var restAll = rows.slice(3);
+    var restVisible = leaderboardExpanded ? restAll : restAll.slice(0, Math.max(0, LB_TOP_N-3));
+
+    var body;
+    if(!rows.length){
+      body = '<div class="empty-note">'+ROUND_LABELS[leaderboardRound]+' 기록이 아직 없습니다.</div>';
+    } else {
+      body = ''
+        + lbPodiumHtml(podiumRows, st)
+        + (restVisible.length
+            ? ('<div class="lb-col-head"><span>순위</span><span>선수</span><span>킬</span><span>데미지</span></div>'
+              + '<div class="lb-list">' + restVisible.map(function(row, idx){ return lbRowHtml(row, idx+3, st); }).join("") + '</div>')
+            : "")
+        + (rows.length > LB_TOP_N
+            ? '<button type="button" class="btn btn-ghost btn-sm lb-expand" data-action="lb-expand">'+(leaderboardExpanded ? "접기 ▴" : "전체 순위 보기 · "+rows.length+"명 ▾")+'</button>'
+            : "");
+    }
+
+    return ''
+      + '<section class="alt" id="leaderboard">'
+      +   '<div class="wrap">'
+      +     '<div class="section-head" data-idx="03">'
+      +       '<div><span class="eyebrow">PLAYER STATS</span><h2>개인 기록</h2></div>'
+      +       '<div class="desc">라운드별 킬 · 데미지 순위입니다.</div>'
+      +     '</div>'
+      +     '<div class="round-tabs">'+tabs+'</div>'
+      +     '<div class="view-toggle lb-sort">'
+      +       '<button type="button" data-action="lb-sort" data-sort="kills" class="'+(leaderboardSort==="kills"?"active":"")+'">킬 순</button>'
+      +       '<button type="button" data-action="lb-sort" data-sort="dmg" class="'+(leaderboardSort==="dmg"?"active":"")+'">데미지 순</button>'
+      +     '</div>'
+      +     body
+      +     (leaderboardRound===4 ? renderFinalGameDetail(st) : "")
       +   '</div>'
       + '</section>';
   }
@@ -902,7 +1082,7 @@
     return ''
       + '<section class="alt" id="teams">'
       +   '<div class="wrap">'
-      +     '<div class="section-head">'
+      +     '<div class="section-head" data-idx="04">'
       +       '<div><span class="eyebrow">ROSTER</span><h2>참가팀 명단</h2></div>'
       +       '<div class="desc">카드를 누르면 해당 팀의 참가 선수 명단을 볼 수 있습니다.</div>'
       +     '</div>'
@@ -1185,9 +1365,13 @@
       + '</div>';
   }
 
+  function hudFrameHtml(){
+    return '<div class="hud-frame" aria-hidden="true"><span class="hf tl"></span><span class="hf tr"></span><span class="hf bl"></span><span class="hf br"></span></div>';
+  }
+
   function renderApp(st, admin){
     var prevAdmin = isAdmin; isAdmin = admin;
-    var html = '<div class="zone-bg"></div>' + renderHeader(st) + renderHero(st) + renderDrawPanel(st) + renderBracketSection(st) + renderRoster(st) + renderAdminPanel(st) + renderFooter() + renderModal(st);
+    var html = '<div class="zone-bg"></div>' + hudFrameHtml() + renderHeader(st) + renderHero(st) + renderDrawPanel(st) + renderBracketSection(st) + renderLeaderboardSection(st) + renderRoster(st) + renderAdminPanel(st) + renderFooter() + renderModal(st);
     isAdmin = prevAdmin;
     return html;
   }
@@ -1298,7 +1482,7 @@
         try{
           var rect = cardEl.getBoundingClientRect();
           window.confetti({ particleCount: skipRequested?0:14, spread:42, startVelocity:20, gravity:1.1,
-            colors:["#63c26f","#eef0e2","#3f8f4c"], origin:{ x:(rect.left+rect.width/2)/window.innerWidth, y:(rect.top+rect.height/2)/window.innerHeight } });
+            colors:["#39d15a","#eef0e2","#279143"], origin:{ x:(rect.left+rect.width/2)/window.innerWidth, y:(rect.top+rect.height/2)/window.innerHeight } });
         }catch(e){}
       }
       await sleep(skipRequested ? 20 : 260);
@@ -1372,7 +1556,7 @@
         finale.appendChild(actions);
         actions.querySelector('[data-action="cer-close"]').addEventListener("click", closeOverlay);
         if(window.confetti){
-          try{ window.confetti({ particleCount:140, spread:100, startVelocity:38, origin:{x:0.5,y:0.3}, colors:["#63c26f","#eef0e2","#3f8f4c","#7ed489"] }); }catch(e){}
+          try{ window.confetti({ particleCount:140, spread:100, startVelocity:38, origin:{x:0.5,y:0.3}, colors:["#39d15a","#eef0e2","#279143","#6be88a"] }); }catch(e){}
         }
       } else {
         statusEl.className = "cer-save-status error";
@@ -1413,6 +1597,14 @@
     if(zoomResetBtn){ bracketZoom = 1; fitBracketScale(); return; }
     var roundTabBtn = e.target.closest('[data-action="round-tab"]');
     if(roundTabBtn){ selectedRound = +roundTabBtn.dataset.round; render(); return; }
+    var lbRoundBtn = e.target.closest('[data-action="lb-round"]');
+    if(lbRoundBtn){ leaderboardRound = +lbRoundBtn.dataset.round; leaderboardExpanded = false; leaderboardGameIdx = 0; render(); return; }
+    var lbSortBtn = e.target.closest('[data-action="lb-sort"]');
+    if(lbSortBtn){ leaderboardSort = lbSortBtn.dataset.sort; render(); return; }
+    var lbExpandBtn = e.target.closest('[data-action="lb-expand"]');
+    if(lbExpandBtn){ leaderboardExpanded = !leaderboardExpanded; render(); return; }
+    var lbGameBtn = e.target.closest('[data-action="lb-game"]');
+    if(lbGameBtn){ leaderboardGameIdx = +lbGameBtn.dataset.game; render(); return; }
     var openBtn = e.target.closest('[data-action="open-team"]');
     if(openBtn){ activeModal = { kind:"team", id:+openBtn.dataset.id, mode: openBtn.dataset.edit ? "edit" : "view" }; render(); return; }
     var editBtn = e.target.closest('[data-action="edit-team"]');
