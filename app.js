@@ -179,14 +179,38 @@
     return true;
   }
 
+  // Baseline "each map shows up at least this many times" guarantee for a
+  // round — auto-scaled down (see minEach below) when a round has too few
+  // matches to fit MAPS.length*this many picks (e.g. 4강's 2 matches).
+  var MAPSEED_MIN_PER_MAP = 3;
+
   // One map + one first/second seed slot per bracket position (r,i) within a
   // single round, independent of which teams end up occupying that slot —
   // each round (32강/16강/8강/4강) is rolled separately, on its own button.
+  // Picking every match's map as a fully independent 1-in-3 roll can (and,
+  // over 16 matches, sometimes will) leave a map showing up just once or
+  // not at all. To keep things random but not that lopsided, we seed the
+  // pool with MAPSEED_MIN_PER_MAP guaranteed copies of every map, fill the
+  // remaining slots with free random picks, then shuffle — so every map is
+  // guaranteed a floor, but which match gets which map is still random.
   function generateMapSeedForRound(round){
+    var count = ROUND_COUNTS[round];
+    var minEach = Math.min(MAPSEED_MIN_PER_MAP, Math.floor(count / MAPS.length));
+    var pool = [];
+    MAPS.forEach(function(map){
+      for(var k=0;k<minEach;k++) pool.push(map);
+    });
+    while(pool.length < count){
+      pool.push(MAPS[Math.floor(Math.random()*MAPS.length)]);
+    }
+    for(var s=pool.length-1; s>0; s--){
+      var j = Math.floor(Math.random()*(s+1));
+      var tmp = pool[s]; pool[s] = pool[j]; pool[j] = tmp;
+    }
     var out = {};
-    for(var i=0;i<ROUND_COUNTS[round];i++){
+    for(var i=0;i<count;i++){
       out[round+"-"+i] = {
-        map: MAPS[Math.floor(Math.random()*MAPS.length)],
+        map: pool[i],
         first: Math.random()<0.5 ? "a" : "b"
       };
     }
