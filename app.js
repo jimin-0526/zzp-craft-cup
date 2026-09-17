@@ -396,6 +396,7 @@
     if(!window.confirm("대진 추첨 결과를 완전히 초기화할까요? 대진과 모든 경기 결과가 사라지고, 추첨 전 상태로 돌아갑니다.")) return;
     mutateAndSave(function(ns){
       ns.drawn = false; ns.drawnAt = null; ns.order = []; ns.results = {};
+      ns.mapSeed = {}; ns.mapSeedAt = null;
       return ns;
     });
     drawPanelOpen = false;
@@ -409,6 +410,16 @@
       var fresh = generateMapSeedForRound(round);
       Object.keys(fresh).forEach(function(k){ ns.mapSeed[k] = fresh[k]; });
       ns.mapSeedAt = new Date().toISOString();
+      return ns;
+    });
+  }
+
+  function resetMapSeed(round){
+    if(!isAdmin){ toast("관리자만 초기화할 수 있습니다."); return; }
+    if(!mapSeedRoundAssigned(state, round)) return;
+    if(!window.confirm(ROUND_LABELS[round]+" 맵 & 시드 배정을 초기화할까요? 뽑기 전 상태로 돌아갑니다.")) return;
+    mutateAndSave(function(ns){
+      for(var i=0;i<ROUND_COUNTS[round];i++){ delete ns.mapSeed[round+"-"+i]; }
       return ns;
     });
   }
@@ -973,7 +984,11 @@
       +     '<span class="icon-box">'+iconDice(24)+'</span>'
       +     '<div><div class="title">'+(assigned ? ROUND_LABELS[mapSeedRound]+" 맵 & 시드가 배정되었습니다" : ROUND_LABELS[mapSeedRound]+" 맵 & 시드가 아직 배정되지 않았습니다")+'</div><div class="sub">'+subtitle+'</div></div>'
       +   '</div>'
-      +   (isAdmin ? '<div class="draw-actions"><button type="button" class="btn btn-primary btn-sm" data-action="draw-mapseed" data-round="'+mapSeedRound+'">'+iconDice(15)+' '+(assigned?"다시 뽑기":ROUND_LABELS[mapSeedRound]+" 뽑기")+'</button></div>' : '')
+      +   (isAdmin ? ''
+      +     '<div class="draw-actions">'
+      +       '<button type="button" class="btn btn-primary btn-sm" data-action="draw-mapseed" data-round="'+mapSeedRound+'">'+iconDice(15)+' '+(assigned?"다시 뽑기":ROUND_LABELS[mapSeedRound]+" 뽑기")+'</button>'
+      +       (assigned ? '<button type="button" class="btn btn-danger btn-sm" data-action="reset-mapseed" data-round="'+mapSeedRound+'">'+iconRefresh(15)+' 초기화</button>' : '')
+      +     '</div>' : '')
       + '</div>';
 
     if(!assigned) return head;
@@ -1682,6 +1697,9 @@
 
       var result = await mutateAndSave(function(ns){
         ns.drawn = true; ns.drawnAt = new Date().toISOString(); ns.order = ids; ns.results = {};
+        // a fresh draw reshuffles which teams land in which bracket slot, so
+        // any map/seed already rolled for the old bracket no longer applies.
+        ns.mapSeed = {}; ns.mapSeedAt = null;
         return ns;
       });
 
@@ -1856,6 +1874,8 @@
     if(resetDrawBtn){ resetDraw(); return; }
     var drawMapSeedBtn = e.target.closest('[data-action="draw-mapseed"]');
     if(drawMapSeedBtn){ drawMapSeed(+drawMapSeedBtn.dataset.round); return; }
+    var resetMapSeedBtn = e.target.closest('[data-action="reset-mapseed"]');
+    if(resetMapSeedBtn){ resetMapSeed(+resetMapSeedBtn.dataset.round); return; }
     var mapSeedRoundBtn = e.target.closest('[data-action="mapseed-round-tab"]');
     if(mapSeedRoundBtn){ mapSeedRound = +mapSeedRoundBtn.dataset.round; render(); return; }
     var openStatsBtn = e.target.closest('[data-action="open-stats"]');
