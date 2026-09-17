@@ -1079,7 +1079,7 @@
     },
     "30": {
       "name": "AKM",
-      "confirmed": true,
+      "confirmed": false,
       "note": "",
       "players": [
         {
