@@ -35,7 +35,59 @@
     "16",
     "11"
   ],
-  "results": {},
+  "results": {
+    "0-0": {
+      "w": null,
+      "score": null,
+      "stats": {
+        "a": [
+          {
+            "nick": "Hito2ruka٭͜",
+            "kills": 1,
+            "dmg": 1456
+          },
+          {
+            "nick": "WACـINSAENGū",
+            "kills": 4,
+            "dmg": 2567
+          },
+          {
+            "nick": "AGPnostal",
+            "kills": 5,
+            "dmg": 4223
+          },
+          {
+            "nick": "WACـReign9",
+            "kills": 1,
+            "dmg": 5774
+          }
+        ],
+        "b": [
+          {
+            "nick": "CNJـSIxTa",
+            "kills": null,
+            "dmg": null
+          },
+          {
+            "nick": "CNJـTwoHerz",
+            "kills": null,
+            "dmg": null
+          },
+          {
+            "nick": "CNJ_Marco",
+            "kills": null,
+            "dmg": null
+          },
+          {
+            "nick": "CNJـMaktoob",
+            "kills": null,
+            "dmg": null
+          }
+        ]
+      },
+      "statsSaved": true
+    }
+  },
   "teams": {
     "1": {
       "name": "이우성잘생겼다",
