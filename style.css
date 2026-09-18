@@ -302,6 +302,9 @@ svg.connectors path.done{ stroke:var(--accent); stroke-width:2; filter:drop-shad
 .rside.winner{ background:linear-gradient(90deg, rgba(57,209,90,0.32), rgba(57,209,90,0.06)); }
 .rside.right.winner{ background:linear-gradient(270deg, rgba(57,209,90,0.32), rgba(57,209,90,0.06)); }
 .rside.winner .rname{ color:var(--accent); font-weight:900; font-size:1.14rem; }
+/* a bye win didn't actually get played, so it keeps the winner tint
+   but skips the "big win" name bump — it'd look overstated otherwise. */
+.rside.winner.bye-win .rname{ font-weight:700; font-size:1.08rem; }
 .rside.winner .rseed{ color:#04140b; background:var(--accent); border-color:var(--accent); font-weight:800; }
 .rside.winner::before{ content:""; position:absolute; top:0; bottom:0; width:3px; background:var(--accent); left:0; }
 .rside.right.winner::before{ left:auto; right:0; }
