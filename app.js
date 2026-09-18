@@ -168,7 +168,7 @@
       var a = st.order[2*i] || null;
       var b = st.order[2*i+1] || null;
       var rec = recOf(st,"0-"+i);
-      return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,games:null,isFinal:false};
+      return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,bye:rec?!!rec.bye:false,games:null,isFinal:false};
     }
     var m0 = getMatch(r-1, 2*i, st);
     var m1 = getMatch(r-1, 2*i+1, st);
@@ -176,7 +176,7 @@
     var b = m1.winner ? (m1.winner==="a"?m1.a:m1.b) : null;
     var rec = (a && b) ? recOf(st,r+"-"+i) : null;
     var isFinal = (r===4);
-    return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,games:(isFinal&&rec)?(rec.games||[]):null,isFinal:isFinal};
+    return {a:a,b:b,winner:rec?rec.w:null,score:rec?rec.score:null,bye:rec?!!rec.bye:false,games:(isFinal&&rec)?(rec.games||[]):null,isFinal:isFinal};
   }
 
   function mapSeedOf(st, r, i){ return (st.mapSeed && st.mapSeed[r+"-"+i]) || null; }
@@ -364,8 +364,10 @@
     var key = r+"-"+i;
     var existing = recOf(state, key);
     if(existing && existing.w === slot) return;
-    var score = window.prompt("스코어를 입력하세요 (예: 2:0). 비워두면 스코어 없이 저장돼요.", existing && existing.score ? existing.score : "");
+    var score = window.prompt("스코어를 입력하세요 (예: 2:0). 상대팀 불참으로 부전승 처리할 경우 '부전승'이라고 입력하세요. 비워두면 스코어 없이 저장돼요.", existing && existing.score ? existing.score : "");
     if(score === null) return; // cancelled
+    var trimmed = score.trim();
+    var isBye = /^(부전승|bye)$/i.test(trimmed);
     mutateAndSave(function(ns){
       // merge onto the existing record instead of replacing it outright —
       // stats can be entered before a winner is picked (statIconHtml only
@@ -373,7 +375,9 @@
       // silently drop any already-saved stats/statsSaved for this match.
       var rec = recOf(ns, key) || {};
       rec.w = slot;
-      rec.score = score.trim() ? score.trim() : null;
+      rec.bye = isBye;
+      rec.score = isBye ? null : (trimmed ? trimmed : null);
+      if(isBye){ delete rec.stats; delete rec.statsSaved; } // no game was actually played
       ns.results[key] = rec;
       var nr=r+1, ni=Math.floor(i/2);
       while(nr<=4){ delete ns.results[nr+"-"+ni]; ni=Math.floor(ni/2); nr++; }
@@ -951,7 +955,7 @@
         continue;
       }
 
-      var mid = '<div class="rmid">'+(m.score ? scoreGridHtml(m.score,":") : '<span class="vs">VS</span>')+statIconHtml(selectedRound,ii,false,st)+'</div>';
+      var mid = '<div class="rmid">'+(m.bye ? '<span class="bye-tag">부전승</span>' : ((m.score ? scoreGridHtml(m.score,":") : '<span class="vs">VS</span>')+statIconHtml(selectedRound,ii,false,st)))+'</div>';
       list += '<div class="rmatch-wrap">'
         + (selectedRound>=2 ? '<span class="live-badge"><span class="dot"></span>방송 송출</span>' : '')
         + '<div class="rmatch cut-sm">'
