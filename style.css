@@ -444,8 +444,11 @@ footer .foot-admin:hover{ color:var(--accent); }
 .modal-panel.stats-modal{ max-width:620px; }
 .stats-col-head{ display:grid; grid-template-columns:1fr 64px 78px; gap:6px; font-family:"JetBrains Mono",monospace;
   font-size:0.6rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:8px; }
-.stats-team-title{ font-family:"Rajdhani",sans-serif; font-weight:700; font-size:0.86rem; color:var(--ink-dim);
-  margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em; }
+.stats-team-title{ font-family:"Rajdhani",sans-serif; font-weight:800; font-size:1.05rem; color:var(--ink);
+  margin-bottom:10px; text-transform:uppercase; letter-spacing:.04em; display:flex; align-items:center; gap:8px;
+  padding-bottom:8px; border-bottom:2px solid var(--border-strong); }
+.stats-team-title.side-a::before{ content:""; flex:none; width:10px; height:10px; background:var(--accent); }
+.stats-team-title.side-b::before{ content:""; flex:none; width:10px; height:10px; background:var(--gold); }
 .stats-row{ display:grid; grid-template-columns:1fr 64px 78px; gap:6px; align-items:center; margin-bottom:6px; }
 .stats-row .pname{ font-size:0.86rem; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .stats-row input{ padding:7px 8px; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); font-size:0.82rem; width:100%; }

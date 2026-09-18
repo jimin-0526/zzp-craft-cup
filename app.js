@@ -1177,9 +1177,9 @@
       +   '<div class="lb-final-head">결승 게임별 상세</div>'
       +   '<div class="round-tabs">'+gTabs+'</div>'
       +   '<div class="stats-col-head"><span>선수</span><span>킬</span><span>데미지</span></div>'
-      +   '<div class="stats-team-title">'+escapeHtml(teamA.name)+'</div>'
+      +   '<div class="stats-team-title side-a">'+escapeHtml(teamA.name)+'</div>'
       +   statsRowsHtml(listA, "lbga", false)
-      +   '<div class="stats-team-title" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
+      +   '<div class="stats-team-title side-b" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
       +   statsRowsHtml(listB, "lbgb", false)
       + '</div>';
   }
@@ -1490,9 +1490,9 @@
         + '<div class="round-tabs" style="margin-bottom:16px;">'+gTabs+'</div>'
         + (seriesMvp ? '<div class="stats-team-title" style="color:var(--gold);">★ 시리즈 합산 MVP · '+escapeHtml(seriesMvp.nick)+' ('+seriesMvp.kills+'킬 / '+seriesMvp.dmg+' dmg)</div>' : '')
         + '<div class="stats-col-head"><span>선수</span><span>킬</span><span>데미지</span></div>'
-        + '<div class="stats-team-title">'+escapeHtml(teamA.name)+'</div>'
+        + '<div class="stats-team-title side-a">'+escapeHtml(teamA.name)+'</div>'
         + statsRowsHtml(listA, "sa", editable)
-        + '<div class="stats-team-title" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
+        + '<div class="stats-team-title side-b" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
         + statsRowsHtml(listB, "sb", editable);
       return ''
         + '<div class="modal-backdrop">'
@@ -1519,9 +1519,9 @@
     }
     var body2 = ''
       + '<div class="stats-col-head"><span>선수</span><span>킬</span><span>데미지</span></div>'
-      + '<div class="stats-team-title">'+escapeHtml(teamA.name)+'</div>'
+      + '<div class="stats-team-title side-a">'+escapeHtml(teamA.name)+'</div>'
       + statsRowsHtml(listA2, "sa", editable)
-      + '<div class="stats-team-title" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
+      + '<div class="stats-team-title side-b" style="margin-top:14px;">'+escapeHtml(teamB.name)+'</div>'
       + statsRowsHtml(listB2, "sb", editable);
     return ''
       + '<div class="modal-backdrop">'
