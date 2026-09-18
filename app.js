@@ -1163,9 +1163,8 @@
     var gi = playedIdx[leaderboardGameIdx];
     var g = gs[gi];
     var teamA = teamOf(mf.a, st), teamB = teamOf(mf.b, st);
-    var partsA = statsParticipants(mf.a, st), partsB = statsParticipants(mf.b, st);
-    var listA = partsA.map(function(p,idx){ var s=(g.a||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
-    var listB = partsB.map(function(p,idx){ var s=(g.b||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+    var listA = displayStatsList(mf.a, st, g.a);
+    var listB = displayStatsList(mf.b, st, g.b);
     var mvpG = computeMvp(listA.concat(listB));
     if(mvpG){ listA.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); listB.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); }
 
@@ -1308,6 +1307,38 @@
     return teamOf(id, st).players.filter(function(p){ return p.nick && p.role !== "후보"; });
   }
 
+  // All named roster slots including the substitute, so admins can record
+  // stats for whichever 4 actually played that game (sub or not).
+  function allRosterPlayers(id, st){
+    return teamOf(id, st).players.filter(function(p){ return p.nick; });
+  }
+
+  function statsByNick(list){
+    var map = Object.create(null);
+    (list||[]).forEach(function(s){ if(s && s.nick) map[s.nick] = s; });
+    return map;
+  }
+
+  // Editable form: show every roster slot (5), pre-filled by nickname from
+  // whatever was already saved for that game.
+  function editableStatsList(id, st, savedStats){
+    var map = statsByNick(savedStats);
+    return allRosterPlayers(id, st).map(function(p){
+      var s = map[p.nick];
+      return { nick: p.nick, kills: s ? s.kills : null, dmg: s ? s.dmg : null };
+    });
+  }
+
+  // Read-only display: show exactly what was saved (the 4 who actually
+  // played), falling back to the default 4 non-substitute slots before
+  // anything has been recorded yet.
+  function displayStatsList(id, st, savedStats){
+    if(savedStats && savedStats.length){
+      return savedStats.map(function(s){ return { nick:s.nick, kills:s.kills, dmg:s.dmg }; });
+    }
+    return statsParticipants(id, st).map(function(p){ return { nick:p.nick, kills:null, dmg:null }; });
+  }
+
   function computeMvp(players){
     var best = null;
     players.forEach(function(p){
@@ -1359,18 +1390,21 @@
   function saveMatchStats(r, i){
     if(!isAdmin) return;
     var m = getMatch(r, i, state);
-    var partsA = statsParticipants(m.a, state);
-    var partsB = statsParticipants(m.b, state);
-    function readSide(parts, prefix){
-      return parts.map(function(p, idx){
+    var candA = allRosterPlayers(m.a, state);
+    var candB = allRosterPlayers(m.b, state);
+    function readSide(cands, prefix){
+      var out = [];
+      cands.forEach(function(p, idx){
         var kEl = document.getElementById(prefix+"-k-"+idx), dEl = document.getElementById(prefix+"-d-"+idx);
         var k = kEl && kEl.value !== "" ? Number(kEl.value) : null;
         var d = dEl && dEl.value !== "" ? Number(dEl.value) : null;
-        return { nick: p.nick, kills:k, dmg:d };
+        if(k==null && d==null) return; // not entered => this slot didn't play
+        out.push({ nick: p.nick, kills:k, dmg:d });
       });
+      return out;
     }
-    var statsA = readSide(partsA, "sa");
-    var statsB = readSide(partsB, "sb");
+    var statsA = readSide(candA, "sa");
+    var statsB = readSide(candB, "sb");
     activeModal = null;
     mutateAndSave(function(ns){
       var key = r+"-"+i;
@@ -1385,18 +1419,21 @@
   function saveFinalStats(gameIdx){
     if(!isAdmin) return;
     var m = getMatch(4, 0, state);
-    var partsA = statsParticipants(m.a, state);
-    var partsB = statsParticipants(m.b, state);
-    function readSide(parts, prefix){
-      return parts.map(function(p, idx){
+    var candA = allRosterPlayers(m.a, state);
+    var candB = allRosterPlayers(m.b, state);
+    function readSide(cands, prefix){
+      var out = [];
+      cands.forEach(function(p, idx){
         var kEl = document.getElementById(prefix+"-k-"+idx), dEl = document.getElementById(prefix+"-d-"+idx);
         var k = kEl && kEl.value !== "" ? Number(kEl.value) : null;
         var d = dEl && dEl.value !== "" ? Number(dEl.value) : null;
-        return { nick: p.nick, kills:k, dmg:d };
+        if(k==null && d==null) return; // not entered => this slot didn't play
+        out.push({ nick: p.nick, kills:k, dmg:d });
       });
+      return out;
     }
-    var statsA = readSide(partsA, "sa");
-    var statsB = readSide(partsB, "sb");
+    var statsA = readSide(candA, "sa");
+    var statsB = readSide(candB, "sb");
     activeModal = null;
     mutateAndSave(function(ns){
       var key = "4-0";
@@ -1415,8 +1452,6 @@
     var m = getMatch(r, i, st);
     if(!m.a || !m.b) return "";
     var teamA = teamOf(m.a, st), teamB = teamOf(m.b, st);
-    var partsA = statsParticipants(m.a, st);
-    var partsB = statsParticipants(m.b, st);
     var editable = isAdmin;
     var headTitle = escapeHtml(teamA.name) + ' vs ' + escapeHtml(teamB.name);
 
@@ -1440,8 +1475,8 @@
       }
       var rec = recOf(st, "4-0") || {};
       var gameStats = (rec.gameStats && rec.gameStats[statsGameIdx]) || {a:[],b:[]};
-      var listA = partsA.map(function(p,idx){ var s=(gameStats.a||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
-      var listB = partsB.map(function(p,idx){ var s=(gameStats.b||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+      var listA = editable ? editableStatsList(m.a, st, gameStats.a) : displayStatsList(m.a, st, gameStats.a);
+      var listB = editable ? editableStatsList(m.b, st, gameStats.b) : displayStatsList(m.b, st, gameStats.b);
       if(!editable){
         var mvpG = computeMvp(listA.concat(listB));
         if(mvpG){ listA.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); listB.forEach(function(p){ if(p.nick===mvpG.nick) p._mvp=true; }); }
@@ -1472,8 +1507,8 @@
     var key = r+"-"+i;
     var rec2 = recOf(st, key) || {};
     var stats = rec2.stats || {a:[],b:[]};
-    var listA2 = partsA.map(function(p,idx){ var s=(stats.a||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
-    var listB2 = partsB.map(function(p,idx){ var s=(stats.b||[])[idx]||{}; return {nick:p.nick, kills:s.kills, dmg:s.dmg}; });
+    var listA2 = editable ? editableStatsList(m.a, st, stats.a) : displayStatsList(m.a, st, stats.a);
+    var listB2 = editable ? editableStatsList(m.b, st, stats.b) : displayStatsList(m.b, st, stats.b);
     if(!editable){
       var mvp = computeMvp(listA2.concat(listB2));
       if(mvp){ listA2.forEach(function(p){ if(p.nick===mvp.nick) p._mvp=true; }); listB2.forEach(function(p){ if(p.nick===mvp.nick) p._mvp=true; }); }
