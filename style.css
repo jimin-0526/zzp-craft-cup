@@ -394,6 +394,9 @@ table.admin-table .plist span{ display:block; }
 .admin-note{ color:var(--gold); font-style:italic; }
 div.admin-note{ font-size:0.76rem; font-weight:500; margin-top:2px; }
 table.admin-table .uid{ color:var(--ink-faint); }
+.admin-notes{ margin-top:28px; }
+.mn-input{ width:100%; min-width:220px; padding:7px 9px; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); font-size:0.82rem; font-family:inherit; }
+.mn-input:focus{ outline:none; border-color:var(--accent); }
 
 /* ---------- footer ---------- */
 footer{ padding:36px 0 52px; border-top:1px solid var(--border); }

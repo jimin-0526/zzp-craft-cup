@@ -181,6 +181,10 @@
 
   function mapSeedOf(st, r, i){ return (st.mapSeed && st.mapSeed[r+"-"+i]) || null; }
 
+  // Admin-only scheduling memo per match (room/time coordination chatter) —
+  // never shown outside the admin panel, separate from the public result.
+  function matchNoteOf(st, r, i){ return (st.matchNotes && st.matchNotes[r+"-"+i]) || ""; }
+
   function mapSeedRoundAssigned(st, round){
     for(var i=0;i<ROUND_COUNTS[round];i++){ if(!mapSeedOf(st, round, i)) return false; }
     return true;
@@ -418,6 +422,27 @@
     if(!state.drawn) return;
     if(!window.confirm("모든 경기 결과를 초기화할까요? 대진 상대는 유지됩니다.")) return;
     mutateAndSave(function(ns){ ns.results = {}; return ns; });
+  }
+
+  function saveMatchNotes(round){
+    if(!isAdmin) return;
+    var count = ROUND_COUNTS[round];
+    var vals = [];
+    for(var i=0; i<count; i++){
+      var el = document.getElementById("mn-"+round+"-"+i);
+      vals.push({ i:i, val: el ? el.value.trim() : "" });
+    }
+    mutateAndSave(function(ns){
+      if(!ns.matchNotes) ns.matchNotes = {};
+      vals.forEach(function(v){
+        var key = round+"-"+v.i;
+        if(v.val) ns.matchNotes[key] = v.val;
+        else delete ns.matchNotes[key];
+      });
+      return ns;
+    }).then(function(res){
+      if(res && res.status === "ok"){ matchNotesEditing = false; toast("일정 메모를 저장했습니다."); }
+    });
   }
 
   function resetDraw(){
@@ -728,6 +753,8 @@
   var leaderboardSort = "kills"; // "kills" | "dmg"
   var leaderboardExpanded = false;
   var leaderboardGameIdx = 0;
+  var matchNoteRound = 0;
+  var matchNotesEditing = false;
 
   function championBanner(st){
     var champId = championOf(st);
@@ -1293,8 +1320,42 @@
       +       '<thead><tr><th>SEED</th><th>팀명</th><th>선수 (닉네임 · UID)</th><th></th></tr></thead>'
       +       '<tbody>'+rows+'</tbody>'
       +     '</table></div>'
+      +     renderMatchNotesPanel(st)
       +   '</div>'
       + '</section>';
+  }
+
+  // Admin-only scheduling scratchpad — room/time coordination per match,
+  // never surfaced to public visitors since this whole section is gated
+  // behind renderAdminPanel's isAdmin check.
+  function renderMatchNotesPanel(st){
+    var tabs = "";
+    for(var r=0;r<5;r++){
+      tabs += '<button type="button" class="round-tab'+(matchNoteRound===r?" active":"")+'" data-action="mn-round-tab" data-round="'+r+'">'+ROUND_LABELS[r]+'</button>';
+    }
+    var rowsHtml = "";
+    for(var i=0; i<ROUND_COUNTS[matchNoteRound]; i++){
+      var m = getMatch(matchNoteRound, i, st);
+      var num = matchNum(matchNoteRound, i);
+      var matchup = m.a
+        ? (m.b ? escapeHtml(teamName(m.a,st))+' vs '+escapeHtml(teamName(m.b,st)) : escapeHtml(teamName(m.a,st))+' vs TBD')
+        : 'TBD vs TBD';
+      var note = matchNoteOf(st, matchNoteRound, i);
+      rowsHtml += '<tr><td class="mono">M'+num+'</td><td class="tname">'+matchup+'</td>'
+        + '<td><input type="text" class="mn-input" id="mn-'+matchNoteRound+'-'+i+'" value="'+escapeHtml(note)+'" placeholder="예: 오후 2시 진행 예정 (자체 방 개설)"></td></tr>';
+    }
+    return ''
+      + '<div class="admin-notes">'
+      +   '<div class="admin-banner"><span class="lbl">📋 매치 일정 메모 · 관리자만 보임</span></div>'
+      +   '<div class="round-tabs" style="margin:12px 0;">'+tabs+'</div>'
+      +   '<div class="admin-table-wrap"><table class="admin-table">'
+      +     '<thead><tr><th>매치</th><th>대진</th><th>메모</th></tr></thead>'
+      +     '<tbody>'+rowsHtml+'</tbody>'
+      +   '</table></div>'
+      +   '<div style="display:flex;justify-content:flex-end;margin-top:10px;">'
+      +     '<button type="button" class="btn btn-primary btn-sm" data-action="save-match-notes" data-round="'+matchNoteRound+'">메모 저장</button>'
+      +   '</div>'
+      + '</div>';
   }
 
   function renderFooter(){
@@ -1982,10 +2043,21 @@
     if(saveMatchStatsBtn){ saveMatchStats(+saveMatchStatsBtn.dataset.r, +saveMatchStatsBtn.dataset.i); return; }
     var saveFinalStatsBtn = e.target.closest('[data-action="save-final-stats"]');
     if(saveFinalStatsBtn){ saveFinalStats(+saveFinalStatsBtn.dataset.game); return; }
+    var mnRoundBtn = e.target.closest('[data-action="mn-round-tab"]');
+    if(mnRoundBtn){ matchNoteRound = +mnRoundBtn.dataset.round; render(); return; }
+    var saveNotesBtn = e.target.closest('[data-action="save-match-notes"]');
+    if(saveNotesBtn){ saveMatchNotes(+saveNotesBtn.dataset.round); return; }
   });
 
   document.addEventListener("keydown", function(e){
     if(e.key === "Escape" && activeModal){ activeModal = null; render(); }
+  });
+
+  // A background poll re-rendering mid-typing would wipe out whatever the
+  // admin hasn't saved yet in the match-notes table (it's a plain section,
+  // not a modal, so it isn't covered by the activeModal check in pollOnce).
+  document.addEventListener("input", function(e){
+    if(e.target && e.target.classList && e.target.classList.contains("mn-input")) matchNotesEditing = true;
   });
 
   /* ---------------- init + polling ---------------- */
@@ -2002,7 +2074,7 @@
       // don't let a poll (reading the possibly-lagging public CDN copy)
       // stomp on an admin save that's still in flight — mutateAndSave
       // already applied its own optimistic state before this could run.
-      if(!(activeModal && (activeModal.mode === "edit" || activeModal.kind === "stats")) && !saveInFlight){
+      if(!(activeModal && (activeModal.mode === "edit" || activeModal.kind === "stats")) && !saveInFlight && !matchNotesEditing){
         state = fresh;
         render();
       }
