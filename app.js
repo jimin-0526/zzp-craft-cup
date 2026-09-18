@@ -263,9 +263,17 @@
   async function fetchShaAndState(){
     var res;
     try{
-      res = await fetch(WORKER_BASE + "/state", { cache: "no-store" });
+      res = await fetch(WORKER_BASE + "/state", {
+        cache: "no-store",
+        headers: { "Authorization": "Bearer " + ADMIN_TOKEN }
+      });
     }catch(networkErr){
       throw new Error("불러오기 네트워크 오류: " + (networkErr && networkErr.message ? networkErr.message : networkErr));
+    }
+    if(res.status === 401){
+      isAdmin = false; ADMIN_TOKEN = "";
+      try{ sessionStorage.removeItem("zzp_admin_session"); sessionStorage.removeItem("zzp_admin_exp"); }catch(e){}
+      throw new Error("관리자 세션이 만료되었습니다. 다시 로그인해주세요.");
     }
     if(!res.ok) throw new Error("불러오기 실패 · " + (await apiErrorDetail(res)));
     var json = await res.json();
@@ -1964,8 +1972,16 @@
   }
 
   (async function init(){
-    var first = await fetchPublicState();
+    // fetchPublicState() swallows network errors into `null`; a transient
+    // blip on first load shouldn't be indistinguishable from "no tournament
+    // data yet", so retry a couple of times before accepting that fallback.
+    var first = null;
+    for(var attempt=0; attempt<3 && !first; attempt++){
+      if(attempt>0) await sleep(500*attempt);
+      first = await fetchPublicState();
+    }
     state = first || clone(DEFAULT_STATE);
+    syncOk = !!first;
     lastFingerprint = stateFingerprint(state);
     loaded = true;
     render();

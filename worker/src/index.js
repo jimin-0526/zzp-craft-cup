@@ -7,9 +7,9 @@
  * and uses its own GITHUB_TOKEN secret to perform the actual write.
  *
  * Routes:
- *   GET  /state                            -> { sha, content } (base64), authenticated read
- *   POST /login  { passcode }              -> { ok, token, exp } | 401
- *   POST /save   { token, sha, content }   -> { status: "ok" | "conflict" | "error", detail? }
+ *   GET  /state  (Authorization: Bearer <token>)  -> { sha, content } (base64)
+ *   POST /login  { passcode }                     -> { ok, token, exp } | 401
+ *   POST /save   { token, sha, content }          -> { status: "ok" | "conflict" | "error", detail? }
  *
  * /state exists so the admin's "read sha, then write" step goes through our
  * own GITHUB_TOKEN instead of an anonymous api.github.com request — GitHub
@@ -32,6 +32,21 @@ function json(data, status, env) {
     status: status || 200,
     headers: { "Content-Type": "application/json", ...corsHeaders(env) },
   });
+}
+
+// Plain `!==` on a secret leaks its comparison time character-by-character.
+// This walks the full (padded) length regardless of where a mismatch is,
+// so equal-length and length-mismatched inputs take the same time.
+function timingSafeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  const ab = new TextEncoder().encode(a);
+  const bb = new TextEncoder().encode(b);
+  const len = Math.max(ab.length, bb.length);
+  let diff = ab.length ^ bb.length;
+  for (let i = 0; i < len; i++) {
+    diff |= (i < ab.length ? ab[i] : 0) ^ (i < bb.length ? bb[i] : 0);
+  }
+  return diff === 0;
 }
 
 function b64urlEncode(str) {
@@ -64,7 +79,7 @@ async function verifyToken(token, env) {
   if (!token || typeof token !== "string" || token.indexOf(".") < 0) return false;
   const [encoded, sig] = token.split(".");
   const expected = await hmac(encoded, env.SESSION_SECRET);
-  if (expected !== sig) return false;
+  if (!timingSafeEqual(expected, sig)) return false;
   try {
     const payload = JSON.parse(b64urlDecode(encoded));
     return typeof payload.exp === "number" && payload.exp > Date.now();
@@ -73,7 +88,17 @@ async function verifyToken(token, env) {
   }
 }
 
-async function handleState(env) {
+async function handleState(request, env) {
+  // Was unauthenticated: anyone who found this (public-repo-visible) worker
+  // URL could call GET /state and burn the owner's GitHub API rate limit on
+  // every request. Only the admin flow (mutateAndSave, always after a
+  // successful login) ever needs this endpoint, so require the same session
+  // token /save already checks.
+  const auth = request.headers.get("Authorization") || "";
+  const token = auth.indexOf("Bearer ") === 0 ? auth.slice(7) : "";
+  if (!(await verifyToken(token, env))) {
+    return json({ error: "unauthorized" }, 401, env);
+  }
   const apiUrl = `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${env.DATA_PATH}?ref=${env.GITHUB_BRANCH}`;
   let ghRes;
   try {
@@ -100,7 +125,7 @@ async function handleState(env) {
 async function handleLogin(request, env) {
   let body;
   try { body = await request.json(); } catch (e) { return json({ ok: false, error: "bad json" }, 400, env); }
-  if (!body || typeof body.passcode !== "string" || body.passcode !== env.ADMIN_PASSCODE) {
+  if (!body || typeof body.passcode !== "string" || !timingSafeEqual(body.passcode, env.ADMIN_PASSCODE)) {
     return json({ ok: false, error: "wrong passcode" }, 401, env);
   }
   const { token, exp } = await makeToken(env);
@@ -151,7 +176,7 @@ export default {
       return new Response(null, { headers: corsHeaders(env) });
     }
     const url = new URL(request.url);
-    if (request.method === "GET" && url.pathname === "/state") return handleState(env);
+    if (request.method === "GET" && url.pathname === "/state") return handleState(request, env);
     if (request.method === "POST" && url.pathname === "/login") return handleLogin(request, env);
     if (request.method === "POST" && url.pathname === "/save") return handleSave(request, env);
     return json({ error: "not found" }, 404, env);
