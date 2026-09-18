@@ -137,6 +137,11 @@
         ]
       },
       "statsSaved": true
+    },
+    "0-7": {
+      "w": "b",
+      "bye": true,
+      "score": null
     }
   },
   "teams": {
