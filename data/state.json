@@ -38,7 +38,54 @@
   "results": {
     "0-2": {
       "w": "a",
-      "score": "13:1"
+      "score": "13:1",
+      "stats": {
+        "a": [
+          {
+            "nick": "xc즈운띠띠",
+            "kills": 11,
+            "dmg": 1783
+          },
+          {
+            "nick": "Neophobia",
+            "kills": 13,
+            "dmg": 2461
+          },
+          {
+            "nick": "AZAKYUNA",
+            "kills": 14,
+            "dmg": 1740
+          },
+          {
+            "nick": "송하영원픽",
+            "kills": 14,
+            "dmg": 2491
+          }
+        ],
+        "b": [
+          {
+            "nick": "MEGA_luvsxxm",
+            "kills": 1,
+            "dmg": 799
+          },
+          {
+            "nick": "Kryon_inc",
+            "kills": 3,
+            "dmg": 1661
+          },
+          {
+            "nick": "Nxzunaluv4",
+            "kills": 6,
+            "dmg": 1449
+          },
+          {
+            "nick": "D4Y•요나",
+            "kills": 3,
+            "dmg": 1528
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
