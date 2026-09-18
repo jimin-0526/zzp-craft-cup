@@ -89,7 +89,54 @@
     },
     "0-1": {
       "w": "b",
-      "score": "4:8"
+      "score": "4:8",
+      "stats": {
+        "a": [
+          {
+            "nick": "FSـHyde",
+            "kills": 6,
+            "dmg": 1926
+          },
+          {
+            "nick": "Angks4",
+            "kills": 5,
+            "dmg": 1433
+          },
+          {
+            "nick": "AZAKmagic",
+            "kills": 5,
+            "dmg": 1238
+          },
+          {
+            "nick": "NSـSOEZ",
+            "kills": 6,
+            "dmg": 1715
+          }
+        ],
+        "b": [
+          {
+            "nick": "옥구꼬옹",
+            "kills": 5,
+            "dmg": 807
+          },
+          {
+            "nick": "giv٭nicetry",
+            "kills": 12,
+            "dmg": 1789
+          },
+          {
+            "nick": "giv٭theshyyyy",
+            "kills": 12,
+            "dmg": 2003
+          },
+          {
+            "nick": "giv٭Nicetryy",
+            "kills": 10,
+            "dmg": 1388
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
