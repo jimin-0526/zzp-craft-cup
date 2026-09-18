@@ -857,9 +857,8 @@
     var seed = filled ? id : "?";
     var isWinner = m.winner === slot;
     var isLoser = !!m.winner && m.winner !== slot;
-    var isByeWin = isWinner && !!m.bye;
     var clickable = isAdmin && filled && m.a && m.b && !m.isFinal;
-    var cls = ["rside", slot==="b"?"right":"", filled?"":"empty", isWinner?"winner":"", isLoser?"loser":"", isByeWin?"bye-win":""].join(" ").trim();
+    var cls = ["rside", slot==="b"?"right":"", filled?"":"empty", isWinner?"winner":"", isLoser?"loser":""].join(" ").trim();
     var tag = clickable ? "button" : "div";
     var attrs = clickable ? ' type="button" data-action="pick" data-r="'+r+'" data-i="'+i+'" data-slot="'+slot+'"' : "";
     if(clickable) cls += " clickable";
