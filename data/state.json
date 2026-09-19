@@ -142,6 +142,11 @@
       "w": "b",
       "bye": true,
       "score": null
+    },
+    "0-4": {
+      "w": "b",
+      "bye": false,
+      "score": "3:11"
     }
   },
   "teams": {
