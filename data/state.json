@@ -1400,7 +1400,7 @@
   "matchNotes": {
     "0-0": {
       "time": "오후 3시",
-      "room": "none",
+      "room": "staff",
       "done": false,
       "memo": ""
     },
@@ -1417,10 +1417,10 @@
       "memo": ""
     },
     "0-3": {
-      "time": "전남 3시 / 상대팀 불가",
-      "room": "none",
+      "time": "오후 3시 50분",
+      "room": "self",
       "done": false,
-      "memo": "10분이라도 확인 중"
+      "memo": ""
     },
     "0-4": {
       "time": "오후 2시 30분",
@@ -1430,7 +1430,7 @@
     },
     "0-5": {
       "time": "오후 3시",
-      "room": "none",
+      "room": "self",
       "done": false,
       "memo": ""
     },
@@ -1454,13 +1454,13 @@
     },
     "0-9": {
       "time": "오후 3시",
-      "room": "none",
+      "room": "self",
       "done": false,
       "memo": ""
     },
     "0-10": {
       "time": "오후 4시",
-      "room": "none",
+      "room": "self",
       "done": false,
       "memo": "10분이라도 확인 중"
     },
@@ -1472,7 +1472,7 @@
     },
     "0-12": {
       "time": "오후 4시",
-      "room": "none",
+      "room": "self",
       "done": false,
       "memo": "10분이라도 확인 중"
     },
