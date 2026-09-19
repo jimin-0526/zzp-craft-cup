@@ -395,8 +395,20 @@ table.admin-table .plist span{ display:block; }
 div.admin-note{ font-size:0.76rem; font-weight:500; margin-top:2px; }
 table.admin-table .uid{ color:var(--ink-faint); }
 .admin-notes{ margin-top:28px; }
-.mn-input{ width:100%; min-width:220px; padding:7px 9px; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); font-size:0.82rem; font-family:inherit; }
-.mn-input:focus{ outline:none; border-color:var(--accent); }
+.mn-table th:nth-child(3){ width:110px; } .mn-table th:nth-child(4){ width:150px; } .mn-table th:nth-child(5){ width:56px; text-align:center; }
+.mn-field{ width:100%; min-width:100px; padding:7px 9px; border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink); font-size:0.82rem; font-family:inherit; }
+.mn-field:focus{ outline:none; border-color:var(--accent); }
+.mn-memo{ min-width:160px; }
+.mn-done-cell{ text-align:center; }
+.mn-done-check{ width:18px; height:18px; accent-color:var(--accent); cursor:pointer; }
+.mn-row.mn-self-room{ background:rgba(224,128,99,0.1); box-shadow:inset 3px 0 0 #e08063; }
+.mn-row.mn-self-room td.tname{ color:#e08063; }
+.mn-row.mn-done{ opacity:0.5; }
+.mn-row.mn-done td.tname{ text-decoration:line-through; }
+.mn-legend{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:10px; font-family:"JetBrains Mono",monospace; font-size:0.68rem; color:var(--ink-faint); }
+.mn-legend-item::before{ content:""; display:inline-block; width:9px; height:9px; margin-right:6px; vertical-align:middle; }
+.mn-legend-self::before{ background:#e08063; }
+.mn-legend-done::before{ background:var(--ink-faint); border-radius:50%; }
 
 /* ---------- footer ---------- */
 footer{ padding:36px 0 52px; border-top:1px solid var(--border); }

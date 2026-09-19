@@ -181,9 +181,18 @@
 
   function mapSeedOf(st, r, i){ return (st.mapSeed && st.mapSeed[r+"-"+i]) || null; }
 
-  // Admin-only scheduling memo per match (room/time coordination chatter) —
-  // never shown outside the admin panel, separate from the public result.
-  function matchNoteOf(st, r, i){ return (st.matchNotes && st.matchNotes[r+"-"+i]) || ""; }
+  // Admin-only scheduling memo per match (room/time coordination) — never
+  // shown outside the admin panel, separate from the public result.
+  // Legacy notes were a plain string (from before the time/room/done
+  // fields existed); fold that text into `memo` so nothing already typed
+  // in gets lost when the panel starts rendering the structured fields.
+  function matchNoteOf(st, r, i){
+    var raw = st.matchNotes && st.matchNotes[r+"-"+i];
+    if(!raw) return { time:"", room:"none", done:false, memo:"" };
+    if(typeof raw === "string") return { time:"", room:"none", done:false, memo:raw };
+    return { time:raw.time||"", room:raw.room||"none", done:!!raw.done, memo:raw.memo||"" };
+  }
+  function matchNoteIsEmpty(n){ return !n.time && n.room==="none" && !n.done && !n.memo; }
 
   function mapSeedRoundAssigned(st, round){
     for(var i=0;i<ROUND_COUNTS[round];i++){ if(!mapSeedOf(st, round, i)) return false; }
@@ -429,14 +438,25 @@
     var count = ROUND_COUNTS[round];
     var vals = [];
     for(var i=0; i<count; i++){
-      var el = document.getElementById("mn-"+round+"-"+i);
-      vals.push({ i:i, val: el ? el.value.trim() : "" });
+      var timeEl = document.getElementById("mn-time-"+round+"-"+i);
+      var roomEl = document.getElementById("mn-room-"+round+"-"+i);
+      var doneEl = document.getElementById("mn-done-"+round+"-"+i);
+      var memoEl = document.getElementById("mn-memo-"+round+"-"+i);
+      vals.push({
+        i:i,
+        note: {
+          time: timeEl ? timeEl.value.trim() : "",
+          room: roomEl ? roomEl.value : "none",
+          done: doneEl ? doneEl.checked : false,
+          memo: memoEl ? memoEl.value.trim() : ""
+        }
+      });
     }
     mutateAndSave(function(ns){
       if(!ns.matchNotes) ns.matchNotes = {};
       vals.forEach(function(v){
         var key = round+"-"+v.i;
-        if(v.val) ns.matchNotes[key] = v.val;
+        if(!matchNoteIsEmpty(v.note)) ns.matchNotes[key] = v.note;
         else delete ns.matchNotes[key];
       });
       return ns;
@@ -1325,31 +1345,62 @@
       + '</section>';
   }
 
-  // Admin-only scheduling scratchpad — room/time coordination per match,
+  var MN_ROOM_OPTIONS = [
+    ["none","미정"],
+    ["self","자체 방 개설"],
+    ["staff","운영진 방 개설"],
+    ["unneeded","개설 불필요"]
+  ];
+
+  // Admin-only scheduling checklist — room/time coordination per match,
   // never surfaced to public visitors since this whole section is gated
-  // behind renderAdminPanel's isAdmin check.
+  // behind renderAdminPanel's isAdmin check. Rows the admin has to open a
+  // room for themselves are emphasized, and checking a match "완료" sinks
+  // it to the bottom of the list so the active checklist stays on top.
   function renderMatchNotesPanel(st){
     var tabs = "";
     for(var r=0;r<5;r++){
       tabs += '<button type="button" class="round-tab'+(matchNoteRound===r?" active":"")+'" data-action="mn-round-tab" data-round="'+r+'">'+ROUND_LABELS[r]+'</button>';
     }
-    var rowsHtml = "";
+    var items = [];
     for(var i=0; i<ROUND_COUNTS[matchNoteRound]; i++){
       var m = getMatch(matchNoteRound, i, st);
-      var num = matchNum(matchNoteRound, i);
       var matchup = m.a
         ? (m.b ? escapeHtml(teamName(m.a,st))+' vs '+escapeHtml(teamName(m.b,st)) : escapeHtml(teamName(m.a,st))+' vs TBD')
         : 'TBD vs TBD';
-      var note = matchNoteOf(st, matchNoteRound, i);
-      rowsHtml += '<tr><td class="mono">M'+num+'</td><td class="tname">'+matchup+'</td>'
-        + '<td><input type="text" class="mn-input" id="mn-'+matchNoteRound+'-'+i+'" value="'+escapeHtml(note)+'" placeholder="예: 오후 2시 진행 예정 (자체 방 개설)"></td></tr>';
+      items.push({ i:i, num:matchNum(matchNoteRound,i), matchup:matchup, note:matchNoteOf(st, matchNoteRound, i) });
     }
+    items.sort(function(a,b){ return (a.note.done?1:0) - (b.note.done?1:0); });
+
+    var roomOptsHtml = function(selected){
+      return MN_ROOM_OPTIONS.map(function(o){
+        return '<option value="'+o[0]+'"'+(selected===o[0]?" selected":"")+'>'+o[1]+'</option>';
+      }).join("");
+    };
+
+    var rowsHtml = items.map(function(it){
+      var note = it.note;
+      var rowCls = ["mn-row"];
+      if(note.done) rowCls.push("mn-done");
+      if(note.room==="self" && !note.done) rowCls.push("mn-self-room");
+      var rid = matchNoteRound+"-"+it.i;
+      return '<tr class="'+rowCls.join(" ")+'">'
+        + '<td class="mono">M'+it.num+'</td>'
+        + '<td class="tname">'+it.matchup+'</td>'
+        + '<td><input type="text" class="mn-field mn-time" id="mn-time-'+rid+'" value="'+escapeHtml(note.time)+'" placeholder="예: 오후 2시"></td>'
+        + '<td><select class="mn-field mn-room" id="mn-room-'+rid+'" onchange="this.closest(\'tr\').classList.toggle(\'mn-self-room\', this.value===\'self\' && !this.closest(\'tr\').classList.contains(\'mn-done\'))">'+roomOptsHtml(note.room)+'</select></td>'
+        + '<td class="mn-done-cell"><input type="checkbox" class="mn-field mn-done-check" id="mn-done-'+rid+'"'+(note.done?" checked":"")+' onchange="this.closest(\'tr\').classList.toggle(\'mn-done\', this.checked); if(this.checked) this.closest(\'tr\').classList.remove(\'mn-self-room\');"></td>'
+        + '<td><input type="text" class="mn-field mn-memo" id="mn-memo-'+rid+'" value="'+escapeHtml(note.memo)+'" placeholder="추가 메모"></td>'
+        + '</tr>';
+    }).join("");
+
     return ''
       + '<div class="admin-notes">'
       +   '<div class="admin-banner"><span class="lbl">📋 매치 일정 메모 · 관리자만 보임</span></div>'
       +   '<div class="round-tabs" style="margin:12px 0;">'+tabs+'</div>'
-      +   '<div class="admin-table-wrap"><table class="admin-table">'
-      +     '<thead><tr><th>매치</th><th>대진</th><th>메모</th></tr></thead>'
+      +   '<div class="mn-legend"><span class="mn-legend-item mn-legend-self">내가 방 개설해야 함</span><span class="mn-legend-item mn-legend-done">완료 · 저장하면 목록 아래로 이동</span></div>'
+      +   '<div class="admin-table-wrap"><table class="admin-table mn-table">'
+      +     '<thead><tr><th>매치</th><th>대진</th><th>시간</th><th>방 개설</th><th>완료</th><th>메모</th></tr></thead>'
       +     '<tbody>'+rowsHtml+'</tbody>'
       +   '</table></div>'
       +   '<div style="display:flex;justify-content:flex-end;margin-top:10px;">'
@@ -2053,12 +2104,16 @@
     if(e.key === "Escape" && activeModal){ activeModal = null; render(); }
   });
 
-  // A background poll re-rendering mid-typing would wipe out whatever the
+  // A background poll re-rendering mid-edit would wipe out whatever the
   // admin hasn't saved yet in the match-notes table (it's a plain section,
   // not a modal, so it isn't covered by the activeModal check in pollOnce).
-  document.addEventListener("input", function(e){
-    if(e.target && e.target.classList && e.target.classList.contains("mn-input")) matchNotesEditing = true;
-  });
+  // "input" catches text fields, "change" catches the room <select> and the
+  // "완료" checkbox (which don't reliably fire "input" in every browser).
+  function markNotesEditing(e){
+    if(e.target && e.target.classList && e.target.classList.contains("mn-field")) matchNotesEditing = true;
+  }
+  document.addEventListener("input", markNotesEditing);
+  document.addEventListener("change", markNotesEditing);
 
   /* ---------------- init + polling ---------------- */
   function stateFingerprint(st){ return JSON.stringify(st); }
