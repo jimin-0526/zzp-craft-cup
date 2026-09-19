@@ -246,6 +246,11 @@
         ]
       },
       "statsSaved": true
+    },
+    "0-5": {
+      "w": "b",
+      "bye": false,
+      "score": "4:10"
     }
   },
   "teams": {
