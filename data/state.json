@@ -354,7 +354,49 @@
     "0-8": {
       "w": "b",
       "bye": false,
-      "score": "2:12"
+      "score": "2:12",
+      "stats": {
+        "a": [
+          {
+            "nick": "AGPyogurt",
+            "kills": 5,
+            "dmg": 1417
+          },
+          {
+            "nick": "KhanـXungBin",
+            "kills": 4,
+            "dmg": 1431
+          },
+          {
+            "nick": "최강이담이드앙",
+            "kills": 2,
+            "dmg": 767
+          }
+        ],
+        "b": [
+          {
+            "nick": "충과니・Qwer",
+            "kills": 10,
+            "dmg": 1654
+          },
+          {
+            "nick": "군의폭탄박정현",
+            "kills": 14,
+            "dmg": 1654
+          },
+          {
+            "nick": "CzlTv",
+            "kills": 7,
+            "dmg": 1046
+          },
+          {
+            "nick": "해남땅끝마을",
+            "kills": 6,
+            "dmg": 987
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
