@@ -1408,7 +1408,7 @@
       "time": "새벽 1시 30분",
       "room": "self",
       "done": true,
-      "memo": "관전"
+      "memo": "관전함!"
     },
     "0-2": {
       "time": "밤 12시 30분",
@@ -1426,7 +1426,7 @@
       "time": "오후 2시 30분",
       "room": "self",
       "done": false,
-      "memo": ""
+      "memo": "관전함!"
     },
     "0-5": {
       "time": "오후 3시",
@@ -1484,7 +1484,7 @@
     },
     "0-14": {
       "time": "오후 4시",
-      "room": "staff",
+      "room": "self",
       "done": false,
       "memo": ""
     },
