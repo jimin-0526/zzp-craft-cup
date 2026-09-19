@@ -112,7 +112,7 @@
     return t;
   }
 
-  var DEFAULT_STATE = { drawn:false, drawnAt:null, order:[], results:{}, teams:defaultTeams(), mapSeed:{}, mapSeedAt:null };
+  var DEFAULT_STATE = { drawn:false, drawnAt:null, order:[], results:{}, teams:defaultTeams(), mapSeed:{}, mapSeedAt:null, matchNotes:{} };
 
   function normalizeState(parsed){
     var st = clone(DEFAULT_STATE);
@@ -123,6 +123,7 @@
       st.results = (parsed.results && typeof parsed.results === "object") ? parsed.results : {};
       st.mapSeed = (parsed.mapSeed && typeof parsed.mapSeed === "object") ? parsed.mapSeed : {};
       st.mapSeedAt = parsed.mapSeedAt || null;
+      st.matchNotes = (parsed.matchNotes && typeof parsed.matchNotes === "object") ? parsed.matchNotes : {};
       if(parsed.teams && typeof parsed.teams === "object" && Object.keys(parsed.teams).length){
         st.teams = parsed.teams;
       }
