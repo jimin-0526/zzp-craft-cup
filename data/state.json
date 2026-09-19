@@ -1649,105 +1649,39 @@
     "0-15": {
       "map": "14595392",
       "first": "b"
+    },
+    "1-0": {
+      "map": "14595392",
+      "first": "a"
+    },
+    "1-1": {
+      "map": "15836805",
+      "first": "b"
+    },
+    "1-2": {
+      "map": "15836805",
+      "first": "b"
+    },
+    "1-3": {
+      "map": "25183322",
+      "first": "a"
+    },
+    "1-4": {
+      "map": "14595392",
+      "first": "b"
+    },
+    "1-5": {
+      "map": "14595392",
+      "first": "a"
+    },
+    "1-6": {
+      "map": "14595392",
+      "first": "b"
+    },
+    "1-7": {
+      "map": "25183322",
+      "first": "a"
     }
   },
-  "mapSeedAt": "2026-09-18T12:01:57.124Z",
-  "matchNotes": {
-    "0-0": {
-      "time": "오후 3시",
-      "room": "staff",
-      "done": false,
-      "memo": ""
-    },
-    "0-1": {
-      "time": "새벽 1시 30분",
-      "room": "self",
-      "done": true,
-      "memo": "관전함!"
-    },
-    "0-2": {
-      "time": "밤 12시 30분",
-      "room": "staff",
-      "done": true,
-      "memo": ""
-    },
-    "0-3": {
-      "time": "오후 3시 50분",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-4": {
-      "time": "오후 2시 30분",
-      "room": "self",
-      "done": false,
-      "memo": "관전함!"
-    },
-    "0-5": {
-      "time": "오후 3시",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-6": {
-      "time": "오후 4시",
-      "room": "none",
-      "done": false,
-      "memo": "10분이라도 확인 중"
-    },
-    "0-7": {
-      "time": "",
-      "room": "none",
-      "done": true,
-      "memo": "부전승"
-    },
-    "0-8": {
-      "time": "오후 3시 30분",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-9": {
-      "time": "오후 3시",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-10": {
-      "time": "오후 4시",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-11": {
-      "time": "오후 4시",
-      "room": "none",
-      "done": false,
-      "memo": "한 팀 연락 안 됨"
-    },
-    "0-12": {
-      "time": "오후 4시",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-13": {
-      "time": "오후 3시",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-14": {
-      "time": "오후 4시",
-      "room": "self",
-      "done": false,
-      "memo": ""
-    },
-    "0-15": {
-      "time": "오후 3시 40분",
-      "room": "staff",
-      "done": false,
-      "memo": ""
-    }
-  }
+  "mapSeedAt": "2026-09-19T07:06:48.657Z"
 }
