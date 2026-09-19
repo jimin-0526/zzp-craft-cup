@@ -513,7 +513,56 @@
         "a"
       ],
       "w": null,
-      "score": null
+      "score": null,
+      "gameStats": [
+        {
+          "a": [
+            {
+              "nick": "ĪīīēōīŪ",
+              "kills": 10,
+              "dmg": 2140
+            },
+            {
+              "nick": "아웃패밀리미옥",
+              "kills": 8,
+              "dmg": 2175
+            },
+            {
+              "nick": "qpqpqpį",
+              "kills": 7,
+              "dmg": 2109
+            },
+            {
+              "nick": "Necrxquality",
+              "kills": 10,
+              "dmg": 1704
+            }
+          ],
+          "b": [
+            {
+              "nick": "17ŪLilghost",
+              "kills": 6,
+              "dmg": 1651
+            },
+            {
+              "nick": "ĪŪūōĒ",
+              "kills": 10,
+              "dmg": 1933
+            },
+            {
+              "nick": "정글은코크",
+              "kills": 11,
+              "dmg": 2849
+            },
+            {
+              "nick": "ūūYxun",
+              "kills": 3,
+              "dmg": 1278
+            }
+          ]
+        }
+      ],
+      "statsSaved": true
     }
   },
   "teams": {
