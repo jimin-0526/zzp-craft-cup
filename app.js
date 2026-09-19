@@ -1023,10 +1023,10 @@
         }
         if(isAdmin && m.a && m.b){
           var doneF = !!m.winner;
+          var hasGamesF = games.length > 0;
           list += '<div class="final-controls">'
-            + (doneF
-              ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>'
-              : '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">매치 '+(games.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>')
+            + (!doneF ? '<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.78rem;color:var(--ink-faint);">매치 '+(games.length+1)+' 결과: 위에서 이긴 팀을 눌러 기록하세요 (2선승)</span>' : '')
+            + (hasGamesF ? '<button type="button" class="btn btn-ghost btn-sm" data-action="final-reset">'+iconRefresh(15)+' 결승 기록 초기화</button>' : '')
             + '</div>';
         }
         continue;
