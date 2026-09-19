@@ -250,7 +250,54 @@
     "0-5": {
       "w": "b",
       "bye": false,
-      "score": "4:10"
+      "score": "4:10",
+      "stats": {
+        "a": [
+          {
+            "nick": "ZPـRAM1",
+            "kills": 1,
+            "dmg": 1002
+          },
+          {
+            "nick": "TAPTICـGxs",
+            "kills": 5,
+            "dmg": 1684
+          },
+          {
+            "nick": "VAL・泰心",
+            "kills": 8,
+            "dmg": 1692
+          },
+          {
+            "nick": "NNūEnslaght",
+            "kills": 3,
+            "dmg": 2230
+          }
+        ],
+        "b": [
+          {
+            "nick": "ĪīīēōīŪ",
+            "kills": 7,
+            "dmg": 1111
+          },
+          {
+            "nick": "아웃패밀리미옥",
+            "kills": 12,
+            "dmg": 1476
+          },
+          {
+            "nick": "qpqpqpį",
+            "kills": 12,
+            "dmg": 2640
+          },
+          {
+            "nick": "Necrxquality",
+            "kills": 10,
+            "dmg": 2678
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
