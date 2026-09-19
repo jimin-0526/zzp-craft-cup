@@ -302,7 +302,54 @@
     "0-13": {
       "w": "b",
       "bye": false,
-      "score": "4:10"
+      "score": "4:10",
+      "stats": {
+        "a": [
+          {
+            "nick": "뽀은수",
+            "kills": 5,
+            "dmg": 1741
+          },
+          {
+            "nick": "KGـOrca1",
+            "kills": 7,
+            "dmg": 1175
+          },
+          {
+            "nick": "XII丶JiNPinG",
+            "kills": 8,
+            "dmg": 2110
+          },
+          {
+            "nick": "FS・SzTxT",
+            "kills": 5,
+            "dmg": 1934
+          }
+        ],
+        "b": [
+          {
+            "nick": "FSـMahito",
+            "kills": 11,
+            "dmg": 2936
+          },
+          {
+            "nick": "DGـChuxz",
+            "kills": 7,
+            "dmg": 1653
+          },
+          {
+            "nick": "KXـYuki",
+            "kills": 9,
+            "dmg": 1800
+          },
+          {
+            "nick": "WSـYETI",
+            "kills": 14,
+            "dmg": 2163
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
