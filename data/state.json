@@ -402,6 +402,11 @@
       "w": "a",
       "bye": true,
       "score": null
+    },
+    "0-10": {
+      "w": "a",
+      "bye": true,
+      "score": null
     }
   },
   "teams": {
