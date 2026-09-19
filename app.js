@@ -1382,14 +1382,14 @@
       var note = it.note;
       var rowCls = ["mn-row"];
       if(note.done) rowCls.push("mn-done");
-      if(note.room==="self" && !note.done) rowCls.push("mn-self-room");
+      if(note.room==="staff" && !note.done) rowCls.push("mn-staff-room");
       var rid = matchNoteRound+"-"+it.i;
       return '<tr class="'+rowCls.join(" ")+'">'
         + '<td class="mono">M'+it.num+'</td>'
         + '<td class="tname">'+it.matchup+'</td>'
         + '<td><input type="text" class="mn-field mn-time" id="mn-time-'+rid+'" value="'+escapeHtml(note.time)+'" placeholder="예: 오후 2시"></td>'
-        + '<td><select class="mn-field mn-room" id="mn-room-'+rid+'" onchange="this.closest(\'tr\').classList.toggle(\'mn-self-room\', this.value===\'self\' && !this.closest(\'tr\').classList.contains(\'mn-done\'))">'+roomOptsHtml(note.room)+'</select></td>'
-        + '<td class="mn-done-cell"><input type="checkbox" class="mn-field mn-done-check" id="mn-done-'+rid+'"'+(note.done?" checked":"")+' onchange="this.closest(\'tr\').classList.toggle(\'mn-done\', this.checked); if(this.checked) this.closest(\'tr\').classList.remove(\'mn-self-room\');"></td>'
+        + '<td><select class="mn-field mn-room" id="mn-room-'+rid+'" onchange="this.closest(\'tr\').classList.toggle(\'mn-staff-room\', this.value===\'staff\' && !this.closest(\'tr\').classList.contains(\'mn-done\'))">'+roomOptsHtml(note.room)+'</select></td>'
+        + '<td class="mn-done-cell"><input type="checkbox" class="mn-field mn-done-check" id="mn-done-'+rid+'"'+(note.done?" checked":"")+' onchange="this.closest(\'tr\').classList.toggle(\'mn-done\', this.checked); if(this.checked) this.closest(\'tr\').classList.remove(\'mn-staff-room\');"></td>'
         + '<td><input type="text" class="mn-field mn-memo" id="mn-memo-'+rid+'" value="'+escapeHtml(note.memo)+'" placeholder="추가 메모"></td>'
         + '</tr>';
     }).join("");
@@ -1398,7 +1398,7 @@
       + '<div class="admin-notes">'
       +   '<div class="admin-banner"><span class="lbl">📋 매치 일정 메모 · 관리자만 보임</span></div>'
       +   '<div class="round-tabs" style="margin:12px 0;">'+tabs+'</div>'
-      +   '<div class="mn-legend"><span class="mn-legend-item mn-legend-self">내가 방 개설해야 함</span><span class="mn-legend-item mn-legend-done">완료 · 저장하면 목록 아래로 이동</span></div>'
+      +   '<div class="mn-legend"><span class="mn-legend-item mn-legend-staff">운영진(나)이 방 개설해야 함</span><span class="mn-legend-item mn-legend-done">완료 · 저장하면 목록 아래로 이동</span></div>'
       +   '<div class="admin-table-wrap"><table class="admin-table mn-table">'
       +     '<thead><tr><th>매치</th><th>대진</th><th>시간</th><th>방 개설</th><th>완료</th><th>메모</th></tr></thead>'
       +     '<tbody>'+rowsHtml+'</tbody>'

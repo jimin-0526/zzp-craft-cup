@@ -401,13 +401,13 @@ table.admin-table .uid{ color:var(--ink-faint); }
 .mn-memo{ min-width:160px; }
 .mn-done-cell{ text-align:center; }
 .mn-done-check{ width:18px; height:18px; accent-color:var(--accent); cursor:pointer; }
-.mn-row.mn-self-room{ background:rgba(224,128,99,0.1); box-shadow:inset 3px 0 0 #e08063; }
-.mn-row.mn-self-room td.tname{ color:#e08063; }
+.mn-row.mn-staff-room{ background:rgba(224,128,99,0.1); box-shadow:inset 3px 0 0 #e08063; }
+.mn-row.mn-staff-room td.tname{ color:#e08063; }
 .mn-row.mn-done{ opacity:0.5; }
 .mn-row.mn-done td.tname{ text-decoration:line-through; }
 .mn-legend{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:10px; font-family:"JetBrains Mono",monospace; font-size:0.68rem; color:var(--ink-faint); }
 .mn-legend-item::before{ content:""; display:inline-block; width:9px; height:9px; margin-right:6px; vertical-align:middle; }
-.mn-legend-self::before{ background:#e08063; }
+.mn-legend-staff::before{ background:#e08063; }
 .mn-legend-done::before{ background:var(--ink-faint); border-radius:50%; }
 
 /* ---------- footer ---------- */
