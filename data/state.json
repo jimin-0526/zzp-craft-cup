@@ -1462,19 +1462,19 @@
       "time": "오후 4시",
       "room": "self",
       "done": false,
-      "memo": "10분이라도 확인 중"
+      "memo": ""
     },
     "0-11": {
-      "time": "오후 2시",
+      "time": "오후 4시",
       "room": "none",
       "done": false,
-      "memo": "확인 중"
+      "memo": "한 팀 연락 안 됨"
     },
     "0-12": {
       "time": "오후 4시",
       "room": "self",
       "done": false,
-      "memo": "10분이라도 확인 중"
+      "memo": ""
     },
     "0-13": {
       "time": "오후 3시",
@@ -1486,7 +1486,7 @@
       "time": "오후 4시",
       "room": "staff",
       "done": false,
-      "memo": "상대팀 개설 가능 여부 확인 중"
+      "memo": ""
     },
     "0-15": {
       "time": "오후 3시 40분",
