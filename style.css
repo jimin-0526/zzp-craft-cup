@@ -608,6 +608,16 @@ footer .foot-admin:hover{ color:var(--accent); }
   .lb-podium-card.rank-1{ order:1; }
   .lb-podium-card.rank-2{ order:2; }
   .lb-podium-card.rank-3{ order:3; }
+
+  /* match/map-seed rows: side-by-side flex squeezes team names down to
+     1-2 letters + ellipsis on phone widths — stack them instead so each
+     team gets the full row width and the name is actually readable. */
+  .rmatch{ flex-direction:column; }
+  .rside, .mapseed-side{ width:100%; padding:14px 16px; }
+  .rside.right, .mapseed-side.right{ flex-direction:row; text-align:left; }
+  .rside .rname, .mapseed-side .rname{ white-space:normal; overflow:visible; text-overflow:clip; }
+  .rmid{ flex-direction:row; width:100%; min-width:0; min-height:auto;
+    border-left:none; border-right:none; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
 }
 @media (max-width:480px){
   .sync-pill .sync-label{ display:none; }
