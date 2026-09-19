@@ -507,6 +507,13 @@
       "w": "b",
       "bye": false,
       "score": null
+    },
+    "4-0": {
+      "games": [
+        "a"
+      ],
+      "w": null,
+      "score": null
     }
   },
   "teams": {
