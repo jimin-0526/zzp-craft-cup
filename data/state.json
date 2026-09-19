@@ -497,6 +497,11 @@
       "w": "b",
       "bye": true,
       "score": null
+    },
+    "3-0": {
+      "w": "b",
+      "bye": false,
+      "score": null
     }
   },
   "teams": {
@@ -1807,5 +1812,6 @@
       "first": "b"
     }
   },
-  "mapSeedAt": "2026-09-19T09:39:32.531Z"
+  "mapSeedAt": "2026-09-19T09:39:32.531Z",
+  "matchNotes": {}
 }
