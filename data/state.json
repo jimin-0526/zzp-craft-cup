@@ -198,7 +198,54 @@
     "0-0": {
       "w": "b",
       "bye": false,
-      "score": "5:9"
+      "score": "5:9",
+      "stats": {
+        "a": [
+          {
+            "nick": "야옹이츄르뺏기",
+            "kills": 3,
+            "dmg": 1111
+          },
+          {
+            "nick": "ūŌ지ūū",
+            "kills": 8,
+            "dmg": 2138
+          },
+          {
+            "nick": "ū현준",
+            "kills": 1,
+            "dmg": 754
+          },
+          {
+            "nick": "Ray4٭Xeravis",
+            "kills": 10,
+            "dmg": 2734
+          }
+        ],
+        "b": [
+          {
+            "nick": "CG_YUCA",
+            "kills": 13,
+            "dmg": 2692
+          },
+          {
+            "nick": "CG_GuSok",
+            "kills": 9,
+            "dmg": 2067
+          },
+          {
+            "nick": "CG_Shun",
+            "kills": 5,
+            "dmg": 1278
+          },
+          {
+            "nick": "CG_Clutch",
+            "kills": 9,
+            "dmg": 1736
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
