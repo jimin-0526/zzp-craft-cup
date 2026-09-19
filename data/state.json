@@ -397,6 +397,11 @@
         ]
       },
       "statsSaved": true
+    },
+    "0-12": {
+      "w": "a",
+      "bye": true,
+      "score": null
     }
   },
   "teams": {
@@ -1683,5 +1688,6 @@
       "first": "a"
     }
   },
-  "mapSeedAt": "2026-09-19T07:06:48.657Z"
+  "mapSeedAt": "2026-09-19T07:06:48.657Z",
+  "matchNotes": {}
 }
