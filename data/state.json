@@ -1396,5 +1396,103 @@
       "first": "b"
     }
   },
-  "mapSeedAt": "2026-09-18T12:01:57.124Z"
+  "mapSeedAt": "2026-09-18T12:01:57.124Z",
+  "matchNotes": {
+    "0-0": {
+      "time": "오후 2~3시",
+      "room": "none",
+      "done": false,
+      "memo": ""
+    },
+    "0-1": {
+      "time": "새벽 1시 30분",
+      "room": "self",
+      "done": true,
+      "memo": "관전"
+    },
+    "0-2": {
+      "time": "밤 12시 30분",
+      "room": "staff",
+      "done": true,
+      "memo": ""
+    },
+    "0-3": {
+      "time": "전남 3시 / 상대팀 불가",
+      "room": "none",
+      "done": false,
+      "memo": "10분이라도 확인 중"
+    },
+    "0-4": {
+      "time": "오후 2시 30분",
+      "room": "self",
+      "done": false,
+      "memo": ""
+    },
+    "0-5": {
+      "time": "오후 3시",
+      "room": "none",
+      "done": false,
+      "memo": ""
+    },
+    "0-6": {
+      "time": "한팀 3시 30분 / 한팀 4시",
+      "room": "none",
+      "done": false,
+      "memo": "10분이라도 확인 중"
+    },
+    "0-7": {
+      "time": "",
+      "room": "none",
+      "done": true,
+      "memo": "부전승"
+    },
+    "0-8": {
+      "time": "오후 3시 30분",
+      "room": "none",
+      "done": false,
+      "memo": "확인 중"
+    },
+    "0-9": {
+      "time": "오후 3시",
+      "room": "none",
+      "done": false,
+      "memo": ""
+    },
+    "0-10": {
+      "time": "오후 4시",
+      "room": "none",
+      "done": false,
+      "memo": "10분이라도 확인 중"
+    },
+    "0-11": {
+      "time": "오후 2시",
+      "room": "none",
+      "done": false,
+      "memo": "확인 중"
+    },
+    "0-12": {
+      "time": "오후 4시",
+      "room": "none",
+      "done": false,
+      "memo": "10분이라도 확인 중"
+    },
+    "0-13": {
+      "time": "오후 3시",
+      "room": "self",
+      "done": false,
+      "memo": ""
+    },
+    "0-14": {
+      "time": "오후 4시",
+      "room": "none",
+      "done": false,
+      "memo": "10분이라도 확인 중"
+    },
+    "0-15": {
+      "time": "오후 3시 40분",
+      "room": "staff",
+      "done": false,
+      "memo": ""
+    }
+  }
 }
