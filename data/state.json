@@ -1448,9 +1448,9 @@
     },
     "0-8": {
       "time": "오후 3시 30분",
-      "room": "none",
+      "room": "self",
       "done": false,
-      "memo": "확인 중"
+      "memo": ""
     },
     "0-9": {
       "time": "오후 3시",
