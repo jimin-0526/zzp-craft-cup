@@ -510,9 +510,10 @@
     },
     "4-0": {
       "games": [
+        "a",
         "a"
       ],
-      "w": null,
+      "w": "a",
       "score": null,
       "gameStats": [
         {
