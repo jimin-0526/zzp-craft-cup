@@ -146,7 +146,54 @@
     "0-4": {
       "w": "b",
       "bye": false,
-      "score": "3:11"
+      "score": "3:11",
+      "stats": {
+        "a": [
+          {
+            "nick": "Hito2ruka٭͜",
+            "kills": 1,
+            "dmg": 1298
+          },
+          {
+            "nick": "WACـINSAENGū",
+            "kills": 4,
+            "dmg": 1240
+          },
+          {
+            "nick": "AGPnostal",
+            "kills": 5,
+            "dmg": 2072
+          },
+          {
+            "nick": "WACـReign9",
+            "kills": 3,
+            "dmg": 946
+          }
+        ],
+        "b": [
+          {
+            "nick": "ACLـimpact",
+            "kills": 10,
+            "dmg": 1788
+          },
+          {
+            "nick": "RMـSyZen",
+            "kills": 19,
+            "dmg": 2289
+          },
+          {
+            "nick": "VS・Breaker",
+            "kills": 9,
+            "dmg": 1732
+          },
+          {
+            "nick": "SGـNightmare",
+            "kills": 8,
+            "dmg": 2069
+          }
+        ]
+      },
+      "statsSaved": true
     }
   },
   "teams": {
