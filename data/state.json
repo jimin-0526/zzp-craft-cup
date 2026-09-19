@@ -482,6 +482,11 @@
       "w": "b",
       "bye": false,
       "score": "3:8"
+    },
+    "2-1": {
+      "w": "a",
+      "bye": false,
+      "score": "8:6"
     }
   },
   "teams": {
