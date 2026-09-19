@@ -150,6 +150,17 @@
   function teamOf(id, st){ return st.teams[String(id)] || {name:"?", confirmed:true, players:[]}; }
   function teamName(id, st){ return id ? teamOf(id, st).name : null; }
 
+  // Public player list for a team — masks "후보" to "팀원" since which
+  // slot is the substitute isn't public info. Shared by the roster modal
+  // and the bracket's inline "팀원 보기" toggle.
+  function playerRowsHtml(team){
+    var rows = team.players.filter(function(p){ return p.nick; }).map(function(p){
+      var publicRole = p.role==="후보" ? "팀원" : p.role;
+      return '<div class="player-row'+(p.role==="팀장"?" captain":"")+'"><span class="role mono">'+escapeHtml(publicRole)+'</span><span class="nick">'+escapeHtml(p.nick)+'</span></div>';
+    }).join("");
+    return rows || '<div class="empty-note">등록된 선수 정보가 없습니다.</div>';
+  }
+
   // Shared "resolve this match slot's display name, or TBD" lookup used by
   // every side-of-a-match renderer (round view, final best-of-3, map & seed).
   function matchSlotName(m, slot, st){
@@ -599,6 +610,9 @@
   function iconDice(size){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/></svg>';
   }
+  function iconChevron(size){
+    return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  }
   function iconPencil(size){
     return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
   }
@@ -776,6 +790,7 @@
   var leaderboardGameIdx = 0;
   var matchNoteRound = 0;
   var matchNotesEditing = false;
+  var expandedRosterMatches = {}; // key "r-i" -> true, inline team-roster toggle in the round view
 
   function championBanner(st){
     var champId = championOf(st);
@@ -955,6 +970,20 @@
     return '<button type="button" class="stat-icon'+(hasStatsData?" has-data":"")+'" data-action="open-stats" data-r="'+r+'" data-i="'+i+'" aria-label="'+(hasStatsData?"선수 기록 보기":"선수 기록 입력")+'">'+iconBarChart(14)+'</button>';
   }
 
+  function rosterToggleHtml(r, i, expanded){
+    return '<button type="button" class="roster-toggle'+(expanded?" open":"")+'" data-action="toggle-match-roster" data-r="'+r+'" data-i="'+i+'">'
+      + (expanded ? "팀원 접기" : "팀원 보기") + ' ' + iconChevron(12)
+      + '</button>';
+  }
+
+  function matchRosterPanelHtml(m, st){
+    var teamA = teamOf(m.a, st), teamB = teamOf(m.b, st);
+    return '<div class="roster-inline">'
+      +   '<div class="roster-inline-col"><div class="stats-team-title side-a">'+escapeHtml(teamA.name)+'</div>'+playerRowsHtml(teamA)+'</div>'
+      +   '<div class="roster-inline-col"><div class="stats-team-title side-b">'+escapeHtml(teamB.name)+'</div>'+playerRowsHtml(teamB)+'</div>'
+      + '</div>';
+  }
+
   function renderRoundView(st){
     var tabs = "";
     for(var r=0;r<5;r++){
@@ -1004,6 +1033,8 @@
       }
 
       var mid = '<div class="rmid">'+(m.bye ? '<span class="bye-tag">부전승</span>' : ((m.score ? scoreGridHtml(m.score,":") : '<span class="vs">VS</span>')+statIconHtml(selectedRound,ii,false,st)))+'</div>';
+      var rosterKey = selectedRound+"-"+ii;
+      var rosterExpanded = !!expandedRosterMatches[rosterKey];
       list += '<div class="rmatch-wrap">'
         + (selectedRound>=2 ? '<span class="live-badge"><span class="dot"></span>방송 송출</span>' : '')
         + '<div class="rmatch cut-sm">'
@@ -1011,6 +1042,8 @@
         +   mid
         +   rsideHtml(m,"b",selectedRound,ii,st)
         + '</div>'
+        + (m.a && m.b ? rosterToggleHtml(selectedRound, ii, rosterExpanded) : '')
+        + (rosterExpanded ? matchRosterPanelHtml(m, st) : '')
         + '</div>';
     }
 
@@ -1689,11 +1722,7 @@
         +   '</div>'
         + '</div>';
     }
-    var playerRows = team.players.filter(function(p){ return p.nick; }).map(function(p,idx){
-      var publicRole = p.role==="후보" ? "팀원" : p.role;
-      return '<div class="player-row'+(p.role==="팀장"?" captain":"")+'"><span class="role mono">'+escapeHtml(publicRole)+'</span><span class="nick">'+escapeHtml(p.nick)+'</span></div>';
-    }).join("");
-    if(!playerRows) playerRows = '<div class="empty-note">등록된 선수 정보가 없습니다.</div>';
+    var playerRows = playerRowsHtml(team);
     return ''
       + '<div class="modal-backdrop">'
       +   '<div class="modal-panel cut-tr">'
@@ -2099,6 +2128,13 @@
     if(mnRoundBtn){ matchNoteRound = +mnRoundBtn.dataset.round; render(); return; }
     var saveNotesBtn = e.target.closest('[data-action="save-match-notes"]');
     if(saveNotesBtn){ saveMatchNotes(+saveNotesBtn.dataset.round); return; }
+    var rosterToggleBtn = e.target.closest('[data-action="toggle-match-roster"]');
+    if(rosterToggleBtn){
+      var rosterKey = rosterToggleBtn.dataset.r+"-"+rosterToggleBtn.dataset.i;
+      expandedRosterMatches[rosterKey] = !expandedRosterMatches[rosterKey];
+      render();
+      return;
+    }
   });
 
   document.addEventListener("keydown", function(e){

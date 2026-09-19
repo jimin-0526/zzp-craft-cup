@@ -344,6 +344,15 @@ svg.connectors path.done{ stroke:var(--accent); stroke-width:2; filter:drop-shad
 .stat-icon:hover{ color:var(--accent); border-color:var(--accent); }
 .stat-icon.has-data{ color:var(--accent); border-color:rgba(57,209,90,0.5); }
 
+.roster-toggle{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%;
+  padding:9px; border:1px solid var(--border); border-top:none; background:var(--surface-2); color:var(--ink-faint);
+  font-family:"JetBrains Mono",monospace; font-size:0.7rem; letter-spacing:.04em; cursor:pointer; }
+.roster-toggle:hover{ color:var(--accent); }
+.roster-toggle svg{ transition:transform .15s ease; }
+.roster-toggle.open svg{ transform:rotate(180deg); }
+.roster-inline{ display:flex; gap:24px; border:1px solid var(--border); border-top:none; background:var(--bg-soft); padding:16px 20px 18px; }
+.roster-inline-col{ flex:1; min-width:0; }
+
 /* ---------- roster ---------- */
 .roster-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(228px, 1fr)); gap:16px; }
 .roster-card{
@@ -642,6 +651,8 @@ footer .foot-admin:hover{ color:var(--accent); }
   .mapseed-side .rname{ white-space:normal; overflow:hidden; text-overflow:ellipsis; width:100%;
     display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-height:1.24; font-size:0.92rem; }
   .mapseed-map{ font-size:0.76rem; }
+
+  .roster-inline{ flex-direction:column; gap:16px; padding:14px 16px 16px; }
 }
 @media (max-width:480px){
   .sync-pill .sync-label{ display:none; }
