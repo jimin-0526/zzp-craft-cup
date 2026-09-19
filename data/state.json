@@ -457,6 +457,11 @@
       "w": "a",
       "bye": false,
       "score": "10:4"
+    },
+    "1-6": {
+      "w": "b",
+      "bye": false,
+      "score": "5:9"
     }
   },
   "teams": {
